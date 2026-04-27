@@ -513,14 +513,14 @@
       <button class="name-modal-btn" onclick="obFinish()" id="obNotifBtn">Terminer</button>
     </div>
 
-    <!-- Step 4: Activer les notifications -->
+    <!-- Step 4: Enable notifications -->
     <div id="ob-step-4" style="display:none;text-align:center;">
       <div style="display:flex;justify-content:center;margin-bottom:16px;">
         <span style="display:inline-flex;width:56px;height:56px;color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8 a16 16 0 0 1 16 16 v12 l6 8 H10 l6 -8 V24 a16 16 0 0 1 16 -16 Z"/><path d="M26 52 a6 6 0 0 0 12 0"/><line x1="32" y1="8" x2="32" y2="4"/></svg></span>
       </div>
-      <div class="name-modal-title" id="obNotifActivateTitle">Activer les notifications</div>
+      <div class="name-modal-title" id="obNotifActivateTitle">Enable notifications</div>
       <div class="name-modal-sub" id="obNotifActivateSub">Recevez des alertes en temps réel sur votre téléphone lors des levées de ponts.</div>
-      <button class="name-modal-btn" id="obActivateBtn" onclick="obActivateNotifs()">Activer les notifications</button>
+      <button class="name-modal-btn" id="obActivateBtn" onclick="obActivateNotifs()">Enable notifications</button>
       <button class="name-modal-skip" onclick="obSkipNotifs()" id="obSkipNotifsBtn">Plus tard</button>
     </div>
 
@@ -983,23 +983,21 @@
   <!-- WebView banner (Facebook/Instagram browser) -->
   <!-- Unified install modal -->
   <button class="notify-btn" id="notifyBtn" onclick="toggleNotifications()" aria-hidden="true" style="display:none;">
-    Activer les notifications
+    Enable notifications
   </button>
 
   <!-- Install CTA on main page — shown only when not subscribed -->
   <div id="mainInstallBanner" style="display:none;width:100%;margin-top:8px;margin-bottom:24px;position:relative;z-index:1;">
     <button onclick="mainCtaAction()" style="width:100%;padding:15px;border-radius:50px;border:none;background:var(--accent);color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;gap:8px;">
-      <span style="display:inline-flex;align-items:center;width:22px;height:22px;flex-shrink:0;color:#fff;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"> <path d="M32 8 a16 16 0 0 1 16 16 v12 l6 8 H10 l6 -8 V24 a16 16 0 0 1 16 -16 Z"/> <path d="M26 52 a6 6 0 0 0 12 0"/> <line x1="32" y1="8" x2="32" y2="4"/> </svg></span><span id="mainInstallLabel">Activer les notifications</span>
+      <span style="display:inline-flex;align-items:center;width:22px;height:22px;flex-shrink:0;color:#fff;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"> <path d="M32 8 a16 16 0 0 1 16 16 v12 l6 8 H10 l6 -8 V24 a16 16 0 0 1 16 -16 Z"/> <path d="M26 52 a6 6 0 0 0 12 0"/> <line x1="32" y1="8" x2="32" y2="4"/> </svg></span><span id="mainInstallLabel">Enable notifications</span>
     </button>
-    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:7px;font-family:var(--mono);" id="mainInstallSub">Recevez des alertes lors des levées de ponts</p>
+    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:7px;font-family:var(--mono);" id="mainInstallSub">Get alerts when bridges lift</p>
   </div>
 
   <!-- Milestone banner — replaces donation card header contextually -->
   <div id="milestoneBanner" style="display:none;margin-bottom:0;"></div>
 
   <!-- Fun facts section -->
-  <div id="funFactCard" style="margin:24px 0 16px;background:var(--surface);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border:1px solid var(--border);">
-    <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--accent);font-family:var(--mono);margin-bottom:8px;" id="funFactLabel">SAVIEZ-VOUS QUE ?</div>
     <div style="font-size:14px;color:var(--text);font-family:var(--sans);line-height:1.65;" id="funFactText"></div>
   </div>
 
@@ -1656,9 +1654,9 @@ function showNameModalIfNeeded(){
   if(document.getElementById('obNtAchalandageDesc')) document.getElementById('obNtAchalandageDesc').textContent=false?'Alerte 30 min avant une période historiquement chargée en levées.':'Alert 30 min before a historically busy period.';
   if(document.getElementById('obNotifBtn')) document.getElementById('obNotifBtn').textContent=false?'Terminer':'Done';
   // Step 4 labels
-  if(document.getElementById('obNotifActivateTitle')) document.getElementById('obNotifActivateTitle').textContent=false?'Activer les notifications':'Enable notifications';
+  if(document.getElementById('obNotifActivateTitle')) document.getElementById('obNotifActivateTitle').textContent=false?'Enable notifications':'Enable notifications';
   if(document.getElementById('obNotifActivateSub')) document.getElementById('obNotifActivateSub').textContent=false?'Recevez des alertes en temps réel sur votre téléphone lors des levées de ponts.':'Receive real-time alerts on your phone when bridges are lifted.';
-  if(document.getElementById('obActivateBtn')) document.getElementById('obActivateBtn').textContent=false?'Activer les notifications':'Enable notifications';
+  if(document.getElementById('obActivateBtn')) document.getElementById('obActivateBtn').textContent=false?'Enable notifications':'Enable notifications';
   if(document.getElementById('obSkipNotifsBtn')) document.getElementById('obSkipNotifsBtn').textContent=false?'Plus tard':'Later';
   // Step 5 labels
   if(document.getElementById('obDoneTitle')) document.getElementById('obDoneTitle').textContent=false?'Vous êtes prêt !':'You\'re all set!';
@@ -1836,19 +1834,19 @@ const TR={
     dt:'Vous aimez l\'app\u00A0?',dd:'Votre soutien garde ce projet vivant et gratuit pour toute la communaut\u00E9.',customDonate:'Donner',customPlaceholder:'Autre montant',kofiLabel:'Soutenir sur Ko-fi',
     it:'\u{1F4F2} Installer l\'app',is:'Installez l\'app pour recevoir des notifications lors des levages',
     installBannerLabel:'Installer l\'app',installBannerSub:'Recevez des notifications sur votre \u00E9cran d\u2019accueil',
-    mainCtaLabel:'Activer les notifications',mainCtaSub:'Recevez des alertes lors des lev\u00E9es de ponts',
+    mainCtaLabel:'Enable notifications',mainCtaSub:'Get alerts when bridges lift',
     webviewTitle:'Ouvrir dans votre navigateur',
     webviewSub:'Pour installer l\'app et recevoir des notifications, ouvrez cette page dans votre navigateur.',
     wvAnd1:'Appuyez sur <strong>\u22EE</strong> en haut à droite',
     wvAnd2:'Sélectionnez <strong>Ouvrir dans Chrome</strong>',
     wvIos1:'Appuyez sur <strong>\u00B7\u00B7\u00B7</strong> en bas à droite',
     wvIos2:'Sélectionnez <strong>Ouvrir dans Safari</strong>',
-    nb:'\u{1F514} Activer les notifications',ub:'D\u00E9sactiver les notifications',
+    nb:'\u{1F514} Enable notifications',ub:'Disable notifications',
     lb:'EN',ll2:'Switch to English',
     re:'R\u00E9essayer',rc:'Reconnexion',se:'Serveur indisponible.',
     pd:'Permission refus\u00E9e. V\u00E9rifiez les param\u00E8tres de notifications de votre appareil.',
     ns:'Les notifications ne sont pas support\u00E9es sur votre appareil.',
-    ia:'Pour activer les notifications sur iPhone\u00A0:\n\n1. Appuyez sur Partager\n2. S\u00E9lectionnez "Sur l\u00B4\u00E9cran d\u00B4accueil"\n3. Ouvrez l\u00B4app depuis votre \u00E9cran d\u00B4accueil\n4. Appuyez \u00E0 nouveau sur Activer les notifications',
+    ia:'Pour activer les notifications sur iPhone\u00A0:\n\n1. Appuyez sur Partager\n2. S\u00E9lectionnez "Sur l\u00B4\u00E9cran d\u00B4accueil"\n3. Ouvrez l\u00B4app depuis votre \u00E9cran d\u00B4accueil\n4. Appuyez \u00E0 nouveau sur Enable notifications',
     i1:'Appuyez sur <strong>Partager</strong> &#x2B06;&#xFE0F; en bas de Safari',
     i2:'S\u00E9lectionnez <strong>Sur l\u2019\u00E9cran d\u2019accueil</strong>',
     i3:'Appuyez sur <strong>Ajouter</strong> en haut \u00E0 droite',
@@ -2635,7 +2633,7 @@ function applyTrans(){
   if(cll) cll.textContent=false?'Commentaires ou suggestions':'Feedback or suggestions';
   const ibl=document.getElementById('installBannerLabel');if(ibl)ibl.textContent=t.installBannerLabel||(false?'Installer l\'app':'Install the app');
   const ibs=document.getElementById('installBannerSub');if(ibs)ibs.textContent=t.installBannerSub||(false?'Recevez des notifications sur votre \u00e9cran d\u2019accueil':'Get notifications on your home screen');
-  const mil=document.getElementById('mainInstallLabel');if(mil)mil.textContent=t.mainCtaLabel||(false?'Activer les notifications':'Enable notifications');
+  const mil=document.getElementById('mainInstallLabel');if(mil)mil.textContent=t.mainCtaLabel||(false?'Enable notifications':'Enable notifications');
   const mis=document.getElementById('mainInstallSub');if(mis)mis.textContent=t.mainCtaSub||(false?'Recevez des alertes lors des lev\u00e9es de ponts':'Get alerts for bridge lifts');
   const disc=document.getElementById('disclaimer');if(disc)disc.innerHTML=t.di;
   // Donation modal translation
