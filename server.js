@@ -458,6 +458,10 @@ async function monitor() {
             if (loweringActive[bridge]) {
               last.loweringDurationMin = Math.round((Date.now() - loweringActive[bridge]) / 60000);
             }
+            // Remove false positives (lifts under 2 min)
+            if (last.durationMin < 2) {
+              liftHistory[bridge].pop();
+            }
           }
           loweringActive[bridge] = null;
           await saveHistory(bridge);
@@ -514,6 +518,18 @@ app.get('/debug', async (req, res) => {
   } catch(e) {
     res.json({ error: e.message });
   }
+});
+
+// ── One-shot cleanup: remove lift entries under 2 min ─────────────────
+app.get('/cleanup-history', async (req, res) => {
+  const results = {};
+  for (const id of BRIDGE_IDS) {
+    const before = liftHistory[id].length;
+    liftHistory[id] = liftHistory[id].filter(e => !e.durationMin || e.durationMin >= 2);
+    await saveHistory(id);
+    results[id] = { before, after: liftHistory[id].length };
+  }
+  res.json({ ok: true, results });
 });
 
 // ── Debug subscribers endpoint ────────────────────────────────────────
