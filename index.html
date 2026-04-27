@@ -2494,8 +2494,6 @@ function applyTrans(){
   if(weatherDesc) weatherDesc.textContent=false?'Afficher la m\u00e9t\u00e9o locale dans la salutation.':'Show local weather in the greeting.';
   renderFunFact();
   updatePerBridgeLabels();
-  if(val) val.textContent = false ? 'Assistant vocal' : 'Voice assistant';
-  if(dgl) dgl.textContent = false ? 'Notifications en conduisant' : 'Notifications while driving';
   // Drawer donation section translation
   updateDonationTexts();
   applyDayLabels();
@@ -2544,7 +2542,9 @@ function saveCachedStatus(d) {
 let retries=0;
 async function fetchStatus(){
   try{
-    const r=await fetch(BACKEND+'/status',{signal:AbortSignal.timeout(30000)});
+    const errEl=document.getElementById('errorMsg');
+    if(retries===0 && errEl) errEl.textContent='Connecting…';
+    const r=await fetch(BACKEND+'/status',{signal:AbortSignal.timeout(60000)});
     const d=await r.json();
     // Welland backend returns {bridges:{lakeshore:..., carlton:...}, last_updated:...}
     const bridgeData = d.bridges || d;
@@ -2552,7 +2552,7 @@ async function fetchStatus(){
     lastUpdated=d.last_updated||new Date().toISOString();
     saveCachedStatus(d);
     retries=0;
-    document.getElementById('errorMsg').textContent='';
+    if(errEl) errEl.textContent='';
     for(const b of ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence']){
       if(bridgeData[b]) trackLiftStatus(b, bridgeData[b].status, bridgeData[b].raisedSince);
     }
@@ -2569,7 +2569,7 @@ async function fetchStatus(){
     }
   }catch(e){
     const t=TR['en'];retries++;
-    if(retries<=5){setTimeout(fetchStatus,5000);if(retries>2)document.getElementById('errorMsg').textContent=t.rc+'... ('+retries+'/5)';}
+    if(retries<=10){setTimeout(fetchStatus,5000);if(retries>1)document.getElementById('errorMsg').textContent=t.rc+'… ('+retries+'/10)';}
     else{retries=0;document.getElementById('errorMsg').innerHTML=t.se+' <a href="#" onclick="fetchStatus();return false;">'+t.re+'</a>';}
   }
 }
