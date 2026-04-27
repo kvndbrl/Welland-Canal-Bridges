@@ -534,7 +534,17 @@ app.get('/history', (req, res) => {
   res.set('Cache-Control', 'no-store');
   const result = {};
   for (const id of BRIDGE_IDS) {
-    result[id] = liftHistory[id] || [];
+    const entries = liftHistory[id] || [];
+    const completed = entries.filter(e => e.loweredAt).sort((a, b) => new Date(b.loweredAt) - new Date(a.loweredAt));
+    const lastEntry = completed[0];
+    const durations = completed.filter(e => e.durationMin).map(e => e.durationMin);
+    result[id] = {
+      entries: entries.length,
+      lastLift: lastEntry ? lastEntry.loweredAt : null,
+      avgDuration: durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null,
+      avgLowering: null,
+      raw: entries,
+    };
   }
   res.json(result);
 });
