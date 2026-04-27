@@ -397,7 +397,7 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
     if (!bridges.includes(bridge)) { skippedBridge++; continue; }
 
     const bridgeKey = `notifTypes_${bridge}`;
-    const allowedTypes = sub[bridgeKey] || sub.notifTypes || ['bientot_leve','leve','outage'];
+    const allowedTypes = sub[bridgeKey] || sub.notifTypes || ['bientot_leve','raising','leve','lowering','disponible','outage'];
     const isClosing = status === 'disponible';
     if (!isClosing && !allowedTypes.includes(status)) continue;
 

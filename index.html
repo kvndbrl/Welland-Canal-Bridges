@@ -2158,7 +2158,7 @@ function getSelNotifTypes(){
     return el ? el.checked : false;
   });
   // If nothing selected (e.g. hidden inputs not yet loaded), return safe default
-  return sel.length ? sel : ['bientot_leve','leve','outage'];
+  return sel.length ? sel : ['bientot_leve','raising','leve','lowering','disponible','outage'];
 }
 function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 // Map type key → element ID suffix
@@ -2282,7 +2282,7 @@ function toggleOptionalNotifs(){
 
 function loadNotifTypes(){
   const saved=localStorage.getItem('notifTypes');
-  const SAFE_DEFAULT=['bientot_leve','leve','outage'];
+  const SAFE_DEFAULT=['bientot_leve','raising','leve','lowering','disponible','outage'];
   const types=saved?JSON.parse(saved):SAFE_DEFAULT;
   const active=types.length?types:SAFE_DEFAULT;
   NT_TYPES.forEach(t=>{
