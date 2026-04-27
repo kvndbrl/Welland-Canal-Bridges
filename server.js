@@ -451,10 +451,16 @@ async function monitor() {
 // ── Routes ────────────────────────────────────────────────────────────
 app.get('/debug', async (req, res) => {
   try {
-    const html = await fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgeSCT');
-    // Find all text between > and < that's more than 3 chars
-    const texts = [...html.matchAll(/>([^<]{3,})</g)].map(m => m[1].trim()).filter(Boolean);
-    res.json({ sample: texts.slice(0, 50), length: html.length });
+    const [sctHtml, pcHtml] = await Promise.all([
+      fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgeSCT'),
+      fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC'),
+    ]);
+    function extractTexts(html) {
+      return [...html.matchAll(/>([^<]{2,})</g)]
+        .map(m => m[1].trim())
+        .filter(t => t && !t.startsWith('var ') && !t.startsWith('function ') && !t.includes('{'));
+    }
+    res.json({ sct: extractTexts(sctHtml).slice(0,30), pc: extractTexts(pcHtml).slice(0,30) });
   } catch(e) {
     res.json({ error: e.message });
   }
@@ -531,3 +537,4 @@ app.get('/vapidPublicKey', (req, res) => res.json({ key: VAPID_PUBLIC }));
   monitor();
   setInterval(monitor, 15000);
 })();
+      
