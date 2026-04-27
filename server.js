@@ -538,11 +538,30 @@ app.get('/history', (req, res) => {
     const completed = entries.filter(e => e.loweredAt).sort((a, b) => new Date(b.loweredAt) - new Date(a.loweredAt));
     const lastEntry = completed[0];
     const durations = completed.filter(e => e.durationMin).map(e => e.durationMin);
+
+    // Build heatmap: { "dayOfWeek-hour": count } using raisedAt timestamps
+    const heatmap = {};
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    for (const e of entries) {
+      if (!e.raisedAt) continue;
+      const dt = new Date(e.raisedAt);
+      if (dt.getTime() < cutoff) continue;
+      // Convert to Eastern time
+      const etStr = dt.toLocaleString('en-CA', { timeZone: 'America/Toronto', weekday: 'short', hour: 'numeric', hour12: false });
+      const day = dt.toLocaleDateString('en-CA', { timeZone: 'America/Toronto', weekday: 'short' });
+      const hour = parseInt(dt.toLocaleString('en-CA', { timeZone: 'America/Toronto', hour: 'numeric', hour12: false }));
+      const dayIndex = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(day);
+      if (dayIndex === -1) continue;
+      const key = `${dayIndex}-${hour}`;
+      heatmap[key] = (heatmap[key] || 0) + 1;
+    }
+
     result[id] = {
       entries: entries.length,
       lastLift: lastEntry ? lastEntry.loweredAt : null,
       avgDuration: durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null,
       avgLowering: null,
+      heatmap,
       raw: entries,
     };
   }
