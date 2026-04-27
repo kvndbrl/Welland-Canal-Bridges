@@ -383,7 +383,7 @@
 
 </div>
 
-<div style="position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:2;pointer-events:none;overflow:hidden;" aria-hidden="true">
+<div style="position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:0;pointer-events:none;overflow:hidden;" aria-hidden="true">
   <div class="ship-container" onclick="openSwipeDon()" style="cursor:pointer;">
     <div class="ship-bob">
       <div class="ship-wake"></div>
@@ -1690,6 +1690,7 @@ async function syncPrefs(){
 }
 
 let lastData=null;
+let lastUpdated=null;
 function openDrawer(){
   document.getElementById('settingsDrawer').classList.add('open');
   document.getElementById('settingsDrawer').removeAttribute('aria-hidden');
@@ -2388,7 +2389,7 @@ function updateDisplay(){
         liftsEl.innerHTML=lines.map(l=>`<div>${l}</div>`).join('');
       }
     }
-    if(refreshEl) refreshEl.textContent=formatRefresh(null,'en');
+    if(refreshEl) refreshEl.textContent=formatRefresh(lastUpdated,'en');
   });
   updateCards();
 }
@@ -2568,6 +2569,7 @@ async function fetchStatus(){
     // Welland backend returns {bridges:{lakeshore:..., carlton:...}, last_updated:...}
     const bridgeData = d.bridges || d;
     lastData=bridgeData;
+    lastUpdated=d.last_updated||new Date().toISOString();
     retries=0;
     document.getElementById('errorMsg').textContent='';
     for(const b of ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence']){
