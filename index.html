@@ -1864,7 +1864,7 @@ const TR={
     a2:'Select <strong>Add to Home Screen</strong>',
     a3:'Tap <strong>Add</strong>',
     di:'This app is independent and is not affiliated with the St. Lawrence Seaway Management Corporation or the Great Lakes St. Lawrence Seaway System. Data is sourced from <a href="https://www.seaway-greatlakes.com" target="_blank" rel="noopener noreferrer">seaway-greatlakes.com</a>.',
-    bn:{gonzague:'St-Louis Bridge',larocque:'Larocque Bridge'}
+    bn:{lakeshore:'Lakeshore Rd',carlton:'Carlton St.',queenston:'Queenston St.',glendale:'Glendale Ave.',allanburg:'Highway 20',mainwelland:'Main St.',mellanby:'Mellanby Ave.',clarence:'Clarence St.'}
   }
 };
 
@@ -3120,23 +3120,22 @@ async function fetchLiftHistory() {
     const r = await fetch(BACKEND + '/history?t=' + Date.now(), { cache: 'no-store' });
     const d = await r.json();
     _heatmapData = d;
-    ['gonzague', 'larocque'].forEach(b => {
-      const C = b.charAt(0).toUpperCase() + b.slice(1);
+    ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'].forEach(b => {
+      const C = capitalize(b);
       const el = document.getElementById('lastLift' + C);
       const btn = document.getElementById('heatmapBtn' + C);
       if (!el) return;
       const h = d[b];
       if (!h || !h.lastLift) { el.style.display = 'none'; if(btn) btn.style.display='none'; return; }
       const dt = new Date(h.lastLift);
-      const fmt = dt.toLocaleString(false ? 'fr-CA' : 'en-CA', {
+      const fmt = dt.toLocaleString('en-CA', {
         day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
         timeZone: 'America/Toronto'
       });
-      const label = false ? 'Dernière levée' : 'Last lift';
-      el.textContent = label + ' : ' + fmt;
+      el.textContent = 'Last lift: ' + fmt;
       el.style.display = 'block';
       if(btn && h.entries > 0) btn.style.display = 'inline';
-    });
+    });;
   } catch(e) { console.error('fetchLiftHistory:', e); }
 }
 
@@ -3149,7 +3148,7 @@ function _showHeatmap(bridge) {
   const d = _heatmapData[bridge];
   if (!d) return;
   const t = false;
-  const names = { gonzague: t ? 'Pont St-Louis' : 'St-Louis Bridge', larocque: t ? 'Pont Larocque' : 'Larocque Bridge' };
+  const names = {lakeshore:'Lakeshore Rd',carlton:'Carlton St.',queenston:'Queenston St.',glendale:'Glendale Ave.',allanburg:'Highway 20',mainwelland:'Main St.',mellanby:'Mellanby Ave.',clarence:'Clarence St.'};
   const days = t ? ['D','L','M','M','J','V','S'] : ['S','M','T','W','T','F','S'];
   const heatmap = d.heatmap || {};
   const vals = Object.values(heatmap);
