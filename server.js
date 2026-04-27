@@ -480,6 +480,25 @@ async function monitor() {
 }
 
 // ── Routes ────────────────────────────────────────────────────────────
+app.get('/debug-lifts', async (req, res) => {
+  try {
+    const [sctHtml, pcHtml] = await Promise.all([
+      fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgeSCT'),
+      fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC'),
+    ]);
+    const kw = (req.query.bridge || 'lakeshore rd').toLowerCase();
+    const html = ['main st.','mellanby ave.','clarence st.'].some(k => kw.includes(k.split(' ')[0])) ? pcHtml : sctHtml;
+    const idx = html.toLowerCase().indexOf(kw);
+    if (idx === -1) return res.json({ error: 'keyword not found', kw });
+    const section = html.slice(Math.max(0,idx-200), idx+3000);
+    // Show raw text nodes
+    const texts = [...section.matchAll(/>([^<]{1,})</g)].map(m=>m[1].trim()).filter(t=>t);
+    // Show item-data matches
+    const itemData = [...section.matchAll(/class="item-data[^"]*"[^>]*>([^<]+)/g)].map(m=>m[1].trim());
+    res.json({ kw, idx, texts: texts.slice(0,40), itemData });
+  } catch(e) { res.json({ error: e.message }); }
+});
+
 app.get('/debug', async (req, res) => {
   try {
     const [sctHtml, pcHtml] = await Promise.all([
