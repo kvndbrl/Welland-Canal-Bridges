@@ -19,25 +19,27 @@ webpush.setVapidDetails('mailto:admin@wellandcanalbridges.app', VAPID_PUBLIC, VA
 // ── Bridges config ────────────────────────────────────────────────────
 // BridgeSCT page: 5 bridges in St. Catharines + Allanburg + Welland
 // BridgePC page:  3 bridges in Port Colborne (Clarence + 2 Jack-knife)
-const BRIDGE_IDS = ['lakeshore','carlton','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2'];
+const BRIDGE_IDS = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2'];
 
 const BRIDGE_NAMES = {
-  lakeshore:  'Lakeshore Road Bridge',
-  carlton:    'Carlton Street Bridge',
-  glendale:   'Glendale Avenue Bridge',
-  allanburg:  'Highway 20 Bridge',
-  mainwelland:'Main Street Bridge (Welland)',
-  clarence:   'Clarence Street Bridge',
-  jackknife1: 'Lock 8 North Bridge',
-  jackknife2: 'Lock 8 South Bridge',
+  lakeshore:  'Lakeshore Rd (Bridge 1)',
+  carlton:    'Carlton St. (Bridge 3A)',
+  queenston:  'Queenston St. (Bridge 4)',
+  glendale:   'Glendale Ave. (Bridge 5)',
+  allanburg:  'Highway 20 (Bridge 11)',
+  mainwelland:'Main Street (Welland)',
+  clarence:   'Clarence Street',
+  jackknife1: 'Lock 8 North',
+  jackknife2: 'Lock 8 South',
 };
 
 // Keywords to find each bridge section in the HTML
 const BRIDGE_KEYWORDS = {
   lakeshore:  'lakeshore',
   carlton:    'carlton',
+  queenston:  'queenston',
   glendale:   'glendale',
-  allanburg:  'allanburg',
+  allanburg:  'highway 20',
   mainwelland:'main street',
   clarence:   'clarence',
   jackknife1: 'lock 8 north',
@@ -45,7 +47,7 @@ const BRIDGE_KEYWORDS = {
 };
 
 // SCT page bridges vs PC page bridges
-const SCT_BRIDGES = ['lakeshore','carlton','glendale','allanburg','mainwelland'];
+const SCT_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland'];
 const PC_BRIDGES  = ['clarence','jackknife1','jackknife2'];
 
 const log = (...a) => console.log(`[${new Date().toISOString()}]`, ...a);
@@ -472,4 +474,3 @@ app.get('/vapidPublicKey', (req, res) => res.json({ key: VAPID_PUBLIC }));
   monitor();
   setInterval(monitor, 15000);
 })();
-          
