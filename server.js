@@ -269,31 +269,62 @@ async function fetchBridgeStatus() {
 }
 
 // ── Notification helpers ──────────────────────────────────────────────
+const BASE_URL = 'https://welland-canal-bridges.vercel.app';
+const VALID_THEMES = ['cathariner', 'wellander', 'colbornian', 'allanburger'];
+
 function notifIcon(sub) {
-  return sub.icon || '/icon-192.png';
+  const theme = VALID_THEMES.includes(sub.theme) ? sub.theme : 'colbornian';
+  return `${BASE_URL}/notification-icon-${theme}.png`;
 }
 
 function statusBadge(status) {
-  return '/badge-' + (status || 'disponible') + '.png';
+  const map = {
+    bientot_leve: '/badge-warning.png',
+    raising:      '/badge-raising.png',
+    leve:         '/badge-leve.png',
+    lowering:     '/badge-lowering.png',
+    disponible:   '/badge-disponible.png',
+    outage:       '/badge-outage.png',
+    scheduled:    '/badge-scheduled.png',
+  };
+  return `${BASE_URL}${map[status] || '/badge-disponible.png'}`;
 }
 
 function getMessages(bridge, status, data) {
   const n = BRIDGE_NAMES[bridge] || bridge;
   const raisedAt = data?.raisedSince;
-  const liftTime = (() => {
-    if (!raisedAt) return '';
-    const now = new Date();
-    const [h, m] = raisedAt.split(':').map(Number);
-    const est = new Date(now);
-    est.setHours(h, m + 12, 0, 0);
-    if (est < now) est.setDate(est.getDate() + 1);
-    return est.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+  // Use historical avg duration if available, else 20 min default
+  const avgMin = (() => {
+    const h = liftHistory[bridge] || [];
+    const durations = h.filter(e => e.durationMin).map(e => e.durationMin);
+    return durations.length ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length) : 20;
   })();
+
+  const liftTime = (() => {
+    const now = new Date();
+    if (raisedAt) {
+      // We know when it was raised — estimate reopen from that
+      const [h, m] = raisedAt.split(':').map(Number);
+      const raised = new Date(now);
+      raised.setHours(h, m, 0, 0);
+      if (raised > now) raised.setDate(raised.getDate() - 1);
+      const reopen = new Date(raised.getTime() + avgMin * 60000);
+      if (reopen < now) return ''; // already should be open
+      return reopen.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Toronto' });
+    } else {
+      // No raisedSince — estimate from now
+      const reopen = new Date(now.getTime() + avgMin * 60000);
+      return '~' + reopen.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Toronto' });
+    }
+  })();
+
+  const reopenStr = liftTime ? ` · Reopen ${liftTime}` : '';
 
   const msgs = {
     bientot_leve: { title: `⚠️ ${n}`, body: `Lift soon · Expect delays` },
-    raising:      { title: `🔼 ${n}`, body: `Bridge raising · Reopen ~${liftTime}` },
-    leve:         { title: `🚢 ${n}`, body: `Bridge lifted · Expected reopen ~${liftTime}` },
+    raising:      { title: `🔼 ${n}`, body: `Bridge raising${reopenStr}` },
+    leve:         { title: `🚢 ${n}`, body: `Bridge lifted${reopenStr}` },
     lowering:     { title: `🔽 ${n}`, body: `Bridge lowering · Opening soon` },
     disponible:   { title: `✅ ${n}`, body: `Traffic normal` },
     outage:       { title: `🚧 ${n}`, body: `Planned closure` },
