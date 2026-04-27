@@ -207,11 +207,41 @@ async function fetchBridgeStatus() {
   function extractLiftsFromHtml(html, bridgeKeyword) {
     const idx = html.toLowerCase().indexOf(bridgeKeyword.toLowerCase());
     if (idx === -1) return null;
-    const section = html.slice(idx, idx + 2000);
+    const section = html.slice(idx, idx + 1500);
+
     // Try item-data class (Beauharnois-style pages)
-    const matches = [...section.matchAll(/class="item-data[^"]*"[^>]*>([^<]+)/g)];
-    const lifts = matches.map(m => m[1].trim()).filter(v => v && v !== 'No anticipated bridge lifts' && v !== 'Aucune levée de pont prévue' && v !== 'No scheduled lifts');
-    return lifts.length ? lifts.join('\n') : null;
+    const itemMatches = [...section.matchAll(/class="item-data[^"]*"[^>]*>([^<]+)/g)];
+    const itemLifts = itemMatches.map(m => m[1].trim()).filter(v => v && v !== 'No anticipated bridge lifts' && v !== 'Aucune levée de pont prévue' && v !== 'No scheduled lifts');
+    if (itemLifts.length) return itemLifts.join('\n');
+
+    // Try lgtextblack10 "Next Arrival: HH:MM" (Welland BridgePC style)
+    const arrivalMatch = section.match(/class="lgtextblack10">Next Arrival:\s*([^<]+)/i);
+    if (arrivalMatch) {
+      const time = arrivalMatch[1].trim().replace(/\s+/g, ' ');
+      if (time && time !== '----' && time !== '-- --' && !/^-+$/.test(time.trim())) {
+        return `Next ship: ${time}`;
+      }
+    }
+
+    return null;
+  }
+
+  function extractScheduled60(html) {
+    // Find the "Next 60 Minutes" forecast table (BridgePC only)
+    const idx = html.toLowerCase().indexOf('next 60 minutes');
+    if (idx === -1) return {};
+    const section = html.slice(idx, idx + 4000);
+    const result = {};
+    // Rows: bridge name + time pairs in lgtextblack10 spans
+    const rows = [...section.matchAll(/class="lgtextblack">([^<]+)<[\/\s\S]*?class="lgtextblack10">([^<]+)</g)];
+    for (const row of rows) {
+      const name = row[1].trim().toLowerCase();
+      const time = row[2].trim();
+      if (time && !/^-+$/.test(time)) {
+        result[name] = time;
+      }
+    }
+    return result;
   }
 
   // Bridge keyword map for matching text nodes
@@ -257,10 +287,18 @@ async function fetchBridgeStatus() {
       }
     }
 
+    // Try 60-min forecast table for PC bridges
+    let next_lifts = extractLiftsFromHtml(html, kw);
+    if (!next_lifts) {
+      const sched60 = extractScheduled60(html);
+      const match = Object.entries(sched60).find(([k]) => k.includes(kw.split(' ')[0]));
+      if (match) next_lifts = `Scheduled at ${match[1]}`;
+    }
+
     result[id] = {
       status,
       raisedSince,
-      next_lifts: extractLiftsFromHtml(html, kw),
+      next_lifts,
       closures: null,
       outageEnd: null,
     };
