@@ -19,36 +19,34 @@ webpush.setVapidDetails('mailto:admin@wellandcanalbridges.app', VAPID_PUBLIC, VA
 // ── Bridges config ────────────────────────────────────────────────────
 // BridgeSCT page: 5 bridges in St. Catharines + Allanburg + Welland
 // BridgePC page:  3 bridges in Port Colborne (Clarence + 2 Jack-knife)
-const BRIDGE_IDS = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2'];
+const BRIDGE_IDS = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
 
 const BRIDGE_NAMES = {
   lakeshore:  'Lakeshore Rd (Bridge 1)',
   carlton:    'Carlton St. (Bridge 3A)',
   queenston:  'Queenston St. (Bridge 4)',
   glendale:   'Glendale Ave. (Bridge 5)',
-  allanburg:  'Highway 20 (Bridge 11)',
-  mainwelland:'Main Street (Welland)',
-  clarence:   'Clarence Street',
-  jackknife1: 'Lock 8 North',
-  jackknife2: 'Lock 8 South',
+  allanburg:  'Route 20 (Bridge 11)',
+  mainwelland:'Main St. (Bridge 19)',
+  mellanby:   'Mellanby Ave. (Bridge 19A)',
+  clarence:   'Clarence St. (Bridge 21)',
 };
 
 // Keywords to find each bridge section in the HTML
 const BRIDGE_KEYWORDS = {
   lakeshore:  'lakeshore',
   carlton:    'carlton',
-  queenston:  'bridge 4',
+  queenston:  'queenston',
   glendale:   'glendale',
-  allanburg:  'highway 20',
-  mainwelland:'main street',
+  allanburg:  'route 20',
+  mainwelland:'rue main',
+  mellanby:   'mellanby',
   clarence:   'clarence',
-  jackknife1: 'lock 8 north',
-  jackknife2: 'lock 8 south',
 };
 
 // SCT page bridges vs PC page bridges
-const SCT_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland'];
-const PC_BRIDGES  = ['clarence','jackknife1','jackknife2'];
+const SCT_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg'];
+const PC_BRIDGES  = ['mainwelland','mellanby','clarence'];
 
 const log = (...a) => console.log(`[${new Date().toISOString()}]`, ...a);
 
@@ -221,11 +219,10 @@ async function fetchBridgeStatus() {
     carlton:    'carlton',
     queenston:  'queenston',
     glendale:   'glendale',
-    allanburg:  'highway 20',
-    mainwelland:'main street',
+    allanburg:  'route 20',
+    mainwelland:'rue main',
+    mellanby:   'mellanby',
     clarence:   'clarence',
-    jackknife1: 'lock 8 north',
-    jackknife2: 'lock 8 south',
   };
 
   const pages = {
