@@ -529,6 +529,12 @@ app.post('/unsubscribe', async (req, res) => {
 
 app.get('/vapidPublicKey', (req, res) => res.json({ key: VAPID_PUBLIC }));
 
+// ── Self-ping to prevent Render cold start ────────────────────────────
+const SELF_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+setInterval(() => {
+  fetch(`${SELF_URL}/ping`).catch(() => {});
+}, 10 * 60 * 1000); // every 10 minutes
+
 // ── Boot ──────────────────────────────────────────────────────────────
 (async () => {
   await loadSubs();
@@ -537,4 +543,3 @@ app.get('/vapidPublicKey', (req, res) => res.json({ key: VAPID_PUBLIC }));
   monitor();
   setInterval(monitor, 15000);
 })();
-            
