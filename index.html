@@ -460,12 +460,8 @@
           <div><div style="font-size:13px;font-weight:600;color:var(--text);">Clarence Street</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Port Colborne</div></div>
         </label>
         <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
-          <input type="checkbox" id="ob-bridge-jackknife1" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
-          <div><div style="font-size:13px;font-weight:600;color:var(--text);">Lock 8 North</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Port Colborne</div></div>
-        </label>
-        <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
-          <input type="checkbox" id="ob-bridge-jackknife2" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
-          <div><div style="font-size:13px;font-weight:600;color:var(--text);">Lock 8 South</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Port Colborne</div></div>
+          <input type="checkbox" id="ob-bridge-mellanby" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text);">Mellanby Ave.</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 19A — Port Colborne</div></div>
         </label>
       </div>
       <button class="name-modal-btn" onclick="obNext2()" id="obBridgeBtn">Continue</button>
@@ -908,98 +904,51 @@
       <button class="heatmap-btn" onclick="showHeatmap('clarence')" id="heatmapBtnClarence" style="">📊 History</button>
     </div>
   </section>
-  <section class="bridge-card" id="cardJackknife1" aria-label="Lock 8 North">
+  <section class="bridge-card" id="cardMellanby" aria-label="Mellanby Ave.">
     <div class="bridge-name" aria-hidden="true">
       <span style="display:inline-flex;align-items:center;width:24px;height:24px;flex-shrink:0;color:var(--text3);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M256.001,354.295h-67.322c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h67.322 c5.771,0,10.449-4.678,10.449-10.449S261.772,354.295,256.001,354.295z"/><path d="M65.241,354.295H38.14c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h27.102 c5.77,0,10.449-4.678,10.449-10.449C75.69,358.973,71.012,354.295,65.241,354.295z"/><path d="M488.038,354.295H449.83c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h38.209 c5.771,0,10.449-4.678,10.449-10.449S493.809,354.295,488.038,354.295z"/><path d="M318.455,354.295h-36.106c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h36.106 c5.771,0,10.449-4.678,10.449-10.449S324.225,354.295,318.455,354.295z"/><path d="M501.552,238.785c-0.028,0-0.055,0.004-0.083,0.004c-0.028,0-0.054-0.004-0.083-0.004 c-54.891,0-99.552-44.71-99.596-99.682v-29.388c0-5.771-4.678-10.449-10.449-10.449h-25.129c-5.771,0-10.449,4.678-10.449,10.449 v29.287c0,0.006-0.001,0.014-0.001,0.02c0,55.01-44.753,99.763-99.763,99.763c-55.01,0-99.763-44.754-99.763-99.763v-29.307 c0-5.771-4.678-10.449-10.449-10.449h-25.129c-5.771,0-10.449,4.678-10.449,10.449v29.307c0,55.01-44.753,99.763-99.763,99.763 C4.678,238.785,0,243.463,0,249.234v40.203v35.526c0,5.771,4.678,10.449,10.449,10.449h99.884v19.851 c0,5.771,4.678,10.449,10.449,10.449c5.771,0,10.449-4.678,10.449-10.449v-19.851h199.764v19.851c0,5.771,4.678,10.449,10.449,10.449s10.449-4.678,10.449-10.449v-19.851h99.716c5.771,0,10.449-4.678,10.449-10.449v-33.725c0.102-0.586,0.166-1.186,0.166-1.801v-40.203C512.001,243.463,507.323,238.785,501.552,238.785z"/></svg></span>
-      <span>LOCK 8 NORTH BRIDGE</span>
-      <span class="closure-badge" id="closureBadgeJackknife1" style="display:none;" onclick="toggleTooltip('Jackknife1',event)">
+      <span>MELLANBY AVE. (BRIDGE 19A)</span>
+      <span class="closure-badge" id="closureBadgeMellanby" style="display:none;" onclick="toggleTooltip('Mellanby',event)">
         <span class="closure-badge-icon"><span style="display:inline-flex;align-items:center;width:12px;height:12px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 10 L56 52 H8 Z"/><line x1="32" y1="26" x2="32" y2="40"/><circle cx="32" cy="47" r="2" fill="currentColor" stroke="none"/></svg></span></span>
-        <div class="closure-tooltip" id="closureTooltipJackknife1">
-          <div class="closure-tooltip-title" id="closureTooltipTitleJackknife1">Planned closures</div>
-          <div id="closureTooltipBodyJackknife1"></div>
+        <div class="closure-tooltip" id="closureTooltipMellanby">
+          <div class="closure-tooltip-title" id="closureTooltipTitleMellanby">Planned closures</div>
+          <div id="closureTooltipBodyMellanby"></div>
         </div>
       </span>
     </div>
     <div class="status-block">
-      <div class="status-pill disponible" id="pillJackknife1" role="status" aria-live="polite">
+      <div class="status-pill disponible" id="pillMellanby" role="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
-        <span id="labelJackknife1">Loading...</span>
+        <span id="labelMellanby">Loading...</span>
       </div>
     </div>
-    <div class="duration-block" id="durationJackknife1" aria-hidden="true">
+    <div class="duration-block" id="durationMellanby" aria-hidden="true">
       <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerJackknife1">—</span>
+      <span class="timer-text" id="timerMellanby">—</span>
     </div>
-    <div><span id="vesselNameJackknife1" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
-    <div class="bridge-timeline" id="timelineJackknife1">
+    <div><span id="vesselNameMellanby" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
+    <div class="bridge-timeline" id="timelineMellanby">
       <div class="timeline-track">
-        <div class="timeline-step"><div class="timeline-dot" id="tDot0Jackknife1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><rect x="21" y="43" width="22" height="3" rx="1.5"/><rect x="30" y="4" width="4" height="14" rx="2" fill="currentColor"/><rect x="30" y="21" width="4" height="4" rx="2" fill="currentColor"/></svg></div><span class="timeline-label" id="tLbl0Jackknife1">Soon lifted</span></div>
-        <div class="timeline-connector" id="tConn0Jackknife1"></div>
-        <div class="timeline-step"><div class="timeline-dot" id="tDot1Jackknife1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-55, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M53 28 L56 22 L59 28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="56" y1="22" x2="56" y2="32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><span class="timeline-label" id="tLbl1Jackknife1">Raising</span></div>
-        <div class="timeline-connector" id="tConn1Jackknife1"></div>
-        <div class="timeline-step"><div class="timeline-dot" id="tDot2Jackknife1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-88, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g></svg></div><span class="timeline-label" id="tLbl2Jackknife1">Lifted</span></div>
-        <div class="timeline-connector" id="tConn2Jackknife1"></div>
-        <div class="timeline-step"><div class="timeline-dot" id="tDot3Jackknife1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-30, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M53 26 L56 32 L59 26" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="timeline-label" id="tLbl3Jackknife1">Lowering</span></div>
+        <div class="timeline-step"><div class="timeline-dot" id="tDot0Mellanby"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><rect x="21" y="43" width="22" height="3" rx="1.5"/><rect x="30" y="4" width="4" height="14" rx="2" fill="currentColor"/><rect x="30" y="21" width="4" height="4" rx="2" fill="currentColor"/></svg></div><span class="timeline-label" id="tLbl0Mellanby">Soon lifted</span></div>
+        <div class="timeline-connector" id="tConn0Mellanby"></div>
+        <div class="timeline-step"><div class="timeline-dot" id="tDot1Mellanby"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-55, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M53 28 L56 22 L59 28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="56" y1="22" x2="56" y2="32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><span class="timeline-label" id="tLbl1Mellanby">Raising</span></div>
+        <div class="timeline-connector" id="tConn1Mellanby"></div>
+        <div class="timeline-step"><div class="timeline-dot" id="tDot2Mellanby"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-88, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g></svg></div><span class="timeline-label" id="tLbl2Mellanby">Lifted</span></div>
+        <div class="timeline-connector" id="tConn2Mellanby"></div>
+        <div class="timeline-step"><div class="timeline-dot" id="tDot3Mellanby"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-30, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M53 26 L56 32 L59 26" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="timeline-label" id="tLbl3Mellanby">Lowering</span></div>
       </div>
-      <div class="timeline-reopen" id="timelineReopenJackknife1"></div>
+      <div class="timeline-reopen" id="timelineReopenMellanby"></div>
     </div>
     <div class="lifts-block">
       <div>
-        <div class="lifts-label" id="liftsTitleJackknife1">Scheduled lifts — 60 min</div>
-        <div class="lifts-value" id="liftsJackknife1" aria-live="polite">—</div>
+        <div class="lifts-label" id="liftsTitleMellanby">Scheduled lifts — 60 min</div>
+        <div class="lifts-value" id="liftsMellanby" aria-live="polite">—</div>
       </div>
-      <div class="refresh-time" id="refreshJackknife1">—</div>
+      <div class="refresh-time" id="refreshMellanby">—</div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div id="lastLiftJackknife1" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
-      <button class="heatmap-btn" onclick="showHeatmap('jackknife1')" id="heatmapBtnJackknife1" style="">📊 History</button>
-    </div>
-  </section>
-  <section class="bridge-card" id="cardJackknife2" aria-label="Lock 8 South">
-    <div class="bridge-name" aria-hidden="true">
-      <span style="display:inline-flex;align-items:center;width:24px;height:24px;flex-shrink:0;color:var(--text3);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M256.001,354.295h-67.322c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h67.322 c5.771,0,10.449-4.678,10.449-10.449S261.772,354.295,256.001,354.295z"/><path d="M65.241,354.295H38.14c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h27.102 c5.77,0,10.449-4.678,10.449-10.449C75.69,358.973,71.012,354.295,65.241,354.295z"/><path d="M488.038,354.295H449.83c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h38.209 c5.771,0,10.449-4.678,10.449-10.449S493.809,354.295,488.038,354.295z"/><path d="M318.455,354.295h-36.106c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h36.106 c5.771,0,10.449-4.678,10.449-10.449S324.225,354.295,318.455,354.295z"/><path d="M501.552,238.785c-0.028,0-0.055,0.004-0.083,0.004c-0.028,0-0.054-0.004-0.083-0.004 c-54.891,0-99.552-44.71-99.596-99.682v-29.388c0-5.771-4.678-10.449-10.449-10.449h-25.129c-5.771,0-10.449,4.678-10.449,10.449 v29.287c0,0.006-0.001,0.014-0.001,0.02c0,55.01-44.753,99.763-99.763,99.763c-55.01,0-99.763-44.754-99.763-99.763v-29.307 c0-5.771-4.678-10.449-10.449-10.449h-25.129c-5.771,0-10.449,4.678-10.449,10.449v29.307c0,55.01-44.753,99.763-99.763,99.763 C4.678,238.785,0,243.463,0,249.234v40.203v35.526c0,5.771,4.678,10.449,10.449,10.449h99.884v19.851 c0,5.771,4.678,10.449,10.449,10.449c5.771,0,10.449-4.678,10.449-10.449v-19.851h199.764v19.851c0,5.771,4.678,10.449,10.449,10.449s10.449-4.678,10.449-10.449v-19.851h99.716c5.771,0,10.449-4.678,10.449-10.449v-33.725c0.102-0.586,0.166-1.186,0.166-1.801v-40.203C512.001,243.463,507.323,238.785,501.552,238.785z"/></svg></span>
-      <span>Lock 8 SOUTH BRIDGE</span>
-      <span class="closure-badge" id="closureBadgeJackknife2" style="display:none;" onclick="toggleTooltip('Jackknife2',event)">
-        <span class="closure-badge-icon"><span style="display:inline-flex;align-items:center;width:12px;height:12px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 10 L56 52 H8 Z"/><line x1="32" y1="26" x2="32" y2="40"/><circle cx="32" cy="47" r="2" fill="currentColor" stroke="none"/></svg></span></span>
-        <div class="closure-tooltip" id="closureTooltipJackknife2">
-          <div class="closure-tooltip-title" id="closureTooltipTitleJackknife2">Planned closures</div>
-          <div id="closureTooltipBodyJackknife2"></div>
-        </div>
-      </span>
-    </div>
-    <div class="status-block">
-      <div class="status-pill disponible" id="pillJackknife2" role="status" aria-live="polite">
-        <span class="status-dot" aria-hidden="true"></span>
-        <span id="labelJackknife2">Loading...</span>
-      </div>
-    </div>
-    <div class="duration-block" id="durationJackknife2" aria-hidden="true">
-      <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerJackknife2">—</span>
-    </div>
-    <div><span id="vesselNameJackknife2" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
-    <div class="bridge-timeline" id="timelineJackknife2">
-      <div class="timeline-track">
-        <div class="timeline-step"><div class="timeline-dot" id="tDot0Jackknife2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><rect x="21" y="43" width="22" height="3" rx="1.5"/><rect x="30" y="4" width="4" height="14" rx="2" fill="currentColor"/><rect x="30" y="21" width="4" height="4" rx="2" fill="currentColor"/></svg></div><span class="timeline-label" id="tLbl0Jackknife2">Soon lifted</span></div>
-        <div class="timeline-connector" id="tConn0Jackknife2"></div>
-        <div class="timeline-step"><div class="timeline-dot" id="tDot1Jackknife2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-55, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M53 28 L56 22 L59 28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="56" y1="22" x2="56" y2="32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><span class="timeline-label" id="tLbl1Jackknife2">Raising</span></div>
-        <div class="timeline-connector" id="tConn1Jackknife2"></div>
-        <div class="timeline-step"><div class="timeline-dot" id="tDot2Jackknife2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-88, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g></svg></div><span class="timeline-label" id="tLbl2Jackknife2">Lifted</span></div>
-        <div class="timeline-connector" id="tConn2Jackknife2"></div>
-        <div class="timeline-step"><div class="timeline-dot" id="tDot3Jackknife2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-30, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M53 26 L56 32 L59 26" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="timeline-label" id="tLbl3Jackknife2">Lowering</span></div>
-      </div>
-      <div class="timeline-reopen" id="timelineReopenJackknife2"></div>
-    </div>
-    <div class="lifts-block">
-      <div>
-        <div class="lifts-label" id="liftsTitleJackknife2">Scheduled lifts — 60 min</div>
-        <div class="lifts-value" id="liftsJackknife2" aria-live="polite">—</div>
-      </div>
-      <div class="refresh-time" id="refreshJackknife2">—</div>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div id="lastLiftJackknife2" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
-      <button class="heatmap-btn" onclick="showHeatmap('jackknife2')" id="heatmapBtnJackknife2" style="">📊 History</button>
+      <div id="lastLiftMellanby" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+      <button class="heatmap-btn" onclick="showHeatmap('mellanby')" id="heatmapBtnMellanby" style="">📊 History</button>
     </div>
   </section>
 
@@ -1536,7 +1485,7 @@ function obNext1() {
 }
 
 function obNext2() {
-  const ALL_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2'];
+  const ALL_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
   const bridges = ALL_BRIDGES.filter(id => document.getElementById('ob-bridge-'+id)?.checked);
   if (!bridges.length) { alert('Select at least one bridge.'); return; }
   localStorage.setItem('bridgePrefs', JSON.stringify(bridges));
@@ -1852,7 +1801,7 @@ const TR={
     a2:'S\u00E9lectionnez <strong>Ajouter \u00E0 l\u2019\u00E9cran d\u2019accueil</strong>',
     a3:'Appuyez sur <strong>Ajouter</strong>',
     di:'Cette application est ind\u00E9pendante et n\u2019est pas affili\u00E9e \u00E0 la Corporation de Gestion de la Voie Maritime du Saint-Laurent ni au Great Lakes St. Lawrence Seaway System. Les donn\u00E9es proviennent du site officiel <a href="https://www.seaway-greatlakes.com" target="_blank" rel="noopener noreferrer">seaway-greatlakes.com</a>.',
-    bn:{lakeshore:'Lakeshore Rd',carlton:'Carlton St.',queenston:'Queenston St.',glendale:'Glendale Ave.',allanburg:'Hwy 20',mainwelland:'Main St.',clarence:'Clarence St.',jackknife1:'Lock 8 North',jackknife2:'Lock 8 South'}
+    bn:{lakeshore:'Lakeshore Rd',carlton:'Carlton St.',queenston:'Queenston St.',glendale:'Glendale Ave.',allanburg:'Route 20',mainwelland:'Main St.',mellanby:'Mellanby Ave.',clarence:'Clarence St.'}
   },
   en:{
     sl:{disponible:'Available',bientot_leve:'Soon lifted',raising:'Raising',leve:'Lifted',lowering:'Lowering',outage:'Planned closure'},
@@ -1962,7 +1911,7 @@ function show(el){el.style.display='block';el.removeAttribute('aria-hidden');}
 function hide(el){el.style.display='none';el.setAttribute('aria-hidden','true');}
 
 // Lift timer — persisted in localStorage so it survives page refresh
-const liftStartTimes={lakeshore:null,carlton:null,queenston:null,glendale:null,allanburg:null,mainwelland:null,clarence:null,jackknife1:null,jackknife2:null};
+const liftStartTimes={lakeshore:null,carlton:null,queenston:null,glendale:null,allanburg:null,mainwelland:null,mellanby:null,clarence:null};
 const liftAvgMin=12;
 // Clear any stale lift times from previous sessions
 
@@ -2047,7 +1996,7 @@ function getOutageTimerText(bridge, outageEnd, lang){
 function updateCards(){
   if(!lastData)return;
   const t=TR['en'];
-  const WELLAND_BRIDGES=['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2'];
+  const WELLAND_BRIDGES=['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
   WELLAND_BRIDGES.forEach(b=>{
     if(!lastData[b])return;
     const C=b.charAt(0).toUpperCase()+b.slice(1);
@@ -2446,7 +2395,7 @@ function updateNotifyBtns(){
 function updateDisplay(){
   if(!lastData)return;
   const t=TR['en'];
-  ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2'].forEach(b=>{
+  ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'].forEach(b=>{
     if(!lastData[b])return;
     const C=b.charAt(0).toUpperCase()+b.slice(1);
     const pillEl=document.getElementById('pill'+C);
@@ -2648,7 +2597,7 @@ async function fetchStatus(){
     lastData=bridgeData;
     retries=0;
     document.getElementById('errorMsg').textContent='';
-    for(const b of ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2']){
+    for(const b of ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence']){
       if(bridgeData[b]) trackLiftStatus(b, bridgeData[b].status, bridgeData[b].raisedSince);
     }
     updateDisplay();
