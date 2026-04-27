@@ -2517,6 +2517,30 @@ function applyTrans(){
 }
 function toggleLang(){currentLang=false?'en':'fr';track('language_changed',{lang:currentLang});localStorage.setItem('appLang',currentLang);applyTrans();syncPrefs();}
 
+// ── Cache-first status loading ────────────────────────────────────────
+const STATUS_CACHE_KEY = 'wcb:cachedStatus';
+const STATUS_CACHE_MAX_AGE = 5 * 60 * 1000; // 5 min
+
+function loadCachedStatus() {
+  try {
+    const raw = localStorage.getItem(STATUS_CACHE_KEY);
+    if (!raw) return false;
+    const { data, ts } = JSON.parse(raw);
+    if (Date.now() - ts > STATUS_CACHE_MAX_AGE) return false;
+    lastData = data.bridges || data;
+    lastUpdated = data.last_updated || new Date().toISOString();
+    updateDisplay();
+    refreshTimers();
+    return true;
+  } catch(e) { return false; }
+}
+
+function saveCachedStatus(d) {
+  try {
+    localStorage.setItem(STATUS_CACHE_KEY, JSON.stringify({ data: d, ts: Date.now() }));
+  } catch(e) {}
+}
+
 let retries=0;
 async function fetchStatus(){
   try{
@@ -2526,6 +2550,7 @@ async function fetchStatus(){
     const bridgeData = d.bridges || d;
     lastData=bridgeData;
     lastUpdated=d.last_updated||new Date().toISOString();
+    saveCachedStatus(d);
     retries=0;
     document.getElementById('errorMsg').textContent='';
     for(const b of ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence']){
@@ -3329,7 +3354,8 @@ showInstallModalIfNeeded();
 const savedName=getUserName();
 if(savedName) document.getElementById('prenomInput').value=savedName;
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
-fetchStatus();
+loadCachedStatus(); // Show last known status instantly
+fetchStatus();      // Then refresh from backend
 fetchLiftHistory();
 
 // Pause polling when tab is hidden, resume and refresh immediately when visible
