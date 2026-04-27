@@ -2726,7 +2726,7 @@ async function toggleNotifications(){
     const reg=await navigator.serviceWorker.ready;
     const sub=await reg.pushManager.subscribe({
       userVisibleOnly:true,
-      applicationServerKey:'BMjW0aCDUfXyOKOFpPcg7XLJKQTUpAxBfbEbQQZlaT_PgM3ZZ0n-p4gDhYmXxgjk_bkuWzfcXW0VvpsqpP-RDz0'
+      applicationServerKey:'BPR8qKT3q84mG8hmUbWq2BP-qOWWq2vnGAjv9fDmx5ZHmwUBTfGwr3tl_2TJnaEQ0Co7BTCJ1AW4OfM5v8GI9ss'
     });
     const d=JSON.parse(JSON.stringify(sub));
     d.bridges=getSelBridges();d.timeRanges=getTR();d.lang=currentLang;
