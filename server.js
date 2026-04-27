@@ -525,17 +525,20 @@ app.get('/debug-lifts', async (req, res) => {
       fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgeSCT'),
       fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC'),
     ]);
-    const kw = (req.query.bridge || 'lakeshore rd').toLowerCase();
-    const html = ['main st.','mellanby ave.','clarence st.'].some(k => kw.includes(k.split(' ')[0])) ? pcHtml : sctHtml;
-    const idx = html.toLowerCase().indexOf(kw);
+    const page = req.query.page || 'sct';
+    const html = page === 'pc' ? pcHtml : sctHtml;
+    const kw = req.query.bridge;
+    if (!kw) {
+      // Return last 5000 chars of page to see the 60-min table
+      const texts = [...html.matchAll(/>([^<]{1,})</g)].map(m=>m[1].trim()).filter(t=>t);
+      return res.json({ page, total_len: html.length, texts: texts.slice(-80), tail: html.slice(-5000) });
+    }
+    const idx = html.toLowerCase().indexOf(kw.toLowerCase());
     if (idx === -1) return res.json({ error: 'keyword not found', kw });
     const section = html.slice(Math.max(0,idx-500), idx+5000);
-    // Raw text nodes
     const texts = [...section.matchAll(/>([^<]{1,})</g)].map(m=>m[1].trim()).filter(t=>t);
-    // All class names present
     const classes = [...new Set([...section.matchAll(/class="([^"]+)"/g)].map(m=>m[1]))];
-    // Raw HTML snippet (first 3000 chars)
-    const raw = section.slice(0, 3000);
+    const raw = section.slice(0, 4000);
     res.json({ kw, idx, texts: texts.slice(0,60), classes, raw });
   } catch(e) { res.json({ error: e.message }); }
 });
