@@ -2158,7 +2158,7 @@ function getSelNotifTypes(){
     return el ? el.checked : false;
   });
   // If nothing selected (e.g. hidden inputs not yet loaded), return safe default
-  return sel.length ? sel : ['bientot_leve','leve','outage'];
+  return sel.length ? sel : ['bientot_leve','raising','leve','lowering','disponible','outage'];
 }
 function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 // Map type key → element ID suffix
@@ -2282,7 +2282,7 @@ function toggleOptionalNotifs(){
 
 function loadNotifTypes(){
   const saved=localStorage.getItem('notifTypes');
-  const SAFE_DEFAULT=['bientot_leve','leve','outage'];
+  const SAFE_DEFAULT=['bientot_leve','raising','leve','lowering','disponible','outage'];
   const types=saved?JSON.parse(saved):SAFE_DEFAULT;
   const active=types.length?types:SAFE_DEFAULT;
   NT_TYPES.forEach(t=>{
@@ -2494,8 +2494,6 @@ function applyTrans(){
   if(weatherDesc) weatherDesc.textContent=false?'Afficher la m\u00e9t\u00e9o locale dans la salutation.':'Show local weather in the greeting.';
   renderFunFact();
   updatePerBridgeLabels();
-  if(val) val.textContent = false ? 'Assistant vocal' : 'Voice assistant';
-  if(dgl) dgl.textContent = false ? 'Notifications en conduisant' : 'Notifications while driving';
   // Drawer donation section translation
   updateDonationTexts();
   applyDayLabels();
@@ -2517,23 +2515,48 @@ function applyTrans(){
 }
 function toggleLang(){currentLang=false?'en':'fr';track('language_changed',{lang:currentLang});localStorage.setItem('appLang',currentLang);applyTrans();syncPrefs();}
 
+// ── Cache-first status loading ────────────────────────────────────────
+const STATUS_CACHE_KEY = 'wcb:cachedStatus';
+const STATUS_CACHE_MAX_AGE = 5 * 60 * 1000;
+
+function loadCachedStatus() {
+  try {
+    const raw = localStorage.getItem(STATUS_CACHE_KEY);
+    if (!raw) return false;
+    const { data, ts } = JSON.parse(raw);
+    if (Date.now() - ts > STATUS_CACHE_MAX_AGE) return false;
+    lastData = data.bridges || data;
+    lastUpdated = data.last_updated || new Date().toISOString();
+    updateDisplay();
+    refreshTimers();
+    return true;
+  } catch(e) { return false; }
+}
+
+function saveCachedStatus(d) {
+  try {
+    localStorage.setItem(STATUS_CACHE_KEY, JSON.stringify({ data: d, ts: Date.now() }));
+  } catch(e) {}
+}
+
 let retries=0;
 async function fetchStatus(){
   try{
-    const r=await fetch(BACKEND+'/status',{signal:AbortSignal.timeout(30000)});
+    const errEl=document.getElementById('errorMsg');
+    if(retries===0 && errEl) errEl.textContent='Connecting\u2026';
+    const r=await fetch(BACKEND+'/status',{signal:AbortSignal.timeout(60000)});
     const d=await r.json();
-    // Welland backend returns {bridges:{lakeshore:..., carlton:...}, last_updated:...}
     const bridgeData = d.bridges || d;
     lastData=bridgeData;
     lastUpdated=d.last_updated||new Date().toISOString();
+    saveCachedStatus(d);
     retries=0;
-    document.getElementById('errorMsg').textContent='';
+    if(errEl) errEl.textContent='';
     for(const b of ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence']){
       if(bridgeData[b]) trackLiftStatus(b, bridgeData[b].status, bridgeData[b].raisedSince);
     }
     updateDisplay();
     refreshTimers();
-    // Track subscriber count once per session
     if(!sessionStorage.getItem('subTracked')){
       try{
         const sr=await fetch(BACKEND+'/subscribers');
@@ -2544,7 +2567,7 @@ async function fetchStatus(){
     }
   }catch(e){
     const t=TR['en'];retries++;
-    if(retries<=5){setTimeout(fetchStatus,5000);if(retries>2)document.getElementById('errorMsg').textContent=t.rc+'... ('+retries+'/5)';}
+    if(retries<=10){setTimeout(fetchStatus,5000);if(retries>1)document.getElementById('errorMsg').textContent=t.rc+'\u2026 ('+retries+'/10)';}
     else{retries=0;document.getElementById('errorMsg').innerHTML=t.se+' <a href="#" onclick="fetchStatus();return false;">'+t.re+'</a>';}
   }
 }
@@ -3330,6 +3353,7 @@ showInstallModalIfNeeded();
 const savedName=getUserName();
 if(savedName) document.getElementById('prenomInput').value=savedName;
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+loadCachedStatus();
 fetchStatus();
 fetchLiftHistory();
 
@@ -3460,5 +3484,3 @@ document.addEventListener('visibilitychange',()=>{
   </div>
   <button onclick="closeSwipeDon()" style="width:calc(100% - 40px);margin:0 20px;padding:13px;border-radius:50px;border:none;background:var(--surface2);color:var(--text3);font-family:var(--sans);font-size:14px;cursor:pointer;" id="swipeDonSkip">Plus tard</button>
 </div>
-
-
