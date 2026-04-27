@@ -51,6 +51,7 @@ let lastStatus  = Object.fromEntries(BRIDGE_IDS.map(id => [id, 'disponible']));
 let lastData    = Object.fromEntries(BRIDGE_IDS.map(id => [id, { status:'disponible', next_lifts:'No anticipated bridge lifts' }]));
 let liftHistory = Object.fromEntries(BRIDGE_IDS.map(id => [id, []]));
 let liftActive  = Object.fromEntries(BRIDGE_IDS.map(id => [id, false]));
+let loweringActive = Object.fromEntries(BRIDGE_IDS.map(id => [id, null])); // timestamp when lowering started
 let subscriptions = [];
 let disponibleSince = Object.fromEntries(BRIDGE_IDS.map(id => [id, null]));
 const DISPONIBLE_MIN_MS = 90 * 1000;
@@ -442,7 +443,11 @@ async function monitor() {
         // Track lift history
         if (['raising','bientot_leve'].includes(curr) && !liftActive[bridge]) {
           liftActive[bridge] = true;
+          loweringActive[bridge] = null;
           liftHistory[bridge].push({ raisedAt: new Date().toISOString(), bridge });
+        }
+        if (curr === 'lowering') {
+          loweringActive[bridge] = Date.now();
         }
         if (curr === 'disponible' && liftActive[bridge]) {
           liftActive[bridge] = false;
@@ -450,7 +455,11 @@ async function monitor() {
           if (last) {
             last.loweredAt = new Date().toISOString();
             last.durationMin = Math.round((Date.now() - new Date(last.raisedAt)) / 60000);
+            if (loweringActive[bridge]) {
+              last.loweringDurationMin = Math.round((Date.now() - loweringActive[bridge]) / 60000);
+            }
           }
+          loweringActive[bridge] = null;
           await saveHistory(bridge);
         }
 
@@ -538,6 +547,7 @@ app.get('/history', (req, res) => {
     const completed = entries.filter(e => e.loweredAt).sort((a, b) => new Date(b.loweredAt) - new Date(a.loweredAt));
     const lastEntry = completed[0];
     const durations = completed.filter(e => e.durationMin).map(e => e.durationMin);
+    const loweringDurations = completed.filter(e => e.loweringDurationMin).map(e => e.loweringDurationMin);
 
     // Build heatmap: { "dayOfWeek-hour": count } using raisedAt timestamps
     const heatmap = {};
@@ -560,7 +570,7 @@ app.get('/history', (req, res) => {
       entries: entries.length,
       lastLift: lastEntry ? lastEntry.loweredAt : null,
       avgDuration: durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null,
-      avgLowering: null,
+      avgLowering: loweringDurations.length ? Math.round(loweringDurations.reduce((a, b) => a + b, 0) / loweringDurations.length) : null,
       heatmap,
       raw: entries,
     };
