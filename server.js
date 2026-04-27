@@ -186,36 +186,85 @@ async function fetchBridgeStatus() {
     fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC'),
   ]);
 
+  // Extract all text nodes from HTML
+  function extractTextPairs(html) {
+    const texts = [...html.matchAll(/>([^<]{2,})</g)]
+      .map(m => m[1].trim())
+      .filter(t => t && !t.startsWith('var ') && !t.startsWith('function ') && !t.includes('{'));
+    return texts;
+  }
+
+  function parseStatusFromText(text) {
+    const t = text.toLowerCase();
+    if (t.includes('lowering')) return { status: 'lowering', raisedSince: null };
+    if (t.includes('raising soon')) return { status: 'bientot_leve', raisedSince: null };
+    if (t.includes('raising')) return { status: 'raising', raisedSince: null };
+    const raisedMatch = text.match(/raised since\s+(\d{1,2}:\d{2})/i);
+    if (raisedMatch) return { status: 'leve', raisedSince: raisedMatch[1] };
+    if (t.includes('unavailable')) return { status: 'leve', raisedSince: null };
+    if (t.includes('available')) return { status: 'disponible', raisedSince: null };
+    return null;
+  }
+
+  function extractLiftsFromHtml(html, bridgeKeyword) {
+    const idx = html.toLowerCase().indexOf(bridgeKeyword.toLowerCase());
+    if (idx === -1) return 'No anticipated bridge lifts';
+    const section = html.slice(idx, idx + 2000);
+    const matches = [...section.matchAll(/class="item-data[^"]*"[^>]*>([^<]+)/g)];
+    const lifts = matches.map(m => m[1].trim()).filter(v => v && v !== 'No anticipated bridge lifts');
+    return lifts.length ? lifts.join('\n') : 'No anticipated bridge lifts';
+  }
+
+  // Bridge keyword map for matching text nodes
+  const BRIDGE_TEXT_KEYWORDS = {
+    lakeshore:  'lakeshore',
+    carlton:    'carlton',
+    queenston:  'queenston',
+    glendale:   'glendale',
+    allanburg:  'highway 20',
+    mainwelland:'main street',
+    clarence:   'clarence',
+    jackknife1: 'lock 8 north',
+    jackknife2: 'lock 8 south',
+  };
+
+  const pages = {
+    ...Object.fromEntries(SCT_BRIDGES.map(id => [id, sctHtml])),
+    ...Object.fromEntries(PC_BRIDGES.map(id => [id, pcHtml])),
+  };
+
   const result = {};
-  const pages = { ...Object.fromEntries(SCT_BRIDGES.map(id => [id, sctHtml])),
-                   ...Object.fromEntries(PC_BRIDGES.map(id => [id, pcHtml])) };
 
   for (const id of BRIDGE_IDS) {
     const html = pages[id];
-    const kw = BRIDGE_KEYWORDS[id];
-    const section = extractSection(html, kw);
-    const closures = extractClosures(section);
-    const outage = isCurrentlyInOutage(closures);
+    const kw = BRIDGE_TEXT_KEYWORDS[id];
+    const texts = extractTextPairs(html);
 
-    let status, raisedSince = null;
-    if (outage) {
-      status = 'outage';
-    } else {
-      const extracted = extractStatus(section);
-      status = extracted.status;
-      raisedSince = extracted.raisedSince;
-      if (!status) {
-        const color = extractColor(html, kw);
-        status = colorToStatus(color);
+    // Find the bridge name in texts, then look at next text for status
+    let status = 'disponible';
+    let raisedSince = null;
+
+    for (let i = 0; i < texts.length; i++) {
+      if (texts[i].toLowerCase().includes(kw)) {
+        // Next non-empty text should be the status
+        for (let j = i + 1; j < Math.min(i + 5, texts.length); j++) {
+          const parsed = parseStatusFromText(texts[j]);
+          if (parsed) {
+            status = parsed.status;
+            raisedSince = parsed.raisedSince;
+            break;
+          }
+        }
+        break;
       }
     }
 
     result[id] = {
-      status: status || 'disponible',
+      status,
       raisedSince,
-      next_lifts: extractLifts(section),
-      closures,
-      outageEnd: outage?.end || null,
+      next_lifts: extractLiftsFromHtml(html, kw),
+      closures: null,
+      outageEnd: null,
     };
   }
 
