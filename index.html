@@ -583,13 +583,13 @@ let vapidKey = '';
 // ── Build bridge cards ─────────────────────────────────────────────
 function buildCards() {
   const container = document.getElementById('bridgeCards');
+  if (!container) return;
   container.innerHTML = '';
   const saved = localStorage.getItem('bridgePrefs');
-  const prefs = saved ? JSON.parse(saved) : BRIDGE_IDS;
+  const prefs = saved ? JSON.parse(saved) : BRIDGE_IDS; // default: all bridges
 
   for (const id of BRIDGE_IDS) {
     if (!prefs.includes(id)) continue;
     const C = capitalize(id);
     const card = document.createElement('div');
-    card.className = 'bridge-card';
-    card.id = `card_
+    ca
