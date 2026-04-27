@@ -628,7 +628,7 @@
     <div id="takeGreenLakeshore" style="display:none;margin:0 16px 8px;padding:6px 10px;border-radius:8px;background:rgba(30,107,34,.10);border:1px solid rgba(30,107,34,.25);font-size:11px;color:#1e6b22;font-family:var(--mono);line-height:1.5;">
       🟢 <strong>Take the Green</strong> · Bridge available for the next 15 min
     </div>
-    <div class="lifts-block">
+    <div class="lifts-block" id="liftsBlockLakeshore">
       <div>
         <div class="lifts-label" id="liftsTitleLakeshore">Scheduled lifts — 60 min</div>
         <div class="lifts-value" id="liftsLakeshore" aria-live="polite">—</div>
@@ -678,7 +678,7 @@
     <div id="takeGreenCarlton" style="display:none;margin:0 16px 8px;padding:6px 10px;border-radius:8px;background:rgba(30,107,34,.10);border:1px solid rgba(30,107,34,.25);font-size:11px;color:#1e6b22;font-family:var(--mono);line-height:1.5;">
       🟢 <strong>Take the Green</strong> · Bridge available for the next 15 min
     </div>
-    <div class="lifts-block">
+    <div class="lifts-block" id="liftsBlockCarlton">
       <div>
         <div class="lifts-label" id="liftsTitleCarlton">Scheduled lifts — 60 min</div>
         <div class="lifts-value" id="liftsCarlton" aria-live="polite">—</div>
@@ -728,7 +728,7 @@
     <div id="takeGreenQueenston" style="display:none;margin:0 16px 8px;padding:6px 10px;border-radius:8px;background:rgba(30,107,34,.10);border:1px solid rgba(30,107,34,.25);font-size:11px;color:#1e6b22;font-family:var(--mono);line-height:1.5;">
       🟢 <strong>Take the Green</strong> · Bridge available for the next 15 min
     </div>
-    <div class="lifts-block">
+    <div class="lifts-block" id="liftsBlockQueenston">
       <div>
         <div class="lifts-label" id="liftsTitleQueenston">Scheduled lifts — 60 min</div>
         <div class="lifts-value" id="liftsQueenston" aria-live="polite">—</div>
@@ -778,7 +778,7 @@
     <div id="takeGreenGlendale" style="display:none;margin:0 16px 8px;padding:6px 10px;border-radius:8px;background:rgba(30,107,34,.10);border:1px solid rgba(30,107,34,.25);font-size:11px;color:#1e6b22;font-family:var(--mono);line-height:1.5;">
       🟢 <strong>Take the Green</strong> · Bridge available for the next 15 min
     </div>
-    <div class="lifts-block">
+    <div class="lifts-block" id="liftsBlockGlendale">
       <div>
         <div class="lifts-label" id="liftsTitleGlendale">Scheduled lifts — 60 min</div>
         <div class="lifts-value" id="liftsGlendale" aria-live="polite">—</div>
@@ -825,7 +825,7 @@
       </div>
       <div class="timeline-reopen" id="timelineReopenAllanburg"></div>
     </div>
-    <div class="lifts-block">
+    <div class="lifts-block" id="liftsBlockAllanburg">
       <div>
         <div class="lifts-label" id="liftsTitleAllanburg">Scheduled lifts — 60 min</div>
         <div class="lifts-value" id="liftsAllanburg" aria-live="polite">—</div>
@@ -872,7 +872,7 @@
       </div>
       <div class="timeline-reopen" id="timelineReopenMainwelland"></div>
     </div>
-    <div class="lifts-block">
+    <div class="lifts-block" id="liftsBlockMainwelland">
       <div>
         <div class="lifts-label" id="liftsTitleMainwelland">Scheduled lifts — 60 min</div>
         <div class="lifts-value" id="liftsMainwelland" aria-live="polite">—</div>
@@ -919,7 +919,7 @@
       </div>
       <div class="timeline-reopen" id="timelineReopenClarence"></div>
     </div>
-    <div class="lifts-block">
+    <div class="lifts-block" id="liftsBlockClarence">
       <div>
         <div class="lifts-label" id="liftsTitleClarence">Scheduled lifts — 60 min</div>
         <div class="lifts-value" id="liftsClarence" aria-live="polite">—</div>
@@ -966,7 +966,7 @@
       </div>
       <div class="timeline-reopen" id="timelineReopenMellanby"></div>
     </div>
-    <div class="lifts-block">
+    <div class="lifts-block" id="liftsBlockMellanby">
       <div>
         <div class="lifts-label" id="liftsTitleMellanby">Scheduled lifts — 60 min</div>
         <div class="lifts-value" id="liftsMellanby" aria-live="polite">—</div>
@@ -2462,9 +2462,13 @@ function updateDisplay(){
     if(liftsTitleEl) liftsTitleEl.textContent=t.ll||'Scheduled lifts \u2014 60 min';
     if(liftsEl){
       const liftsRaw=lastData[b].next_lifts;
-      if(!liftsRaw||liftsRaw==='No scheduled lifts'){
+      const liftsBlock=document.getElementById('liftsBlock'+C);
+      if(!liftsRaw||liftsRaw==='No scheduled lifts'||liftsRaw==='null'){
+        // Hide entire lifts section if no data from source
+        if(liftsBlock) liftsBlock.style.display='none';
         liftsEl.textContent=t.nl||'No scheduled lifts';
       } else {
+        if(liftsBlock) liftsBlock.style.display='';
         const lines=liftsRaw.split('\n');
         liftsEl.innerHTML=lines.map(l=>`<div>${l}</div>`).join('');
       }

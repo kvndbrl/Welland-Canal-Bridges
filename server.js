@@ -206,11 +206,12 @@ async function fetchBridgeStatus() {
 
   function extractLiftsFromHtml(html, bridgeKeyword) {
     const idx = html.toLowerCase().indexOf(bridgeKeyword.toLowerCase());
-    if (idx === -1) return 'No scheduled lifts';
+    if (idx === -1) return null;
     const section = html.slice(idx, idx + 2000);
+    // Try item-data class (Beauharnois-style pages)
     const matches = [...section.matchAll(/class="item-data[^"]*"[^>]*>([^<]+)/g)];
-    const lifts = matches.map(m => m[1].trim()).filter(v => v && v !== 'No anticipated bridge lifts' && v !== 'Aucune levée de pont prévue');
-    return lifts.length ? lifts.join('\n') : 'No scheduled lifts';
+    const lifts = matches.map(m => m[1].trim()).filter(v => v && v !== 'No anticipated bridge lifts' && v !== 'Aucune levée de pont prévue' && v !== 'No scheduled lifts');
+    return lifts.length ? lifts.join('\n') : null;
   }
 
   // Bridge keyword map for matching text nodes
