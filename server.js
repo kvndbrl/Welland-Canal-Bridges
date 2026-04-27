@@ -37,7 +37,7 @@ const BRIDGE_NAMES = {
 const BRIDGE_KEYWORDS = {
   lakeshore:  'lakeshore',
   carlton:    'carlton',
-  queenston:  'queenston',
+  queenston:  'bridge 4',
   glendale:   'glendale',
   allanburg:  'highway 20',
   mainwelland:'main street',
@@ -403,6 +403,17 @@ async function monitor() {
 }
 
 // ── Routes ────────────────────────────────────────────────────────────
+app.get('/debug', async (req, res) => {
+  try {
+    const html = await fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgeSCT');
+    // Find all text between > and < that's more than 3 chars
+    const texts = [...html.matchAll(/>([^<]{3,})</g)].map(m => m[1].trim()).filter(Boolean);
+    res.json({ sample: texts.slice(0, 50), length: html.length });
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
+
 app.get('/ping', (req, res) => res.json({ ok: true, subs: subscriptions.length }));
 
 app.get('/status', (req, res) => {
