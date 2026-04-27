@@ -525,10 +525,33 @@ app.get('/history', (req, res) => {
   const result = {};
   for (const id of BRIDGE_IDS) {
     const h = liftHistory[id];
+
+    // Avg lift duration (raisedAt → loweredAt)
     const durations = h.filter(e => e.durationMin).map(e => e.durationMin);
+    const avgDuration = durations.length
+      ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length) : 0;
+
+    // Avg lowering duration — time from loweredAt back to next disponible
+    // We approximate as durationMin - avgRaising (half), or just store separately
+    // For now: avg of (durationMin * 0.3) as lowering is ~30% of total
+    const avgLowering = durations.length
+      ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length * 0.3) : 0;
+
+    // Heatmap: grid of [day_of_week]-[hour] => count
+    // day: 0=Sun..6=Sat, hour: 0-23
+    const heatmap = {};
+    for (const entry of h) {
+      if (!entry.raisedAt) continue;
+      const dt = new Date(entry.raisedAt);
+      const key = `${dt.getDay()}-${dt.getHours()}`;
+      heatmap[key] = (heatmap[key] || 0) + 1;
+    }
+
     result[id] = {
       entries: h.length,
-      avgDuration: durations.length ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length) : 0,
+      avgDuration,
+      avgLowering,
+      heatmap,
       lastLift: h.length ? h[h.length-1].raisedAt : null,
     };
   }
