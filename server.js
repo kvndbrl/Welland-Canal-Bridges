@@ -34,14 +34,14 @@ const BRIDGE_NAMES = {
 
 // Keywords to find each bridge section in the HTML
 const BRIDGE_KEYWORDS = {
-  lakeshore:  'lakeshore',
-  carlton:    'carlton',
-  queenston:  'queenston',
-  glendale:   'glendale',
-  allanburg:  'route 20',
-  mainwelland:'rue main',
-  mellanby:   'mellanby',
-  clarence:   'clarence',
+  lakeshore:  'lakeshore rd',
+  carlton:    'carlton st.',
+  queenston:  'queenston st.',
+  glendale:   'glendale ave.',
+  allanburg:  'highway 20',
+  mainwelland:'main st.',
+  mellanby:   'mellanby ave.',
+  clarence:   'clarence st.',
 };
 
 // SCT page bridges vs PC page bridges
@@ -194,9 +194,9 @@ async function fetchBridgeStatus() {
 
   function parseStatusFromText(text) {
     const t = text.toLowerCase();
+    if (t.includes('raising soon') || t.includes('levée sous peu')) return { status: 'bientot_leve', raisedSince: null };
+    if (t.includes('raising') && !t.includes('raising soon')) return { status: 'raising', raisedSince: null };
     if (t.includes('lowering')) return { status: 'lowering', raisedSince: null };
-    if (t.includes('raising soon')) return { status: 'bientot_leve', raisedSince: null };
-    if (t.includes('raising')) return { status: 'raising', raisedSince: null };
     const raisedMatch = text.match(/raised since\s+(\d{1,2}:\d{2})/i);
     if (raisedMatch) return { status: 'leve', raisedSince: raisedMatch[1] };
     if (t.includes('unavailable')) return { status: 'leve', raisedSince: null };
@@ -215,14 +215,14 @@ async function fetchBridgeStatus() {
 
   // Bridge keyword map for matching text nodes
   const BRIDGE_TEXT_KEYWORDS = {
-    lakeshore:  'lakeshore',
-    carlton:    'carlton',
-    queenston:  'queenston',
-    glendale:   'glendale',
-    allanburg:  'route 20',
-    mainwelland:'rue main',
-    mellanby:   'mellanby',
-    clarence:   'clarence',
+    lakeshore:  'lakeshore rd',
+    carlton:    'carlton st.',
+    queenston:  'queenston st.',
+    glendale:   'glendale ave.',
+    allanburg:  'highway 20',
+    mainwelland:'main st.',
+    mellanby:   'mellanby ave.',
+    clarence:   'clarence st.',
   };
 
   const pages = {
@@ -537,4 +537,4 @@ app.get('/vapidPublicKey', (req, res) => res.json({ key: VAPID_PUBLIC }));
   monitor();
   setInterval(monitor, 15000);
 })();
-      
+            
