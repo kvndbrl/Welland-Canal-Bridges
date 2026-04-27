@@ -625,6 +625,9 @@
       </div>
       <div class="timeline-reopen" id="timelineReopenLakeshore"></div>
     </div>
+    <div id="takeGreenLakeshore" style="display:none;margin:0 16px 8px;padding:6px 10px;border-radius:8px;background:rgba(30,107,34,.10);border:1px solid rgba(30,107,34,.25);font-size:11px;color:#1e6b22;font-family:var(--mono);line-height:1.5;">
+      🟢 <strong>Take the Green</strong> · Bridge available for the next 15 min
+    </div>
     <div class="lifts-block">
       <div>
         <div class="lifts-label" id="liftsTitleLakeshore">Scheduled lifts — 60 min</div>
@@ -671,6 +674,9 @@
         <div class="timeline-step"><div class="timeline-dot" id="tDot3Carlton"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-30, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M53 26 L56 32 L59 26" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="timeline-label" id="tLbl3Carlton">Lowering</span></div>
       </div>
       <div class="timeline-reopen" id="timelineReopenCarlton"></div>
+    </div>
+    <div id="takeGreenCarlton" style="display:none;margin:0 16px 8px;padding:6px 10px;border-radius:8px;background:rgba(30,107,34,.10);border:1px solid rgba(30,107,34,.25);font-size:11px;color:#1e6b22;font-family:var(--mono);line-height:1.5;">
+      🟢 <strong>Take the Green</strong> · Bridge available for the next 15 min
     </div>
     <div class="lifts-block">
       <div>
@@ -719,6 +725,9 @@
       </div>
       <div class="timeline-reopen" id="timelineReopenQueenston"></div>
     </div>
+    <div id="takeGreenQueenston" style="display:none;margin:0 16px 8px;padding:6px 10px;border-radius:8px;background:rgba(30,107,34,.10);border:1px solid rgba(30,107,34,.25);font-size:11px;color:#1e6b22;font-family:var(--mono);line-height:1.5;">
+      🟢 <strong>Take the Green</strong> · Bridge available for the next 15 min
+    </div>
     <div class="lifts-block">
       <div>
         <div class="lifts-label" id="liftsTitleQueenston">Scheduled lifts — 60 min</div>
@@ -765,6 +774,9 @@
         <div class="timeline-step"><div class="timeline-dot" id="tDot3Glendale"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-30, 21, 45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M53 26 L56 32 L59 26" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="timeline-label" id="tLbl3Glendale">Lowering</span></div>
       </div>
       <div class="timeline-reopen" id="timelineReopenGlendale"></div>
+    </div>
+    <div id="takeGreenGlendale" style="display:none;margin:0 16px 8px;padding:6px 10px;border-radius:8px;background:rgba(30,107,34,.10);border:1px solid rgba(30,107,34,.25);font-size:11px;color:#1e6b22;font-family:var(--mono);line-height:1.5;">
+      🟢 <strong>Take the Green</strong> · Bridge available for the next 15 min
     </div>
     <div class="lifts-block">
       <div>
@@ -2458,6 +2470,10 @@ function updateDisplay(){
       }
     }
     if(refreshEl) refreshEl.textContent=formatRefresh(lastUpdated,'en');
+    // Take the Green banner — only for St. Catharines bridges when disponible
+    const takeGreenBridges = ['lakeshore','carlton','queenston','glendale'];
+    const tgEl = document.getElementById('takeGreen'+C);
+    if(tgEl) tgEl.style.display = (takeGreenBridges.includes(b) && lastData[b].status==='disponible') ? 'block' : 'none';
   });
   updateCards();
 }
@@ -3485,6 +3501,11 @@ document.addEventListener('visibilitychange',()=>{
     </div>
   </div>
 
+  <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+    <span style="font-size:14px;">💬</span>
+    <a href="https://tally.so/r/gDNdyl" target="_blank" rel="noopener noreferrer" style="font-size:13px;color:var(--text2);text-decoration:underline;text-underline-offset:2px;">Feedback or suggestions</a>
+  </div>
+  <div style="font-size:11px;color:var(--text3);line-height:1.65;padding:12px 16px 24px;border-top:1px solid var(--border);">This app is independent and is not affiliated with the St. Lawrence Seaway Management Corporation or the Great Lakes St. Lawrence Seaway System. Data is sourced from <a href="https://seaway-greatlakes.com" target="_blank" rel="noopener noreferrer" style="color:var(--text2);text-decoration:underline;text-underline-offset:2px;">seaway-greatlakes.com</a>.</div>
 </div><!-- end settings-drawer -->
 
 <!-- Changelog modal -->
