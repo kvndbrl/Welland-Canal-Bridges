@@ -959,6 +959,14 @@
   </button>
 
   <!-- Install CTA on main page — shown only when not subscribed -->
+  <!-- Empty state — shown when all bridges are hidden -->
+  <div id="noBridgesMsg" style="display:none;text-align:center;padding:48px 24px;color:var(--text3);">
+    <div style="font-size:40px;margin-bottom:16px;">🌉</div>
+    <div style="font-size:15px;font-weight:700;color:var(--text2);margin-bottom:8px;">No bridges selected</div>
+    <div style="font-size:13px;font-family:var(--mono);line-height:1.6;">Open settings to choose which bridges to follow.</div>
+    <button onclick="openDrawer()" style="margin-top:20px;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;">Open settings</button>
+  </div>
+
   <div id="mainInstallBanner" style="display:none;width:100%;margin-top:8px;margin-bottom:24px;position:relative;z-index:1;">
     <button onclick="mainCtaAction()" style="width:100%;padding:15px;border-radius:50px;border:none;background:var(--accent);color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;gap:8px;">
       <span style="display:inline-flex;align-items:center;width:22px;height:22px;flex-shrink:0;color:#fff;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"> <path d="M32 8 a16 16 0 0 1 16 16 v12 l6 8 H10 l6 -8 V24 a16 16 0 0 1 16 -16 Z"/> <path d="M26 52 a6 6 0 0 0 12 0"/> <line x1="32" y1="8" x2="32" y2="4"/> </svg></span><span id="mainInstallLabel">Enable notifications</span>
@@ -2135,42 +2143,54 @@ function toggleBridgeNotif(bridge) {
 }
 
 function initBridgeNotifToggles() {
-  const ALL_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
-  const BRIDGE_DISPLAY_NAMES = {
+  const CITIES = [
+    { name: 'St. Catharines', bridges: ['lakeshore','carlton','queenston','glendale'] },
+    { name: 'Allanburg',      bridges: ['allanburg'] },
+    { name: 'Welland',        bridges: ['mainwelland'] },
+    { name: 'Port Colborne',  bridges: ['mellanby','clarence'] },
+  ];
+  const NAMES = {
     lakeshore:'Lakeshore Rd', carlton:'Carlton St.', queenston:'Queenston St.',
     glendale:'Glendale Ave.', allanburg:'Highway 20', mainwelland:'Main St.',
     mellanby:'Mellanby Ave.', clarence:'Clarence St.'
   };
   const saved = localStorage.getItem('bridgePrefs');
+  const ALL_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
   const enabledBridges = saved ? JSON.parse(saved) : ALL_BRIDGES;
 
-  // Find the container where per-bridge sections live
   const container = document.getElementById('perBridgeNotifContainer');
   if (!container) return;
   container.innerHTML = '';
 
-  ALL_BRIDGES.forEach(b => {
-    const C = capitalize(b);
-    const enabled = enabledBridges.includes(b);
-    const div = document.createElement('div');
-    div.style.cssText = 'border-top:1px solid var(--border);';
-    div.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;cursor:pointer;" onclick="toggleBridgeNotifSection('${b}')">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text);font-family:var(--sans);" id="perBridge${C}Label">${BRIDGE_DISPLAY_NAMES[b]}</div>
-          <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;" id="perBridge${C}Sub">${enabled ? 'Notifications on' : 'Notifications off'}</div>
+  CITIES.forEach(city => {
+    // City header
+    const header = document.createElement('div');
+    header.style.cssText = 'padding:10px 16px 4px;border-top:1px solid var(--border);';
+    header.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--accent);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;">${city.name}</div>`;
+    container.appendChild(header);
+
+    city.bridges.forEach(b => {
+      const C = capitalize(b);
+      const enabled = enabledBridges.includes(b);
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px;cursor:pointer;" onclick="toggleBridgeNotifSection('${b}')">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans);" id="perBridge${C}Label">${NAMES[b]}</div>
+            <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px;" id="perBridge${C}Sub">${enabled ? 'Notifications on' : 'Notifications off'}</div>
+          </div>
+          <label class="pref-toggle" onclick="event.stopPropagation()">
+            <input type="checkbox" id="bridgeNotif${C}" ${enabled?'checked':''} onchange="toggleBridgeNotif('${b}')"/>
+            <span class="pref-slider"></span>
+          </label>
         </div>
-        <label class="pref-toggle" onclick="event.stopPropagation()">
-          <input type="checkbox" id="bridgeNotif${C}" ${enabled?'checked':''} onchange="toggleBridgeNotif('${b}')"/>
-          <span class="pref-slider"></span>
-        </label>
-      </div>
-      <div id="perBridge${C}Content" style="display:${enabled?'block':'none'};padding:0 16px 12px;">
-        <div id="perBridge${C}Checkboxes"></div>
-      </div>
-    `;
-    container.appendChild(div);
-    renderPerBridgeCheckboxes(b);
+        <div id="perBridge${C}Content" style="display:${enabled?'block':'none'};padding:0 16px 10px;">
+          <div id="perBridge${C}Checkboxes"></div>
+        </div>
+      `;
+      container.appendChild(div);
+      renderPerBridgeCheckboxes(b);
+    });
   });
 }
 
@@ -2183,6 +2203,8 @@ function updateCardVisibility(){
     const card = document.getElementById('card'+C);
     if(card) card.style.display = bridges.includes(b) ? '' : 'none';
   });
+  const noMsg = document.getElementById('noBridgesMsg');
+  if(noMsg) noMsg.style.display = bridges.length === 0 ? 'block' : 'none';
 }
 
 
