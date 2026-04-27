@@ -584,7 +584,13 @@ async function start() {
   await loadLastStatus(); // ← NEW: restore lastStatus from Redis on boot
   monitor();
   setInterval(monitor, 15000);
-  app.listen(PORT, () => log(`🚀 Server running on port ${PORT}`));
+  app.listen(PORT, () => {
+    log(`🚀 Server running on port ${PORT}`);
+    // Self-ping every 10 min to prevent Render spin-down
+    setInterval(() => {
+      fetch(`http://localhost:${PORT}/ping`).catch(() => {});
+    }, 10 * 60 * 1000);
+  });
 }
 
 start();
