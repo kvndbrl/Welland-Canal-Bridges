@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <meta name="theme-color" content="#080b14"/>
+  <!-- WCB v1.0.4 -->
+  <meta name="theme-color" content="#0a1628"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -2580,7 +2581,7 @@ function applyTrans(){
   if(customLabel) customLabel.textContent=t.customDonate;
   const customInput=document.getElementById('customAmount');
   if(customInput) customInput.placeholder=t.customPlaceholder;
-  const lb=document.getElementById('langBtn');lb.textContent=false?'EN':'FR';lb.setAttribute('aria-label',t.ll2);
+  const lb=document.getElementById('langBtn');if(lb){lb.textContent=false?'EN':'FR';lb.setAttribute('aria-label',t.ll2);}
   const ll=document.getElementById('langLabel');if(ll)ll.textContent=false?'Langue':'Language';
   const cl=document.getElementById('contactLink');
   if(cl) cl.href=false?'https://tally.so/r/A7b2kz':'https://tally.so/r/gDNdyl';
