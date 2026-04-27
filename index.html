@@ -2043,46 +2043,42 @@ function getOutageTimerText(bridge, outageEnd, lang){
 function updateCards(){
   if(!lastData)return;
   const t=TR['en'];
-  const gL=['leve','bientot_leve','raising','lowering','outage'].includes(lastData.gonzague.status);
-  const lL=['leve','bientot_leve','raising','lowering','outage'].includes(lastData.larocque.status);
-  ['lakeshore', 'carlton', 'queenston', 'glendale', 'allanburg', 'mainwelland', 'clarence', 'jackknife1', 'jackknife2'].forEach(b=>{
+  const WELLAND_BRIDGES=['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2'];
+  WELLAND_BRIDGES.forEach(b=>{
+    if(!lastData[b])return;
     const C=b.charAt(0).toUpperCase()+b.slice(1);
-    const alt=b==='gonzague'?'larocque':'gonzague';
-    const tL=b==='gonzague'?gL:lL,oL=b==='gonzague'?lL:gL;
     const isLifted=lastData[b].status==='leve';
     const isLowering=lastData[b].status==='lowering';
     const isOutage=lastData[b].status==='outage';
     const cl=lastData[b].closures;
-    const db=document.getElementById('duration'+C),ab=document.getElementById('altInfo'+C);
+    const db=document.getElementById('duration'+C);
     const badge=document.getElementById('closureBadge'+C);
     const tooltipBody=document.getElementById('closureTooltipBody'+C);
     const tooltipTitle=document.getElementById('closureTooltipTitle'+C);
     const timerEl=document.getElementById('timer'+C);
-    if(isLifted){
-      db.style.display='flex'; db.removeAttribute('aria-hidden');
-      timerEl.textContent=getLiftTimerText(b,lastData[b].status,currentLang);
-    } else if(isLowering){
-      db.style.display='flex'; db.removeAttribute('aria-hidden');
-      timerEl.textContent=false?'Le pont redescend \u2014 Bient\u00F4t disponible':'Bridge is lowering \u2014 Opening soon';
-    } else if(isOutage){
-      db.style.display='flex'; db.removeAttribute('aria-hidden');
-      timerEl.textContent=getOutageTimerText(b,lastData[b].outageEnd,currentLang);
-    } else { 
-      db.style.display='none'; db.setAttribute('aria-hidden','true');
-      const vesselEl=document.getElementById('vessel'+C);
-      if(vesselEl) vesselEl.style.display='none';
+    if(db){
+      if(isLifted){
+        db.style.display='flex'; db.removeAttribute('aria-hidden');
+        if(timerEl) timerEl.textContent=getLiftTimerText(b,lastData[b].status,'en');
+      } else if(isLowering){
+        db.style.display='flex'; db.removeAttribute('aria-hidden');
+        if(timerEl) timerEl.textContent='Bridge is lowering \u2014 Opening soon';
+      } else if(isOutage){
+        db.style.display='flex'; db.removeAttribute('aria-hidden');
+        if(timerEl) timerEl.textContent=getOutageTimerText(b,lastData[b].outageEnd,'en');
+      } else {
+        db.style.display='none'; db.setAttribute('aria-hidden','true');
+      }
     }
-    // Update timeline
     updateTimeline(b, lastData[b].status, lastData[b]);
-    // Closures → badge + tooltip
-    if(cl&&cl.length>0){
-      tooltipTitle.textContent=t.closureTitle||(false?'Fermetures planifiées':'Planned closures');
-      tooltipBody.innerHTML=cl.map(c=>
-        '<div class="closure-tooltip-item">'+fmtClosure(c,currentLang)+'</div>'
-      ).join('');
-      badge.style.display='inline-flex';
-    } else {
-      badge.style.display='none';
+    if(badge&&tooltipBody&&tooltipTitle){
+      if(cl&&cl.length>0){
+        tooltipTitle.textContent='Planned closures';
+        tooltipBody.innerHTML=cl.map(c=>'<div class="closure-tooltip-item">'+fmtClosure(c,'en')+'</div>').join('');
+        badge.style.display='inline-flex';
+      } else {
+        badge.style.display='none';
+      }
     }
   });
 }
@@ -2446,103 +2442,65 @@ function updateNotifyBtns(){
 function updateDisplay(){
   if(!lastData)return;
   const t=TR['en'];
-  ['lakeshore', 'carlton', 'queenston', 'glendale', 'allanburg', 'mainwelland', 'clarence', 'jackknife1', 'jackknife2'].forEach(b=>{
+  ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2'].forEach(b=>{
+    if(!lastData[b])return;
     const C=b.charAt(0).toUpperCase()+b.slice(1);
-    document.getElementById('pill'+C).className='status-pill '+lastData[b].status;
-    document.getElementById('label'+C).textContent=t.sl[lastData[b].status]||lastData[b].status;
-    document.getElementById('liftsTitle'+C).textContent=t.ll;
-    const liftsRaw = lastData[b].next_lifts;
-    const liftsEl = document.getElementById('lifts'+C);
-    if (liftsEl) {
-      if (!liftsRaw || liftsRaw === 'No anticipated bridge lifts') {
-        liftsEl.textContent = t.nl;
+    const pillEl=document.getElementById('pill'+C);
+    const labelEl=document.getElementById('label'+C);
+    const liftsTitleEl=document.getElementById('liftsTitle'+C);
+    const liftsEl=document.getElementById('lifts'+C);
+    const refreshEl=document.getElementById('refresh'+C);
+    if(pillEl) pillEl.className='status-pill '+lastData[b].status;
+    if(labelEl) labelEl.textContent=t.sl[lastData[b].status]||lastData[b].status;
+    if(liftsTitleEl) liftsTitleEl.textContent=t.ll||'Scheduled lifts \u2014 60 min';
+    if(liftsEl){
+      const liftsRaw=lastData[b].next_lifts;
+      if(!liftsRaw||liftsRaw==='No anticipated bridge lifts'){
+        liftsEl.textContent=t.nl||'No scheduled lifts';
       } else {
-        const lines = liftsRaw.split('\n').map(l => translateLifts(l, currentLang));
-        liftsEl.innerHTML = lines.map(l => `<div>${l}</div>`).join('');
+        const lines=liftsRaw.split('\n');
+        liftsEl.innerHTML=lines.map(l=>`<div>${l}</div>`).join('');
       }
     }
-    document.getElementById('refresh'+C).innerHTML=formatRefresh(lastData.last_refreshed,currentLang);
+    if(refreshEl) refreshEl.textContent=formatRefresh(null,'en');
   });
   updateCards();
 }
 
 // ── Fun facts ─────────────────────────────────────────────────────────
 const FUN_FACTS = [
-  { fr: "La ville de Salaberry-de-Valleyfield est entièrement située sur une île, l'île de Salaberry.", en: "The city of Salaberry-de-Valleyfield is entirely located on an island — Île de Salaberry." },
-  { fr: "Le nom de Salaberry-de-Valleyfield rend hommage au colonel Charles-Michel d'Irumberry de Salaberry, héros de la guerre de 1812.", en: "Salaberry-de-Valleyfield is named after Colonel Charles-Michel d'Irumberry de Salaberry, a hero of the War of 1812." },
-  { fr: "Salaberry-de-Valleyfield a longtemps été surnommée la « cité du coton » en raison de la présence de la Montreal Cottons.", en: "Salaberry-de-Valleyfield was long nicknamed the 'cotton city' due to the presence of the Montreal Cottons textile mill." },
-  { fr: "Les célèbres Régates de Salaberry-de-Valleyfield sont les plus importantes courses d'hydroplanes en Amérique du Nord depuis 1938.", en: "The famous Valleyfield Regatta has been the largest hydroplane racing event in North America since 1938." },
-  { fr: "Le Vieux Canal de Salaberry-de-Valleyfield, autrefois industriel, est aujourd'hui un parc nautique urbain unique au Québec.", en: "The Old Canal of Salaberry-de-Valleyfield, once an industrial waterway, is now a unique urban nautical park in Quebec." },
-  { fr: "L'hôtel de ville de Salaberry-de-Valleyfield est aménagé dans un ancien bâtiment industriel de la Montreal Cottons.", en: "Salaberry-de-Valleyfield's city hall is housed in a former Montreal Cottons industrial building." },
-  { fr: "La basilique-cathédrale Sainte-Cécile de Salaberry-de-Valleyfield possède une acoustique parmi les plus réputées de la province.", en: "The Sainte-Cécile basilica-cathedral in Salaberry-de-Valleyfield has one of the most renowned acoustics in the province." },
-  { fr: "D'importantes émeutes ouvrières ont secoué Salaberry-de-Valleyfield en 1900, forçant l'intervention de l'armée.", en: "Major labour riots shook Salaberry-de-Valleyfield in 1900, forcing the army to intervene." },
-  { fr: "Le pont Larocque, reliant Salaberry-de-Valleyfield à la rive sud, est l'un des ponts levants les plus massifs du Canada.", en: "The Larocque Bridge, linking Salaberry-de-Valleyfield to the south shore, is one of the largest lift bridges in Canada." },
-  { fr: "Le parc Delpha-Sauvé au centre-ville de Salaberry-de-Valleyfield était jadis le site des résidences des grands patrons de la filature.", en: "Delpha-Sauvé Park in downtown Salaberry-de-Valleyfield was once the residential area of the textile mill's top executives." },
-  { fr: "Le palais de justice de Salaberry-de-Valleyfield, construit en 1901, est un monument historique majeur de la région.", en: "The Salaberry-de-Valleyfield courthouse, built in 1901, is a major heritage landmark of the region." },
-  { fr: "Le MUSO (Musée de société des Deux-Rives) de Salaberry-de-Valleyfield est logé dans une ancienne église unie.", en: "The MUSO museum in Salaberry-de-Valleyfield is housed in a former United church." },
-  { fr: "Le quartier Bellerive était autrefois une municipalité distincte avant d'être intégré à Salaberry-de-Valleyfield.", en: "The Bellerive neighbourhood was once a separate municipality before being merged into Salaberry-de-Valleyfield." },
-  { fr: "La Baie Saint-François, qui borde Salaberry-de-Valleyfield, est un élargissement naturel du fleuve Saint-Laurent.", en: "Baie Saint-François, which borders Salaberry-de-Valleyfield, is a natural widening of the St. Lawrence River." },
-  { fr: "L'industrie chimique constitue encore aujourd'hui un pilier économique majeur pour Salaberry-de-Valleyfield.", en: "The chemical industry remains a major economic pillar for Salaberry-de-Valleyfield to this day." },
-  { fr: "Le Collège de Salaberry-de-Valleyfield occupe les murs d'un ancien séminaire fondé à la fin du 19e siècle.", en: "The Collège de Valleyfield occupies the walls of a former seminary founded in the late 19th century." },
-  { fr: "L'identité maritime de Salaberry-de-Valleyfield est célébrée chaque année par des milliers de touristes nautiques.", en: "Salaberry-de-Valleyfield's maritime identity is celebrated every year by thousands of nautical tourists." },
-  { fr: "Le parc régional des Îles-de-Saint-Timothée fait partie intégrante du territoire de Salaberry-de-Valleyfield.", en: "The Îles-de-Saint-Timothée regional park is an integral part of the Salaberry-de-Valleyfield territory." },
-  { fr: "Les citoyens de Salaberry-de-Valleyfield sont appelés les Campivallensiens.", en: "The residents of Salaberry-de-Valleyfield are called Campivallensians." },
-  { fr: "Le premier village de Saint-Louis-de-Gonzague a dû être déplacé lors du creusage du canal de Beauharnois.", en: "The original village of Saint-Louis-de-Gonzague had to be relocated during the construction of the Beauharnois Canal." },
-  { fr: "La municipalité de Saint-Louis-de-Gonzague est traversée par l'une des pistes cyclables les plus plates et droites du Québec.", en: "Saint-Louis-de-Gonzague is crossed by one of the flattest and straightest cycling paths in Quebec." },
-  { fr: "Le territoire de Saint-Louis-de-Gonzague est reconnu pour la fertilité exceptionnelle de ses terres agricoles.", en: "The Saint-Louis-de-Gonzague territory is renowned for the exceptional fertility of its farmland." },
-  { fr: "Le pont basculant de Saint-Louis-de-Gonzague permet le passage des navires de la Voie maritime du Saint-Laurent.", en: "The bascule bridge of Saint-Louis-de-Gonzague allows ships of the St. Lawrence Seaway to pass through." },
-  { fr: "Le nom de Saint-Louis-de-Gonzague honore un saint jésuite italien, protecteur de la jeunesse.", en: "The name Saint-Louis-de-Gonzague honours an Italian Jesuit saint, patron of youth." },
-  { fr: "La construction du canal a physiquement divisé le territoire de Saint-Louis-de-Gonzague en deux parties.", en: "The construction of the canal physically split the territory of Saint-Louis-de-Gonzague into two parts." },
-  { fr: "Plusieurs maisons ancestrales en pierre des champs témoignent du riche passé rural de Saint-Louis-de-Gonzague.", en: "Several ancestral fieldstone houses bear witness to the rich rural heritage of Saint-Louis-de-Gonzague." },
-  { fr: "Saint-Louis-de-Gonzague se trouve exactement au milieu du canal de Beauharnois, entre les deux écluses.", en: "Saint-Louis-de-Gonzague sits exactly halfway along the Beauharnois Canal, between the two lock stations." },
-  { fr: "Saint-Louis-de-Gonzague faisait autrefois partie de la vaste seigneurie de Beauharnois.", en: "Saint-Louis-de-Gonzague was once part of the vast Beauharnois seigneury." },
-  { fr: "L'économie de Saint-Louis-de-Gonzague repose en grande partie sur les grandes cultures maraîchères et céréalières.", en: "The economy of Saint-Louis-de-Gonzague relies largely on vegetable and grain farming." },
-  { fr: "La municipalité de Saint-Louis-de-Gonzague est l'une des plus anciennes paroisses de la région.", en: "Saint-Louis-de-Gonzague is one of the oldest parishes in the region." },
-  { fr: "Saint-Stanislas-de-Kostka est située au point de rencontre entre le lac Saint-François et le canal de Beauharnois.", en: "Saint-Stanislas-de-Kostka is located at the meeting point of Lake Saint-François and the Beauharnois Canal." },
-  { fr: "Le nom de Saint-Stanislas-de-Kostka rend hommage à un saint polonais, mort à l'âge de 17 ans.", en: "The name Saint-Stanislas-de-Kostka honours a Polish saint who died at the age of 17." },
-  { fr: "Le secteur de la Baie-des-Brises à Saint-Stanislas-de-Kostka est un lieu de villégiature recherché pour ses couchers de soleil.", en: "The Baie-des-Brises area in Saint-Stanislas-de-Kostka is a sought-after destination for its stunning sunsets." },
-  { fr: "Saint-Stanislas-de-Kostka est un site d'observation privilégié pour la faune aviaire migrant le long du fleuve.", en: "Saint-Stanislas-de-Kostka is a prime birdwatching site for migratory species along the river." },
-  { fr: "La municipalité de Saint-Stanislas-de-Kostka a été officiellement constituée en 1855.", en: "The municipality of Saint-Stanislas-de-Kostka was officially incorporated in 1855." },
-  { fr: "Les inondations printanières étaient autrefois un défi constant pour les résidents de Saint-Stanislas-de-Kostka.", en: "Spring flooding was once a constant challenge for the residents of Saint-Stanislas-de-Kostka." },
-  { fr: "La pêche blanche est une activité hivernale majeure sur le territoire de Saint-Stanislas-de-Kostka.", en: "Ice fishing is a major winter activity on the territory of Saint-Stanislas-de-Kostka." },
-  { fr: "Le chemin de fer New York Central passait autrefois par Saint-Stanislas-de-Kostka pour relier les États-Unis.", en: "The New York Central railway once passed through Saint-Stanislas-de-Kostka connecting to the United States." },
-  { fr: "La topographie de Saint-Stanislas-de-Kostka est parmi les plus planes de toute la plaine du Saint-Laurent.", en: "Saint-Stanislas-de-Kostka has some of the flattest terrain in the entire St. Lawrence lowlands." },
-  { fr: "La proximité de l'eau définit l'art de vivre des résidents de Saint-Stanislas-de-Kostka tout au long de l'année.", en: "The proximity to water defines the way of life of Saint-Stanislas-de-Kostka residents throughout the year." },
-  { fr: "Le canal de Beauharnois, inauguré en 1932, est l'un des plus longs canaux à écluses du continent nord-américain, avec près de 25 kilomètres de long.", en: "The Beauharnois Canal, opened in 1932, is one of the longest lock canals on the North American continent, stretching nearly 25 kilometres." },
-  { fr: "Le canal de Beauharnois permet aux navires de surmonter un dénivelé de 25 mètres — le plus important de toute la Voie maritime du Saint-Laurent.", en: "The Beauharnois Canal allows ships to overcome a 25-metre elevation change — the largest drop along the entire St. Lawrence Seaway." },
-  { fr: "La construction du canal de Beauharnois a nécessité le déplacement de plusieurs villages entiers, dont une partie de Saint-Louis-de-Gonzague.", en: "The construction of the Beauharnois Canal required the relocation of several entire villages, including part of Saint-Louis-de-Gonzague." },
-  { fr: "La centrale hydroélectrique de Beauharnois, alimentée par les eaux du canal, est l'une des plus puissantes au Québec.", en: "The Beauharnois hydroelectric power station, fed by the canal's waters, is one of the most powerful in Quebec." },
-  { fr: "Environ 4 000 navires commerciaux transitent chaque année par le canal de Beauharnois, transportant des marchandises du monde entier.", en: "Around 4,000 commercial vessels transit the Beauharnois Canal each year, carrying goods from around the world." },
-  { fr: "Avant le canal actuel, un premier canal plus petit avait été creusé au 19e siècle pour contourner les rapides de Beauharnois.", en: "Before the current canal, a smaller one had been dug in the 19th century to bypass the Beauharnois Rapids." },
-  { fr: "Les deux écluses du canal de Beauharnois mesurent chacune 261 mètres de long et 24 mètres de large.", en: "The two Beauharnois Canal locks each measure 261 metres long and 24 metres wide." },
-  { fr: "Le canal de Beauharnois est navigable de la mi-mars à la mi-janvier, fermant seulement quelques semaines en hiver pour l'entretien.", en: "The Beauharnois Canal is navigable from mid-March to mid-January, closing only a few weeks in winter for maintenance." },
-  { fr: "La Voie maritime du Saint-Laurent, dont fait partie le canal de Beauharnois, a été inaugurée conjointement par le Canada et les États-Unis en 1959.", en: "The St. Lawrence Seaway, of which the Beauharnois Canal is a part, was jointly inaugurated by Canada and the United States in 1959." },
-  { fr: "Le canal de Beauharnois est classé lieu historique national du Canada en raison de son importance pour le développement économique du pays.", en: "The Beauharnois Canal is designated a National Historic Site of Canada for its importance to the country's economic development." },
-  { fr: "Le pont St-Louis, qui enjambe le canal de Beauharnois, est un pont basculant — l'un des rares encore en opération commerciale au Québec.", en: "The St-Louis Bridge, spanning the Beauharnois Canal, is a bascule bridge — one of the few still in commercial operation in Quebec." },
-  { fr: "Le pont Larocque est considéré comme l'un des ponts levants les plus massifs encore en exploitation au Canada.", en: "The Larocque Bridge is considered one of the most massive operational lift bridges in Canada." },
-  { fr: "Chaque levée des ponts du canal de Beauharnois peut durer entre 10 et 25 minutes, selon la taille du navire qui passe.", en: "Each lift of the Beauharnois Canal bridges can last between 10 and 25 minutes, depending on the size of the passing vessel." },
-  { fr: "Les ponts du canal de Beauharnois sont coordonnés par des contrôleurs de la Voie maritime qui surveillent les navires en temps réel.", en: "The Beauharnois Canal bridges are coordinated by Seaway controllers who monitor vessel movements in real time." },
-  { fr: "Les navires qui transitent par le canal de Beauharnois peuvent mesurer jusqu'à 225 mètres de long — l'équivalent de deux terrains de football.", en: "Vessels transiting the Beauharnois Canal can be up to 225 metres long — the equivalent of two football fields end to end." },
-  { fr: "Chaque passage d'un navire dans les écluses du canal de Beauharnois nécessite environ 90 millions de litres d'eau douce.", en: "Each passage through the Beauharnois Canal locks requires approximately 90 million litres of fresh water." },
-  { fr: "Le canal de Beauharnois a permis à Montréal de devenir accessible aux navires de haute mer, transformant l'économie de toute la région.", en: "The Beauharnois Canal allowed Montreal to become accessible to ocean-going ships, transforming the economy of the entire region." },
-  { fr: "La centrale de Beauharnois produit suffisamment d'électricité pour alimenter plus d'un million de foyers québécois.", en: "The Beauharnois power station produces enough electricity to power over one million Quebec homes." },
-  { fr: "La saison de navigation sur le canal de Beauharnois dure environ 9 mois, et chaque fermeture hivernale permet d'importants travaux d'entretien.", en: "The navigation season on the Beauharnois Canal lasts approximately 9 months, and each winter closure allows for major maintenance work." },
-  { fr: "Les marchandises les plus fréquentes transportées par le canal de Beauharnois sont les céréales, le minerai de fer, le charbon et les produits chimiques.", en: "The most common goods transported through the Beauharnois Canal are grain, iron ore, coal, and chemical products." },
-  { fr: "Le canal de Beauharnois longe la centrale hydroélectrique éponyme, construite dans les années 1930 et agrandie plusieurs fois depuis.", en: "The Beauharnois Canal runs alongside the namesake hydroelectric station, built in the 1930s and expanded several times since." },
+  { en: "The Welland Canal, opened in 1932, is one of the longest lock canals in North America at nearly 25 kilometres long." },
+  { en: "The Welland Canal allows ships to overcome a 100-metre elevation change through 7 locks in just 11 kilometres." },
+  { en: "It takes about 9.4 million litres of water to fill a single Welland Canal lock — no pumps needed, just gravity." },
+  { en: "The Welland Canal closes every winter, usually between January and March depending on ice conditions." },
+  { en: "The first ship to travel the Welland Canal in 1829 was pulled by workhorses, not engines." },
+  { en: "About 3,000 ships transit the Welland Canal each year, carrying over 30 million metric tonnes of cargo." },
+  { en: "There are three tunnels under the Welland Canal — in Thorold and two in Welland." },
+  { en: "The Clarence Street Bridge in Port Colborne is one of only three remaining vertical lift bridges on the Welland Canal." },
+  { en: "Tolls for a loaded cargo ship to pass through the Welland Canal range from $19,000 to $38,000 depending on size and cargo." },
+  { en: "Pleasure crafts can transit all Welland Canal locks for a flat fee of $320 one way." },
+  { en: "The Welland Canal bypasses Niagara Falls, allowing ocean-going ships to travel 2,000 km inland to the Great Lakes." },
+  { en: "Lock 8 in Port Colborne is the second longest canal lock in the world at 421 metres." },
+  { en: "The Twin Flight Locks in Thorold (Locks 4, 5 and 6) raise or lower ships three times the height of a regular lock." },
+  { en: "William Hamilton Merritt originally proposed the Welland Canal in 1818 to supply water to his grist mill." },
+  { en: "This is the fourth version of the Welland Canal — previous ones were built in 1829, 1845, and 1887." },
+  { en: "The city of Welland got its name from the canal, and was the first town a ship reached on its way from Lake Erie in 1833." },
+  { en: "The Welland Canal Corridor passes through four cities: St. Catharines, Thorold, Welland, and Port Colborne." },
+  { en: "Ships can take up to 129 hours to sail from Duluth, Minnesota to the Atlantic Ocean, including 17 hours on the Welland Canal." },
+  { en: "The most common cargos on the Welland Canal are grain, iron ore, coal, salt, and steel products." },
+  { en: "The Captain of the first ship through the canal each spring is honoured with a Top Hat ceremony." },
 ];
+
 
 let _funFactIndex = Math.floor(Math.random() * FUN_FACTS.length);
 
 function renderFunFact() {
   const el = document.getElementById('funFactText');
   const lbl = document.getElementById('funFactLabel');
-  const btn = document.getElementById('funFactNext');
   if (!el) return;
-  const isFr = false;
-  if (lbl) lbl.textContent = isFr ? 'Saviez-vous que ?' : 'Did you know?';
-  if (btn) btn.textContent = isFr ? 'Autre fait' : 'Next fact';
+  if (lbl) lbl.textContent = 'DID YOU KNOW?';
   const fact = FUN_FACTS[_funFactIndex];
-  el.textContent = isFr ? fact.fr : fact.en;
+  if (fact) el.textContent = fact.en;
 }
 
 function nextFunFact() {
@@ -2680,9 +2638,15 @@ let retries=0;
 async function fetchStatus(){
   try{
     const r=await fetch(BACKEND+'/status',{signal:AbortSignal.timeout(10000)});
-    const d=await r.json();lastData=d;retries=0;document.getElementById('errorMsg').textContent='';
-    trackLiftStatus('gonzague',d.gonzague.status,d.gonzague.raisedSince);
-    trackLiftStatus('larocque',d.larocque.status,d.larocque.raisedSince);
+    const d=await r.json();
+    // Welland backend returns {bridges:{lakeshore:..., carlton:...}, last_updated:...}
+    const bridgeData = d.bridges || d;
+    lastData=bridgeData;
+    retries=0;
+    document.getElementById('errorMsg').textContent='';
+    for(const b of ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2']){
+      if(bridgeData[b]) trackLiftStatus(b, bridgeData[b].status, bridgeData[b].raisedSince);
+    }
     updateDisplay();
     refreshTimers();
     // Track subscriber count once per session
