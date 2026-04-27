@@ -490,12 +490,14 @@ app.get('/debug-lifts', async (req, res) => {
     const html = ['main st.','mellanby ave.','clarence st.'].some(k => kw.includes(k.split(' ')[0])) ? pcHtml : sctHtml;
     const idx = html.toLowerCase().indexOf(kw);
     if (idx === -1) return res.json({ error: 'keyword not found', kw });
-    const section = html.slice(Math.max(0,idx-200), idx+3000);
-    // Show raw text nodes
+    const section = html.slice(Math.max(0,idx-500), idx+5000);
+    // Raw text nodes
     const texts = [...section.matchAll(/>([^<]{1,})</g)].map(m=>m[1].trim()).filter(t=>t);
-    // Show item-data matches
-    const itemData = [...section.matchAll(/class="item-data[^"]*"[^>]*>([^<]+)/g)].map(m=>m[1].trim());
-    res.json({ kw, idx, texts: texts.slice(0,40), itemData });
+    // All class names present
+    const classes = [...new Set([...section.matchAll(/class="([^"]+)"/g)].map(m=>m[1]))];
+    // Raw HTML snippet (first 3000 chars)
+    const raw = section.slice(0, 3000);
+    res.json({ kw, idx, texts: texts.slice(0,60), classes, raw });
   } catch(e) { res.json({ error: e.message }); }
 });
 
