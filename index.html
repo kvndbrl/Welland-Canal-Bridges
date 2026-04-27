@@ -35,7 +35,7 @@
   <link rel="manifest" href="manifest.json"/>
   <link rel="icon" href="icon-192.png" type="image/png"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <title>Ponts du canal de Beauharnois</title>
+  <title>Welland Canal Bridges</title>
   <style>
     :root{
       --bg:#f0f2f5;--surface:#fff;--surface2:#f7f8fa;--border:rgba(0,0,0,.06);
@@ -1052,45 +1052,10 @@
   </div>
   <div id="notifTypesWarning" style="display:none;"></div>
 
-  <!-- Pont St-Louis -->
-  <div style="border-top:1px solid var(--border);">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;cursor:pointer;" onclick="toggleBridgeNotifSection('lakeshore')">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--text);font-family:var(--sans);" id="perBridgeLakeshoreLabel">Lakeshore Rd</div>
-        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;" id="perBridgeLakeshoreSub">Notifications on</div>
-      </div>
-      <label style="display:flex;align-items:center;" onclick="event.stopPropagation()">
-        <div class="pref-toggle">
-          <input type="checkbox" id="bridgeNotifLakeshore" checked onchange="toggleBridgeNotif('lakeshore')"/>
-          <span class="pref-slider"></span>
-        </div>
-      </label>
-    </div>
-    <div id="perBridgeLakeshoreContent" style="display:none;padding:0 16px 12px;">
-      <div id="perBridgeLakeshoreCheckboxes"></div>
-    </div>
-  </div>
+  <!-- Per-bridge notification sections — generated dynamically by initBridgeNotifToggles() -->
+  <div id="perBridgeNotifContainer"></div>
 
-  <!-- Pont Larocque -->
-  <div style="border-top:1px solid var(--border);">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;cursor:pointer;" onclick="toggleBridgeNotifSection('carlton')">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--text);font-family:var(--sans);" id="perBridgeCarltonLabel">Carlton St.</div>
-        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;" id="perBridgeCarltonSub">Notifications on</div>
-      </div>
-      <label style="display:flex;align-items:center;" onclick="event.stopPropagation()">
-        <div class="pref-toggle">
-          <input type="checkbox" id="bridgeNotifCarlton" checked onchange="toggleBridgeNotif('carlton')"/>
-          <span class="pref-slider"></span>
-        </div>
-      </label>
-    </div>
-    <div id="perBridgeCarltonContent" style="display:none;padding:0 16px 12px;">
-      <div id="perBridgeCarltonCheckboxes"></div>
-    </div>
-  </div>
-
-  <div class="settings-section-sub-label" id="timeSectionLabel">Plages horaires</div>
+  <div class="settings-section-sub-label" id="timeSectionLabel">Time ranges</div>
   <div class="settings-section-desc" id="settingsTimeDesc">Choisissez les jours et jusqu'à deux plages horaires pendant lesquelles vous souhaitez recevoir des notifications. Laissez tout vide pour être notifié en tout temps.</div>
 
   <div class="settings-section-sub-label" id="dayFilterLabel" style="padding-bottom:2px;">Plage 1 — Jours</div>
@@ -2152,75 +2117,81 @@ function toggleBridgeNotif(bridge) {
   const sub = document.getElementById('perBridge'+C+'Sub');
   const content = document.getElementById('perBridge'+C+'Content');
   const enabled = tog ? tog.checked : true;
-  const isFr = false;
 
-  // Update hidden prefGonzague/prefLarocque
-  const prefEl = document.getElementById('pref'+C);
-  if (prefEl) prefEl.checked = enabled;
-
-  if (sub) sub.textContent = enabled
-    ? (isFr ? 'Notifications activ\u00e9es' : 'Notifications on')
-    : (isFr ? 'Notifications d\u00e9sactiv\u00e9es' : 'Notifications off');
-
+  if (sub) sub.textContent = enabled ? 'Notifications on' : 'Notifications off';
   if (content) content.style.display = enabled ? 'block' : 'none';
   if (enabled) renderPerBridgeCheckboxes(bridge);
 
-  // Save updated bridge prefs to localStorage
+  const ALL_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
   const saved = localStorage.getItem('bridgePrefs');
-  const current = saved ? JSON.parse(saved) : ['gonzague','larocque'];
-  const allBridges = enabled
+  const current = saved ? JSON.parse(saved) : ALL_BRIDGES;
+  const updated = enabled
     ? [...new Set([...current, bridge])]
     : current.filter(b => b !== bridge);
-  localStorage.setItem('bridgePrefs', JSON.stringify(allBridges));
+  localStorage.setItem('bridgePrefs', JSON.stringify(updated));
   updateCardVisibility();
   syncPrefs();
 }
 
 function initBridgeNotifToggles() {
+  const ALL_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
+  const BRIDGE_DISPLAY_NAMES = {
+    lakeshore:'Lakeshore Rd', carlton:'Carlton St.', queenston:'Queenston St.',
+    glendale:'Glendale Ave.', allanburg:'Highway 20', mainwelland:'Main St.',
+    mellanby:'Mellanby Ave.', clarence:'Clarence St.'
+  };
   const saved = localStorage.getItem('bridgePrefs');
-  const bridges = saved ? JSON.parse(saved) : ['gonzague', 'larocque'];
-  ['gonzague', 'larocque'].forEach(b => {
+  const enabledBridges = saved ? JSON.parse(saved) : ALL_BRIDGES;
+
+  // Find the container where per-bridge sections live
+  const container = document.getElementById('perBridgeNotifContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  ALL_BRIDGES.forEach(b => {
     const C = capitalize(b);
-    const tog = document.getElementById('bridgeNotif'+C);
-    const sub = document.getElementById('perBridge'+C+'Sub');
-    const prefEl = document.getElementById('pref'+C);
-    const enabled = bridges.includes(b);
-    if (tog) { tog.checked = enabled; }
-    if (prefEl) prefEl.checked = enabled;
-    const isFr = false;
-    if (sub) sub.textContent = enabled
-      ? (isFr ? 'Notifications activ\u00e9es' : 'Notifications on')
-      : (isFr ? 'Notifications d\u00e9sactiv\u00e9es' : 'Notifications off');
-    // Auto-render checkboxes
+    const enabled = enabledBridges.includes(b);
+    const div = document.createElement('div');
+    div.style.cssText = 'border-top:1px solid var(--border);';
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;cursor:pointer;" onclick="toggleBridgeNotifSection('${b}')">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);font-family:var(--sans);" id="perBridge${C}Label">${BRIDGE_DISPLAY_NAMES[b]}</div>
+          <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;" id="perBridge${C}Sub">${enabled ? 'Notifications on' : 'Notifications off'}</div>
+        </div>
+        <label class="pref-toggle" onclick="event.stopPropagation()">
+          <input type="checkbox" id="bridgeNotif${C}" ${enabled?'checked':''} onchange="toggleBridgeNotif('${b}')"/>
+          <span class="pref-slider"></span>
+        </label>
+      </div>
+      <div id="perBridge${C}Content" style="display:${enabled?'block':'none'};padding:0 16px 12px;">
+        <div id="perBridge${C}Checkboxes"></div>
+      </div>
+    `;
+    container.appendChild(div);
     renderPerBridgeCheckboxes(b);
-    const content = document.getElementById('perBridge'+C+'Content');
-    if (content) content.style.display = enabled ? 'block' : 'none';
   });
 }
 
 function updateCardVisibility(){
+  const ALL_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
   const saved = localStorage.getItem('bridgePrefs');
-  const bridges = saved ? JSON.parse(saved) : ['gonzague','larocque'];
-  const cg = document.getElementById('cardGonzague');
-  const cl = document.getElementById('cardLarocque');
-  if(cg) cg.style.display = bridges.includes('gonzague') ? '' : 'none';
-  if(cl) cl.style.display = bridges.includes('larocque') ? '' : 'none';
+  const bridges = saved ? JSON.parse(saved) : ALL_BRIDGES;
+  ALL_BRIDGES.forEach(b => {
+    const C = capitalize(b);
+    const card = document.getElementById('card'+C);
+    if(card) card.style.display = bridges.includes(b) ? '' : 'none';
+  });
 }
 
 
 
 function getSelBridges(){
   const saved = localStorage.getItem('bridgePrefs');
-  return saved ? JSON.parse(saved) : ['gonzague','larocque'];
+  return saved ? JSON.parse(saved) : ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
 }
 async function updatePrefs(){localStorage.setItem('bridgePrefs',JSON.stringify(getSelBridges()));updateCardVisibility();await syncPrefs();}
 function loadPrefs(){
-  const s=localStorage.getItem('bridgePrefs');
-  const b=s?JSON.parse(s):['gonzague','larocque'];
-  const gEl=document.getElementById('prefGonzague');
-  const lEl=document.getElementById('prefLarocque');
-  if(gEl) gEl.checked=b.includes('gonzague');
-  if(lEl) lEl.checked=b.includes('larocque');
   updateCardVisibility();
 }
 
@@ -2592,7 +2563,7 @@ function toggleLang(){currentLang=false?'en':'fr';track('language_changed',{lang
 let retries=0;
 async function fetchStatus(){
   try{
-    const r=await fetch(BACKEND+'/status',{signal:AbortSignal.timeout(10000)});
+    const r=await fetch(BACKEND+'/status',{signal:AbortSignal.timeout(30000)});
     const d=await r.json();
     // Welland backend returns {bridges:{lakeshore:..., carlton:...}, last_updated:...}
     const bridgeData = d.bridges || d;
@@ -2615,7 +2586,7 @@ async function fetchStatus(){
     }
   }catch(e){
     const t=TR['en'];retries++;
-    if(retries<3){setTimeout(fetchStatus,10000);document.getElementById('errorMsg').textContent=t.rc+'... ('+retries+'/3)';}
+    if(retries<=5){setTimeout(fetchStatus,5000);if(retries>2)document.getElementById('errorMsg').textContent=t.rc+'... ('+retries+'/5)';}
     else{retries=0;document.getElementById('errorMsg').innerHTML=t.se+' <a href="#" onclick="fetchStatus();return false;">'+t.re+'</a>';}
   }
 }
