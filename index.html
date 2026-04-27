@@ -2162,19 +2162,33 @@ function initBridgeNotifToggles() {
   if (!container) return;
   container.innerHTML = '';
 
-  CITIES.forEach(city => {
-    // City header
+  CITIES.forEach((city, ci) => {
+    const anyEnabled = city.bridges.some(b => enabledBridges.includes(b));
+    const cityId = 'cityGroup_' + ci;
+    const isOpen = anyEnabled; // open if at least one bridge enabled
+
+    // City header — clickable to collapse
     const header = document.createElement('div');
-    header.style.cssText = 'padding:10px 16px 4px;border-top:1px solid var(--border);';
-    header.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--accent);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;">${city.name}</div>`;
+    header.style.cssText = 'border-top:1px solid var(--border);';
+    header.innerHTML = `
+      <div onclick="toggleCityGroup('${cityId}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;cursor:pointer;user-select:none;">
+        <div style="font-size:10px;font-weight:700;color:var(--accent);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;">${city.name}</div>
+        <span id="${cityId}_chevron" style="font-size:11px;color:var(--text3);transition:transform .2s;display:inline-block;transform:rotate(${isOpen?'0':'180'}deg);">▲</span>
+      </div>
+    `;
     container.appendChild(header);
+
+    // City bridges container
+    const group = document.createElement('div');
+    group.id = cityId;
+    group.style.display = isOpen ? 'block' : 'none';
 
     city.bridges.forEach(b => {
       const C = capitalize(b);
       const enabled = enabledBridges.includes(b);
-      const div = document.createElement('div');
-      div.innerHTML = `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px;cursor:pointer;" onclick="toggleBridgeNotifSection('${b}')">
+      const row = document.createElement('div');
+      row.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 16px 6px 20px;cursor:pointer;" onclick="toggleBridgeNotifSection('${b}')">
           <div>
             <div style="font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans);" id="perBridge${C}Label">${NAMES[b]}</div>
             <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px;" id="perBridge${C}Sub">${enabled ? 'Notifications on' : 'Notifications off'}</div>
@@ -2184,14 +2198,25 @@ function initBridgeNotifToggles() {
             <span class="pref-slider"></span>
           </label>
         </div>
-        <div id="perBridge${C}Content" style="display:${enabled?'block':'none'};padding:0 16px 10px;">
+        <div id="perBridge${C}Content" style="display:${enabled?'block':'none'};padding:0 16px 10px 20px;">
           <div id="perBridge${C}Checkboxes"></div>
         </div>
       `;
-      container.appendChild(div);
+      group.appendChild(row);
+      container.appendChild(group);
       renderPerBridgeCheckboxes(b);
     });
+    container.appendChild(group);
   });
+}
+
+function toggleCityGroup(id) {
+  const group = document.getElementById(id);
+  const chevron = document.getElementById(id + '_chevron');
+  if (!group) return;
+  const isOpen = group.style.display !== 'none';
+  group.style.display = isOpen ? 'none' : 'block';
+  if (chevron) chevron.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
 function updateCardVisibility(){
