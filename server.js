@@ -17,8 +17,6 @@ const PORT          = process.env.PORT || 10000;
 webpush.setVapidDetails('mailto:admin@wellandcanalbridges.app', VAPID_PUBLIC, VAPID_PRIVATE);
 
 // ── Bridges config ────────────────────────────────────────────────────
-// BridgeSCT page: 5 bridges in St. Catharines + Allanburg + Welland
-// BridgePC page:  3 bridges in Port Colborne (Clarence + 2 Jack-knife)
 const BRIDGE_IDS = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
 
 const BRIDGE_NAMES = {
@@ -32,7 +30,6 @@ const BRIDGE_NAMES = {
   clarence:   'Clarence St. (Bridge 21)',
 };
 
-// Keywords to find each bridge section in the HTML
 const BRIDGE_KEYWORDS = {
   lakeshore:  'lakeshore rd',
   carlton:    'carlton st.',
@@ -44,7 +41,6 @@ const BRIDGE_KEYWORDS = {
   clarence:   'clarence st.',
 };
 
-// SCT page bridges vs PC page bridges
 const SCT_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg'];
 const PC_BRIDGES  = ['mainwelland','mellanby','clarence'];
 
@@ -100,6 +96,27 @@ async function saveHistory(bridge) {
   const trimmed = liftHistory[bridge].slice(-100);
   liftHistory[bridge] = trimmed;
   await redisCmd('SET', `wcb:history:${bridge}`, JSON.stringify(trimmed));
+}
+
+// ── NEW: Persist lastStatus in Redis ─────────────────────────────────
+async function loadLastStatus() {
+  const raw = await redisCmd('GET', 'wcb:lastStatus');
+  if (raw) {
+    try {
+      const saved = JSON.parse(raw);
+      // Only restore known bridge IDs
+      for (const id of BRIDGE_IDS) {
+        if (saved[id]) lastStatus[id] = saved[id];
+      }
+      log(`Restored lastStatus from Redis: ${JSON.stringify(lastStatus)}`);
+    } catch(e) {
+      log('Could not parse saved lastStatus, using defaults');
+    }
+  }
+}
+
+async function saveLastStatus() {
+  await redisCmd('SET', 'wcb:lastStatus', JSON.stringify(lastStatus));
 }
 
 // ── Scraper ───────────────────────────────────────────────────────────
@@ -182,7 +199,6 @@ async function fetchBridgeStatus() {
     fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC'),
   ]);
 
-  // Extract all text nodes from HTML
   function extractTextPairs(html) {
     const texts = [...html.matchAll(/>([^<]{2,})</g)]
       .map(m => m[1].trim())
@@ -207,12 +223,10 @@ async function fetchBridgeStatus() {
     if (idx === -1) return null;
     const section = html.slice(idx, idx + 1500);
 
-    // Try item-data class (Beauharnois-style pages)
     const itemMatches = [...section.matchAll(/class="item-data[^"]*"[^>]*>([^<]+)/g)];
     const itemLifts = itemMatches.map(m => m[1].trim()).filter(v => v && v !== 'No anticipated bridge lifts' && v !== 'Aucune levée de pont prévue' && v !== 'No scheduled lifts');
     if (itemLifts.length) return itemLifts.join('\n');
 
-    // Try lgtextblack10 "Next Arrival: HH:MM" (Welland BridgePC style)
     const arrivalMatch = section.match(/class="lgtextblack10">Next Arrival:\s*([^<]+)/i);
     if (arrivalMatch) {
       const time = arrivalMatch[1].trim().replace(/\s+/g, ' ');
@@ -225,12 +239,10 @@ async function fetchBridgeStatus() {
   }
 
   function extractScheduled60(html) {
-    // Find the "Next 60 Minutes" forecast table (BridgePC only)
     const idx = html.toLowerCase().indexOf('next 60 minutes');
     if (idx === -1) return {};
     const section = html.slice(idx, idx + 4000);
     const result = {};
-    // Rows: bridge name + time pairs in lgtextblack10 spans
     const rows = [...section.matchAll(/class="lgtextblack">([^<]+)<[\/\s\S]*?class="lgtextblack10">([^<]+)</g)];
     for (const row of rows) {
       const name = row[1].trim().toLowerCase();
@@ -242,7 +254,6 @@ async function fetchBridgeStatus() {
     return result;
   }
 
-  // Bridge keyword map for matching text nodes
   const BRIDGE_TEXT_KEYWORDS = {
     lakeshore:  'lakeshore rd',
     carlton:    'carlton st.',
@@ -266,13 +277,11 @@ async function fetchBridgeStatus() {
     const kw = BRIDGE_TEXT_KEYWORDS[id];
     const texts = extractTextPairs(html);
 
-    // Find the bridge name in texts, then look at next text for status
     let status = 'disponible';
     let raisedSince = null;
 
     for (let i = 0; i < texts.length; i++) {
       if (texts[i].toLowerCase().includes(kw)) {
-        // Next non-empty text should be the status
         for (let j = i + 1; j < Math.min(i + 5, texts.length); j++) {
           const parsed = parseStatusFromText(texts[j]);
           if (parsed) {
@@ -285,7 +294,6 @@ async function fetchBridgeStatus() {
       }
     }
 
-    // Try 60-min forecast table for PC bridges
     let next_lifts = extractLiftsFromHtml(html, kw);
     if (!next_lifts) {
       const sched60 = extractScheduled60(html);
@@ -330,7 +338,6 @@ function getMessages(bridge, status, data) {
   const n = BRIDGE_NAMES[bridge] || bridge;
   const raisedAt = data?.raisedSince;
 
-  // Use historical avg duration if available, else 20 min default
   const avgMin = (() => {
     const h = liftHistory[bridge] || [];
     const durations = h.filter(e => e.durationMin).map(e => e.durationMin);
@@ -340,16 +347,14 @@ function getMessages(bridge, status, data) {
   const liftTime = (() => {
     const now = new Date();
     if (raisedAt) {
-      // We know when it was raised — estimate reopen from that
       const [h, m] = raisedAt.split(':').map(Number);
       const raised = new Date(now);
       raised.setHours(h, m, 0, 0);
       if (raised > now) raised.setDate(raised.getDate() - 1);
       const reopen = new Date(raised.getTime() + avgMin * 60000);
-      if (reopen < now) return ''; // already should be open
+      if (reopen < now) return '';
       return reopen.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Toronto' });
     } else {
-      // No raisedSince — estimate from now
       const reopen = new Date(now.getTime() + avgMin * 60000);
       return '~' + reopen.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Toronto' });
     }
@@ -450,9 +455,9 @@ async function monitor() {
         }
 
         lastStatus[bridge] = curr;
+        await saveLastStatus(); // ← NEW: persist after every change
         await sendNotifications(bridge, curr, data[bridge]);
       }
-
     }
 
     if (!anyChange) log('💤 No changes');
@@ -472,7 +477,6 @@ app.get('/debug-lifts', async (req, res) => {
     const html = page === 'pc' ? pcHtml : sctHtml;
     const kw = req.query.bridge;
     if (!kw) {
-      // Return last 5000 chars of page to see the 60-min table
       const texts = [...html.matchAll(/>([^<]{1,})</g)].map(m=>m[1].trim()).filter(t=>t);
       return res.json({ page, total_len: html.length, texts: texts.slice(-80), tail: html.slice(-5000) });
     }
@@ -530,76 +534,57 @@ app.get('/history', (req, res) => {
   res.set('Cache-Control', 'no-store');
   const result = {};
   for (const id of BRIDGE_IDS) {
-    const h = liftHistory[id];
-
-    // Avg lift duration (raisedAt → loweredAt)
-    const durations = h.filter(e => e.durationMin).map(e => e.durationMin);
-    const avgDuration = durations.length
-      ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length) : 0;
-
-    // Avg lowering duration — time from loweredAt back to next disponible
-    // We approximate as durationMin - avgRaising (half), or just store separately
-    // For now: avg of (durationMin * 0.3) as lowering is ~30% of total
-    const avgLowering = durations.length
-      ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length * 0.3) : 0;
-
-    // Heatmap: grid of [day_of_week]-[hour] => count
-    // day: 0=Sun..6=Sat, hour: 0-23
-    const heatmap = {};
-    for (const entry of h) {
-      if (!entry.raisedAt) continue;
-      const dt = new Date(entry.raisedAt);
-      const key = `${dt.getDay()}-${dt.getHours()}`;
-      heatmap[key] = (heatmap[key] || 0) + 1;
-    }
-
-    result[id] = {
-      entries: h.length,
-      avgDuration,
-      avgLowering,
-      heatmap,
-      lastLift: h.length ? h[h.length-1].raisedAt : null,
-    };
+    result[id] = liftHistory[id] || [];
   }
   res.json(result);
 });
 
 app.post('/subscribe', async (req, res) => {
   const sub = req.body;
-  if (!sub?.endpoint) return res.status(400).json({ error: 'Invalid subscription' });
-  const existing = subscriptions.find(s => s.endpoint === sub.endpoint);
-  if (existing) {
-    Object.assign(existing, sub);
-    log(`Updated subscriber. Bridges: ${sub.bridges}`);
-  } else {
+  if (!sub || !sub.endpoint) return res.status(400).json({ error: 'Invalid subscription' });
+  const exists = subscriptions.find(s => s.endpoint === sub.endpoint);
+  if (!exists) {
     subscriptions.push(sub);
-    log(`New subscriber! Bridges: ${sub.bridges}. Total: ${subscriptions.length}`);
+    await saveSubs();
+    log(`➕ New subscriber. Total: ${subscriptions.length}`);
   }
-  await saveSubs();
   res.json({ ok: true });
 });
 
 app.post('/unsubscribe', async (req, res) => {
   const { endpoint } = req.body;
+  if (!endpoint) return res.status(400).json({ error: 'Missing endpoint' });
+  const before = subscriptions.length;
   subscriptions = subscriptions.filter(s => s.endpoint !== endpoint);
-  await saveSubs();
-  log(`Unsubscribed. Total: ${subscriptions.length}`);
+  if (subscriptions.length < before) {
+    await saveSubs();
+    log(`➖ Unsubscribed. Total: ${subscriptions.length}`);
+  }
   res.json({ ok: true });
 });
 
-app.get('/vapidPublicKey', (req, res) => res.json({ key: VAPID_PUBLIC }));
+app.post('/update-subscription', async (req, res) => {
+  const updated = req.body;
+  if (!updated || !updated.endpoint) return res.status(400).json({ error: 'Invalid' });
+  const idx = subscriptions.findIndex(s => s.endpoint === updated.endpoint);
+  if (idx !== -1) {
+    subscriptions[idx] = { ...subscriptions[idx], ...updated };
+    await saveSubs();
+    log(`✏️ Updated subscription for ${updated.endpoint.slice(-20)}`);
+    res.json({ ok: true });
+  } else {
+    res.status(404).json({ error: 'Subscription not found' });
+  }
+});
 
-// ── Self-ping to prevent Render cold start ────────────────────────────
-const SELF_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
-setInterval(() => {
-  fetch(`${SELF_URL}/ping`).catch(() => {});
-}, 10 * 60 * 1000); // every 10 minutes
-
-// ── Boot ──────────────────────────────────────────────────────────────
-(async () => {
+// ── Start ─────────────────────────────────────────────────────────────
+async function start() {
   await loadSubs();
   await loadHistory();
-  app.listen(PORT, () => log(`✅ Server on port ${PORT}`));
+  await loadLastStatus(); // ← NEW: restore lastStatus from Redis on boot
   monitor();
   setInterval(monitor, 15000);
-})();
+  app.listen(PORT, () => log(`🚀 Server running on port ${PORT}`));
+}
+
+start();
