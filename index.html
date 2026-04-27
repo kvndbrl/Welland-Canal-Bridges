@@ -536,8 +536,8 @@
             <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;" id="obNtLoweringDesc">Avisé quand le pont redescend et que la réouverture est imminente.</div>
           </div>
         </label>
-        <label style="display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:12px;background:var(--surface2);cursor:pointer;">
-          <input type="checkbox" id="ob-nt-scheduled" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;margin-top:2px;"/>
+        <label style="display:none;" style="display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:12px;background:var(--surface2);cursor:pointer;">
+          <input type="checkbox" id="ob-nt-scheduled" style="display:none;" disabled style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;margin-top:2px;"/>
           <div>
             <div style="font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans);" id="obNtScheduledLabel">Scheduled lift</div>
             <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;" id="obNtScheduledDesc">Prévenu à l'avance d'une levée commerciale planifiée dans les 60 prochaines minutes.</div>
@@ -1513,7 +1513,6 @@ function obFinish() {
   if(document.getElementById('ob-nt-achalandage')?.checked) types.push('achalandage');
   if(document.getElementById('ob-nt-raising')?.checked) types.push('raising');
   if(document.getElementById('ob-nt-lowering')?.checked) types.push('lowering');
-  if(document.getElementById('ob-nt-scheduled')?.checked) types.push('scheduled');
   localStorage.setItem('notifTypes', JSON.stringify(types.length ? types : ['bientot_leve','leve','outage']));
   loadNotifTypes();
   obSetStep(4);
@@ -2277,7 +2276,7 @@ function loadPrefs(){
 }
 
 // Notification types
-const NT_TYPES=['bientot_leve','raising','leve','lowering','disponible','scheduled','outage','achalandage'];
+const NT_TYPES=['bientot_leve','raising','leve','lowering','disponible','outage'];
 const NT_DEFAULT=['bientot_leve','leve','outage']; // suggested defaults only
 function getSelNotifTypes(){
   const sel = NT_TYPES.filter(t=>{
@@ -2285,11 +2284,11 @@ function getSelNotifTypes(){
     return el ? el.checked : false;
   });
   // If nothing selected (e.g. hidden inputs not yet loaded), return safe default
-  return sel.length ? sel : ['bientot_leve','leve','outage','scheduled'];
+  return sel.length ? sel : ['bientot_leve','leve','outage'];
 }
 function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 // Map type key → element ID suffix
-const NT_ID_MAP={bientot_leve:'Bientot_leve',raising:'Raising',leve:'Leve',lowering:'Lowering',disponible:'Disponible',scheduled:'Scheduled',outage:'Outage',achalandage:'Achalandage'};
+const NT_ID_MAP={bientot_leve:'Bientot_leve',raising:'Raising',leve:'Leve',lowering:'Lowering',disponible:'Disponible',outage:'Outage',achalandage:'Achalandage'};
 function getNotifTypeId(t){return 'nt'+(NT_ID_MAP[t]||capitalize(t));}
 async function updateNotifTypes(){
   const selected = getSelNotifTypes();
@@ -2326,7 +2325,6 @@ const PER_BRIDGE_TYPES = [
   { key: 'raising',      fr: 'Bridge raising',   en: 'Bridge raising',    descFr: 'When the bridge physically starts to rise.',                  descEn: 'When the bridge physically starts to rise.', default: false },
   { key: 'lowering',     fr: 'Bridge lowering', en: 'Bridge lowering',   descFr: 'When the bridge comes back down — reopening imminent.',                descEn: 'When the bridge comes back down — reopening imminent.', default: false },
   { key: 'disponible',   fr: 'Disponible',            en: 'Available',         descFr: 'As soon as traffic resumes after a lift.',                  descEn: 'As soon as traffic resumes after a lift.', default: false },
-  { key: 'scheduled',    fr: 'Scheduled lift',       en: 'Scheduled lift',    descFr: 'Commercial lift scheduled within the next 60 minutes.',      descEn: 'Commercial lift scheduled within the next 60 minutes.', default: true },
   { key: 'achalandage',  fr: 'Busy period',    en: 'Busy period',       descFr: 'Alerte 30 min avant une période historiquement chargée.',          descEn: 'Alert 30 min before a historically busy period.', default: false },
 ];
 
@@ -2410,7 +2408,7 @@ function toggleOptionalNotifs(){
 
 function loadNotifTypes(){
   const saved=localStorage.getItem('notifTypes');
-  const SAFE_DEFAULT=['bientot_leve','leve','outage','scheduled'];
+  const SAFE_DEFAULT=['bientot_leve','leve','outage'];
   const types=saved?JSON.parse(saved):SAFE_DEFAULT;
   const active=types.length?types:SAFE_DEFAULT;
   NT_TYPES.forEach(t=>{

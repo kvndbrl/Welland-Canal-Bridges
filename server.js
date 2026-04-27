@@ -57,9 +57,7 @@ let liftHistory = Object.fromEntries(BRIDGE_IDS.map(id => [id, []]));
 let liftActive  = Object.fromEntries(BRIDGE_IDS.map(id => [id, false]));
 let subscriptions = [];
 let disponibleSince = Object.fromEntries(BRIDGE_IDS.map(id => [id, null]));
-let lastScheduledNotif = Object.fromEntries(BRIDGE_IDS.map(id => [id, 0]));
 const DISPONIBLE_MIN_MS = 90 * 1000;
-const SCHEDULED_COOLDOWN_MS = 20 * 60 * 1000;
 
 // ── Redis helpers ─────────────────────────────────────────────────────
 async function redisCmd(...args) {
@@ -324,7 +322,6 @@ function statusBadge(status) {
     lowering:     '/badge-lowering.png',
     disponible:   '/badge-disponible.png',
     outage:       '/badge-outage.png',
-    scheduled:    '/badge-scheduled.png',
   };
   return `${BASE_URL}${map[status] || '/badge-disponible.png'}`;
 }
@@ -394,7 +391,7 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
     if (!bridges.includes(bridge)) { skippedBridge++; continue; }
 
     const bridgeKey = `notifTypes_${bridge}`;
-    const allowedTypes = sub[bridgeKey] || sub.notifTypes || ['bientot_leve','leve','outage','scheduled'];
+    const allowedTypes = sub[bridgeKey] || sub.notifTypes || ['bientot_leve','leve','outage'];
     const isClosing = status === 'disponible';
     if (!isClosing && !allowedTypes.includes(status)) continue;
 
@@ -420,44 +417,7 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
   log(`🔔 Notification [${bridge}] ${status} — ✅ ${sent} sent | 🚫 ${skippedBridge} bridge skip | ❌ ${failed} failed`);
 }
 
-async function sendScheduledLiftNotification(bridge, liftTime) {
-  const now = Date.now();
-  if (now - lastScheduledNotif[bridge] < SCHEDULED_COOLDOWN_MS) return;
-  lastScheduledNotif[bridge] = now;
 
-  const n = BRIDGE_NAMES[bridge] || bridge;
-  const msg = { title: `📅 ${n}`, body: `Scheduled lift · ${liftTime}` };
-  let sent = 0;
-
-  for (const sub of [...subscriptions]) {
-    const bridges = sub.bridges || BRIDGE_IDS;
-    if (!bridges.includes(bridge)) continue;
-    const bridgeKey = `notifTypes_${bridge}`;
-    const allowedTypes = sub[bridgeKey] || sub.notifTypes || ['bientot_leve','leve','outage','scheduled'];
-    if (!allowedTypes.includes('scheduled')) continue;
-
-    const payload = JSON.stringify({
-      ...msg, bridge, status: 'scheduled',
-      tag: `wcb-${bridge}`,
-      persistent: false,
-      icon: notifIcon(sub),
-      badge: statusBadge('scheduled'),
-    });
-
-    try {
-      await webpush.sendNotification(sub, payload);
-      sent++;
-    } catch(e) {
-      if (e.statusCode === 410 || e.statusCode === 404) {
-        subscriptions = subscriptions.filter(s => s.endpoint !== sub.endpoint);
-        await saveSubs();
-      }
-    }
-  }
-  log(`🔔 Scheduled notif [${bridge}] — ✅ ${sent} sent`);
-}
-
-// ── Monitor ───────────────────────────────────────────────────────────
 async function monitor() {
   try {
     const data = await fetchBridgeStatus();
@@ -493,23 +453,6 @@ async function monitor() {
         await sendNotifications(bridge, curr, data[bridge]);
       }
 
-      // Scheduled lift check
-      const lifts = data[bridge].next_lifts;
-      if (lifts && lifts !== 'No anticipated bridge lifts') {
-        const firstLift = lifts.split('\n')[0];
-        const timeMatch = firstLift.match(/(\d{1,2}:\d{2})/);
-        if (timeMatch) {
-          const now = new Date();
-          const [h, m] = timeMatch[1].split(':').map(Number);
-          const liftDate = new Date(now);
-          liftDate.setHours(h, m, 0, 0);
-          if (liftDate < now) liftDate.setDate(liftDate.getDate() + 1);
-          const minsUntil = (liftDate - now) / 60000;
-          if (minsUntil <= 60 && minsUntil > 0 && curr === 'disponible') {
-            await sendScheduledLiftNotification(bridge, timeMatch[1]);
-          }
-        }
-      }
     }
 
     if (!anyChange) log('💤 No changes');
