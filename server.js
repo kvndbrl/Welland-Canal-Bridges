@@ -516,6 +516,15 @@ app.get('/debug', async (req, res) => {
   }
 });
 
+// ── Test notification endpoint ────────────────────────────────────────
+app.get('/test-notif', async (req, res) => {
+  const bridge = req.query.bridge || 'mainwelland';
+  const status = req.query.status || 'bientot_leve';
+  if (!BRIDGE_IDS.includes(bridge)) return res.status(400).json({ error: 'Invalid bridge' });
+  await sendNotifications(bridge, status, lastData[bridge] || {});
+  res.json({ ok: true, bridge, status });
+});
+
 app.get('/ping', (req, res) => res.json({ ok: true, subs: subscriptions.length }));
 
 app.get('/status', (req, res) => {
