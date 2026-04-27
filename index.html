@@ -114,7 +114,7 @@
     *{margin:0;padding:0;box-sizing:border-box;}
     html,body{height:100%;}
     body{font-family:var(--sans);background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:28px 16px 160px;transition:background .3s;overflow-y:auto;overflow-x:hidden;}
-    .waves-bg{position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:0;pointer-events:none;overflow:hidden;}
+    .waves-bg{position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:2;pointer-events:none;overflow:hidden;}
     .waves-svg{position:absolute;bottom:0;left:0;width:200%;height:100%;pointer-events:none;}
     .wave1{fill:var(--wave-color);opacity:var(--wave-opacity);}
     .wave2{fill:var(--wave-color);opacity:calc(var(--wave-opacity)*.55);}
@@ -166,7 +166,7 @@
     .toggle-slider:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:white;border-radius:50%;transition:transform .3s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
     .toggle-switch input:checked+.toggle-slider{background:var(--accent);}
     .toggle-switch input:checked+.toggle-slider:before{transform:translateX(18px);}
-    main{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;align-items:stretch;}
+    main{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;align-items:stretch;padding-bottom:130px;}
     .bridge-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:8px;overflow:hidden;border:1px solid var(--border);animation:fadeUp .4s ease both;flex-shrink:0;}
     .bridge-card:nth-child(1){animation-delay:0s;}.bridge-card:nth-child(2){animation-delay:.05s;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -383,7 +383,7 @@
 
 </div>
 
-<div style="position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:0;pointer-events:none;overflow:hidden;" aria-hidden="true">
+<div style="position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:2;pointer-events:none;overflow:hidden;" aria-hidden="true">
   <div class="ship-container" onclick="openSwipeDon()" style="cursor:pointer;">
     <div class="ship-bob">
       <div class="ship-wake"></div>
