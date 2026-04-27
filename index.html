@@ -592,4 +592,365 @@ function buildCards() {
     if (!prefs.includes(id)) continue;
     const C = capitalize(id);
     const card = document.createElement('div');
-    ca
+    card.className = 'bridge-card';
+    card.id = `card_${id}`;
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="card-name">${BRIDGE_NAMES[id].toUpperCase()}</span>
+      </div>
+      <div class="card-body">
+        <div class="status-badge status-disponible" id="badge_${id}">
+          <div class="status-dot"></div>
+          <span id="statusText_${id}">Loading…</span>
+        </div>
+        <div class="bridge-timeline" id="timeline_${id}">
+          <div class="timeline-track">
+            <div class="timeline-step"><div class="timeline-dot" id="tDot0_${id}"><svg viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><rect x="21" y="43" width="22" height="3" rx="1.5"/><rect x="30" y="4" width="4" height="14" rx="2"/><rect x="30" y="21" width="4" height="4" rx="2"/></svg></div><span class="timeline-label" id="tLbl0_${id}">Soon lifted</span></div>
+            <div class="timeline-connector" id="tConn0_${id}"></div>
+            <div class="timeline-step"><div class="timeline-dot" id="tDot1_${id}"><svg viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-55,21,45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M19 18 Q19 35 19 44" stroke="currentColor" stroke-width="1" fill="none" opacity="0.6"/><path d="M45 18 Q45 35 45 44" stroke="currentColor" stroke-width="1" fill="none" opacity="0.6"/></svg></div><span class="timeline-label" id="tLbl1_${id}">Raising</span></div>
+            <div class="timeline-connector" id="tConn1_${id}"></div>
+            <div class="timeline-step"><div class="timeline-dot" id="tDot2_${id}"><svg viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-88,21,45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g></svg></div><span class="timeline-label" id="tLbl2_${id}">Lifted</span></div>
+            <div class="timeline-connector" id="tConn2_${id}"></div>
+            <div class="timeline-step"><div class="timeline-dot" id="tDot3_${id}"><svg viewBox="0 0 64 64" fill="currentColor"><rect x="2" y="44" width="16" height="3" rx="1.5"/><rect x="46" y="44" width="16" height="3" rx="1.5"/><rect x="17" y="18" width="4" height="29" rx="1.5"/><rect x="43" y="18" width="4" height="29" rx="1.5"/><g transform="rotate(-30,21,45.5)"><rect x="21" y="43" width="24" height="3" rx="1.5"/></g><path d="M53 26 L56 32 L59 26" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="timeline-label" id="tLbl3_${id}">Lowering</span></div>
+          </div>
+        </div>
+        <div class="lifts-row">
+          <div class="lifts-label">SCHEDULED LIFTS — 60 MIN</div>
+          <div class="lifts-value" id="lifts_${id}">—</div>
+        </div>
+      </div>
+      <div class="update-time" id="updated_${id}"></div>
+    `;
+    container.appendChild(card);
+  }
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function updateCard(id, data) {
+  const status = data.status || 'disponible';
+  const badge = document.getElementById(`badge_${id}`);
+  const statusText = document.getElementById(`statusText_${id}`);
+  const liftsEl = document.getElementById(`lifts_${id}`);
+  const updatedEl = document.getElementById(`updated_${id}`);
+  const timeline = document.getElementById(`timeline_${id}`);
+
+  if (badge) {
+    badge.className = `status-badge status-${status}`;
+    if (statusText) statusText.textContent = STATUS_LABELS[status] || status;
+  }
+
+  // Timeline
+  const activeStatuses = ['bientot_leve','raising','leve','lowering'];
+  if (timeline) {
+    if (activeStatuses.includes(status)) {
+      timeline.classList.add('visible');
+      updateTimeline(id, status);
+    } else {
+      timeline.classList.remove('visible');
+    }
+  }
+
+  // Lifts
+  if (liftsEl) {
+    const raw = data.next_lifts;
+    if (!raw || raw === 'No anticipated bridge lifts') {
+      liftsEl.textContent = 'No scheduled lifts';
+    } else {
+      const lines = raw.split('\n');
+      liftsEl.innerHTML = lines.map(l => `<div>${l}</div>`).join('');
+    }
+  }
+
+  if (updatedEl) {
+    const now = new Date();
+    updatedEl.textContent = `Updated ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  }
+}
+
+function updateTimeline(id, status) {
+  const step = STATUS_STEP[status] ?? -1;
+  for (let i = 0; i <= 3; i++) {
+    const dot = document.getElementById(`tDot${i}_${id}`);
+    const lbl = document.getElementById(`tLbl${i}_${id}`);
+    if (!dot) continue;
+    dot.classList.remove('active','done');
+    if (lbl) lbl.classList.remove('active');
+    if (i < step) dot.classList.add('done');
+    else if (i === step) { dot.classList.add('active'); if (lbl) lbl.classList.add('active'); }
+    if (i < 3) {
+      const conn = document.getElementById(`tConn${i}_${id}`);
+      if (conn) conn.classList.toggle('done', i < step);
+    }
+  }
+}
+
+// ── Fetch status ───────────────────────────────────────────────────
+async function fetchStatus() {
+  try {
+    const res = await fetch(`${BACKEND}/status?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    lastData = json.bridges || {};
+    document.getElementById('updateTime').textContent =
+      `WELLAND CANAL · ${new Date().toLocaleTimeString('en-CA', { hour:'2-digit', minute:'2-digit', hour12:false })}`;
+    const errEl = document.getElementById('errorMsg');
+    if (errEl) errEl.textContent = '';
+    for (const id of BRIDGE_IDS) {
+      if (lastData[id]) updateCard(id, lastData[id]);
+    }
+  } catch(e) {
+    console.error('fetchStatus error:', e);
+    const errEl = document.getElementById('errorMsg');
+    if (errEl) errEl.textContent = 'Connection error — retrying…';
+  }
+}
+
+// ── Notifications ──────────────────────────────────────────────────
+async function loadVapidKey() {
+  try {
+    const res = await fetch(`${BACKEND}/vapidPublicKey`);
+    const json = await res.json();
+    vapidKey = json.key;
+  } catch(e) {}
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+}
+
+async function requestNotifPermission() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') return;
+  await subscribeUser();
+  updateNotifUI();
+}
+
+async function subscribeUser() {
+  if (!vapidKey) await loadVapidKey();
+  const sw = await navigator.serviceWorker.ready;
+  let sub = await sw.pushManager.getSubscription();
+  if (!sub) {
+    sub = await sw.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapidKey)
+    });
+  }
+  notifSub = sub;
+  await syncPrefs(sub);
+}
+
+async function syncPrefs(sub) {
+  if (!sub) {
+    const sw = await navigator.serviceWorker.ready;
+    sub = await sw.pushManager.getSubscription();
+  }
+  if (!sub) return;
+  const saved = localStorage.getItem('bridgePrefs');
+  const bridges = saved ? JSON.parse(saved) : BRIDGE_IDS;
+  const timeRange = { start: document.getElementById('rangeStart')?.value || '', end: document.getElementById('rangeEnd')?.value || '' };
+  const body = { ...JSON.parse(JSON.stringify(sub)), bridges, timeRanges: [timeRange], lang: 'en' };
+  await fetch(`${BACKEND}/subscribe`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+}
+
+async function updateNotifUI() {
+  const perm = Notification.permission;
+  const cta = document.getElementById('notifCta');
+  const toggle = document.getElementById('notifMasterToggle');
+  const section = document.getElementById('notifSectionInner');
+  if (perm === 'granted') {
+    if (cta) cta.style.display = 'none';
+    if (toggle) toggle.checked = true;
+    if (section) section.style.display = 'block';
+  } else {
+    if (cta) cta.style.display = 'block';
+    if (toggle) toggle.checked = false;
+    if (section) section.style.display = 'none';
+  }
+}
+
+function toggleNotifMaster() {
+  const toggle = document.getElementById('notifMasterToggle');
+  if (!toggle) return;
+  if (toggle.checked) {
+    requestNotifPermission();
+  } else {
+    // unsubscribe
+    navigator.serviceWorker?.ready.then(sw => sw.pushManager.getSubscription()).then(sub => {
+      if (sub) {
+        fetch(`${BACKEND}/unsubscribe`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ endpoint: sub.endpoint }) });
+        sub.unsubscribe();
+      }
+    });
+    document.getElementById('notifSectionInner').style.display = 'none';
+  }
+}
+
+// ── Per-bridge notification sections ──────────────────────────────
+const NOTIF_TYPES = [
+  { key:'bientot_leve', label:'Lift soon',        desc:'A few minutes before the bridge starts to rise.' },
+  { key:'leve',         label:'Bridge lifted',     desc:'As soon as the bridge is lifted.' },
+  { key:'outage',       label:'Planned closure',   desc:'Known planned closures in advance.' },
+  { key:'raising',      label:'Bridge raising',    desc:'When the bridge physically starts to rise.' },
+  { key:'lowering',     label:'Bridge lowering',   desc:'When the bridge comes back down.' },
+  { key:'disponible',   label:'Available',         desc:'When traffic resumes after a lift.' },
+  { key:'scheduled',    label:'Scheduled lift',    desc:'Commercial lift scheduled within 60 minutes.' },
+];
+
+function buildPerBridgeNotifSections() {
+  const container = document.getElementById('perBridgeNotifSections');
+  if (!container) return;
+  const saved = localStorage.getItem('bridgePrefs');
+  const prefs = saved ? JSON.parse(saved) : BRIDGE_IDS;
+  container.innerHTML = '';
+
+  for (const id of BRIDGE_IDS) {
+    const enabled = prefs.includes(id);
+    const div = document.createElement('div');
+    div.style.borderTop = '1px solid var(--border)';
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 6px;cursor:pointer;" onclick="toggleBridgeSection('${id}')">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);">${BRIDGE_NAMES[id]}</div>
+          <div style="font-size:10px;color:var(--text3);font-family:var(--mono);" id="bridgeSub_${id}">${enabled ? 'Notifications on' : 'Notifications off'}</div>
+        </div>
+        <label style="display:flex;align-items:center;" onclick="event.stopPropagation()">
+          <div class="pref-toggle">
+            <input type="checkbox" id="bridgeToggle_${id}" ${enabled?'checked':''} onchange="toggleBridgeNotif('${id}')"/>
+            <span class="pref-slider"></span>
+          </div>
+        </label>
+      </div>
+      <div id="bridgeTypes_${id}" style="display:none;padding:0 20px 10px;">
+        ${NOTIF_TYPES.map(t => {
+          const typesSaved = localStorage.getItem(`notifTypes_${id}`);
+          const types = typesSaved ? JSON.parse(typesSaved) : ['bientot_leve','leve','outage','scheduled'];
+          const checked = types.includes(t.key);
+          return `<label style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+            <input type="checkbox" ${checked?'checked':''} data-bridge="${id}" data-type="${t.key}" onchange="updateBridgeNotifType('${id}')" style="width:15px;height:15px;accent-color:var(--accent);flex-shrink:0;margin-top:2px;"/>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text);">${t.label}</div>
+              <div style="font-size:10px;color:var(--text3);">${t.desc}</div>
+            </div>
+          </label>`;
+        }).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  }
+}
+
+function toggleBridgeSection(id) {
+  const el = document.getElementById(`bridgeTypes_${id}`);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleBridgeNotif(id) {
+  const tog = document.getElementById(`bridgeToggle_${id}`);
+  const sub = document.getElementById(`bridgeSub_${id}`);
+  const enabled = tog?.checked ?? true;
+  if (sub) sub.textContent = enabled ? 'Notifications on' : 'Notifications off';
+  const saved = localStorage.getItem('bridgePrefs');
+  const current = saved ? JSON.parse(saved) : [...BRIDGE_IDS];
+  const updated = enabled ? [...new Set([...current, id])] : current.filter(b => b !== id);
+  localStorage.setItem('bridgePrefs', JSON.stringify(updated));
+  updateCardVisibility();
+  syncPrefs();
+}
+
+function updateBridgeNotifType(id) {
+  const checkboxes = document.querySelectorAll(`input[data-bridge="${id}"]`);
+  const types = [...checkboxes].filter(c => c.checked).map(c => c.dataset.type);
+  localStorage.setItem(`notifTypes_${id}`, JSON.stringify(types));
+  syncPrefs();
+}
+
+function updateCardVisibility() {
+  const saved = localStorage.getItem('bridgePrefs');
+  const bridges = saved ? JSON.parse(saved) : BRIDGE_IDS;
+  for (const id of BRIDGE_IDS) {
+    const card = document.getElementById(`card_${id}`);
+    if (card) card.style.display = bridges.includes(id) ? '' : 'none';
+  }
+}
+
+// ── Drawer ─────────────────────────────────────────────────────────
+function openDrawer() {
+  document.getElementById('settingsDrawer').classList.add('open');
+  document.getElementById('settingsDrawer').removeAttribute('aria-hidden');
+  document.getElementById('drawerOverlay').classList.add('open');
+  buildPerBridgeNotifSections();
+  updateNotifUI();
+}
+function closeDrawer() {
+  document.getElementById('settingsDrawer').classList.remove('open');
+  document.getElementById('settingsDrawer').setAttribute('aria-hidden','true');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}
+
+function clearTimeRange() {
+  document.getElementById('rangeStart').value = '';
+  document.getElementById('rangeEnd').value = '';
+  syncPrefs();
+}
+
+// ── Donation easter egg ────────────────────────────────────────────
+const DON_VARIANTS = [
+  { emoji:'🚢', title:"You clicked the boat.", desc:"We knew you'd do that. We just hoped you'd donate too." },
+  { emoji:'🎯', title:"You found the easter egg.", desc:"It's not really an easter egg. It's just a donation request. But well done anyway." },
+  { emoji:'🕵️', title:"We saw you click the boat.", desc:"We don't know why you did that. But since you're here." },
+  { emoji:'🪤', title:"It was a trap.", desc:"A very gentle trap. With PayPal buttons. You can leave if you want, no hard feelings." },
+  { emoji:'🤝', title:"Okay. Let's be honest.", desc:"We put an easter egg in the boat on purpose. It's done. The rest is up to you." },
+];
+
+let _donShown = false;
+function initDon() {
+  const donated = localStorage.getItem('donationDate');
+  if (donated && (Date.now() - parseInt(donated)) < 90 * 24 * 60 * 60 * 1000) _donShown = true;
+}
+
+function openSwipeDon() {
+  const v = DON_VARIANTS[Math.floor(Math.random() * DON_VARIANTS.length)];
+  document.getElementById('swipeDonEmoji').textContent = v.emoji;
+  document.getElementById('swipeDonTitle').textContent = v.title;
+  document.getElementById('swipeDonDesc').textContent = v.desc;
+  const overlay = document.getElementById('swipeDonOverlay');
+  const drawer = document.getElementById('swipeDonDrawer');
+  if (overlay) overlay.style.display = 'block';
+  if (drawer) {
+    drawer.style.display = 'block';
+    drawer.style.pointerEvents = 'auto';
+    requestAnimationFrame(() => requestAnimationFrame(() => { drawer.style.bottom = '0'; }));
+  }
+}
+
+function closeSwipeDon() {
+  const overlay = document.getElementById('swipeDonOverlay');
+  const drawer = document.getElementById('swipeDonDrawer');
+  if (drawer) { drawer.style.bottom = '-100%'; drawer.style.pointerEvents = 'none'; }
+  setTimeout(() => {
+    if (overlay) overlay.style.display = 'none';
+    if (drawer) drawer.style.display = 'none';
+  }, 350);
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(e => console.warn('SW:', e));
+  }
+  buildCards();
+  updateCardVisibility();
+  updateNotifUI();
+  loadVapidKey();
+  fetchStatus();
+  initDon();
+  setInterval(fetchStatus, 15000);
+});
+</script>
+</body>
+</html>
