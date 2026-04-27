@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#0a1628"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>Welland Canal Bridges</title>
+<link rel="manifest" href="/manifest.json"/>
+<style>
+  :root {
+    --bg:       #0a1628;
+    --surface:  #111e35;
+    --surface2: #1a2d4a;
+    --border:   #1e3355;
+    --accent:   #3b82f6;
+    --accent2:  #60a5fa;
+    --text:     #e2eaf6;
+    --text2:    #94a3b8;
+    --text3:    #4a6080;
+    --green:    #22c55e;
+    --yellow:   #f59e0b;
+    --red:      #ef4444;
+    --radius:   14px;
+    --shadow:   0 2px 16px rgba(0,0,0,.4);
+    --mono:     'SF Mono', 'Fira Code', monospace;
+    --sans:     -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding-bottom: 140px;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header {
+    padding: 56px 20px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -.02em;
+    line-height: 1.2;
+  }
+  .header-subtitle {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    letter-spacing: .08em;
+    margin-top: 4px;
+  }
+  .menu-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .menu-btn svg { width: 18px; height: 18px; stroke: var(--text2); }
+
+  main { padding: 0 16px; }
+
+  /* Bridge cards */
+  .bridge-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-name {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--accent2);
+    font-family: var(--mono);
+  }
+  .card-body { padding: 10px 14px 12px; }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-disponible .status-dot { background: var(--green); animation: pulse 2s infinite; }
+  .status-disponible { background: rgba(34,197,94,.12); color: var(--green); }
+  .status-leve .status-dot { background: var(--red); }
+  .status-leve { background: rgba(239,68,68,.12); color: var(--red); }
+  .status-bientot_leve .status-dot { background: var(--yellow); animation: pulse 1.5s infinite; }
+  .status-bientot_leve { background: rgba(245,158,11,.12); color: var(--yellow); }
+  .status-raising .status-dot { background: var(--yellow); animation: pulse .8s infinite; }
+  .status-raising { background: rgba(245,158,11,.12); color: var(--yellow); }
+  .status-lowering .status-dot { background: var(--accent); animation: pulse 1s infinite; }
+  .status-lowering { background: rgba(59,130,246,.12); color: var(--accent); }
+  .status-outage .status-dot { background: var(--red); }
+  .status-outage { background: rgba(239,68,68,.12); color: var(--red); }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* Lifts row */
+  .lifts-row {
+    margin-top: 8px;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+  }
+  .lifts-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--text3);
+    font-family: var(--mono);
+    margin-bottom: 4px;
+  }
+  .lifts-value {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--mono);
+    line-height: 1.6;
+  }
+
+  /* Timeline */
+  .bridge-timeline {
+    display: none;
+    padding: 8px 0 4px;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .bridge-timeline.visible { display: flex; }
+  .timeline-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .timeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+  }
+  .timeline-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3);
+  }
+  .timeline-dot svg { width: 16px; height: 16px; }
+  .timeline-dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(59,130,246,.2);
+  }
+  .timeline-dot.done {
+    background: var(--surface2);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .timeline-connector {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    margin-top: 15px;
+    min-width: 8px;
+  }
+  .timeline-connector.done { background: var(--accent); }
+  .timeline-label {
+    font-size: 9px;
+    color: var(--text3);
+    font-family: var(--mono);
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: .03em;
+  }
+  .timeline-label.active { color: var(--accent); font-weight: 700; }
+
+  /* Notify CTA */
+  .notif-cta {
+    display: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    margin: 12px 0 4px;
+  }
+
+  /* Update time */
+  .update-time {
+    font-size: 10px;
+    color: var(--text3);
+    font-family: var(--mono);
+    text-align: right;
+    padding: 4px 14px 8px;
+  }
+
+  /* Drawer */
+  .drawer-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.6);
+    z-index: 800;
+    display: none;
+    backdrop-filter: blur(4px);
+  }
+  .drawer-overlay.open { display: block; }
+  .drawer {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: min(340px, 92vw);
+    background: var(--bg);
+    z-index: 900;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    border-left: 1px solid var(--border);
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 56px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: var(--bg);
+    z-index: 1;
+  }
+  .drawer-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .drawer-close {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text2);
+  }
+
+  .section-primary {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .section-primary-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .section-primary-desc {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+  .pref-toggle { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
+  .pref-toggle input { opacity: 0; width: 0; height: 0; }
+  .pref-slider {
+    position: absolute; inset: 0;
+    background: var(--surface2);
+    border-radius: 26px;
+    cursor: pointer;
+    transition: background .2s;
+    border: 1.5px solid var(--border);
+  }
+  .pref-slider:before {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; top: 3px;
+    background: var(--text3);
+    border-radius: 50%;
+    transition: transform .2s, background .2s;
+  }
+  input:checked + .pref-slider { background: var(--accent); border-color: var(--accent); }
+  input:checked + .pref-slider:before { transform: translateX(18px); background: #fff; }
+
+  .settings-section-sub-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--accent);
+    font-family: var(--mono);
+    padding: 12px 20px 4px;
+  }
+  .settings-section-desc {
+    font-size: 11px;
+    color: var(--text3);
+    padding: 0 20px 8px;
+    line-height: 1.5;
+  }
+
+  /* Canal scene */
+  .canal-scene {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 130px;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .waves-bg {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .waves-svg {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 100%;
+    pointer-events: none;
+  }
+  .wave-anim1 { animation: wavemove 12s linear infinite; opacity: .7; }
+  .wave-anim2 { animation: wavemove 18s linear infinite reverse; opacity: .5; }
+  .wave-anim3 { animation: wavemove 8s linear infinite; opacity: .3; }
+  @keyframes wavemove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .wave-fill { fill: #1a3a5c; }
+
+  .ship-layer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 130px;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .ship-container {
+    position: absolute;
+    bottom: 52px;
+    animation: shipSail 50s linear infinite;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .ship-bob { animation: shipBob 3.5s ease-in-out infinite; }
+  .ship-wake {
+    position: absolute;
+    bottom: -4px; right: 100%;
+    width: 60px; height: 5px;
+    background: linear-gradient(to left, rgba(59,130,246,.3), transparent);
+    border-radius: 3px;
+  }
+  @keyframes shipSail {
+    from { left: -80px; }
+    to { left: calc(100% + 80px); }
+  }
+  @keyframes shipBob {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  /* Swipe don drawer */
+  #swipeDonOverlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 9300;
+    display: none;
+    backdrop-filter: blur(4px);
+  }
+  #swipeDonDrawer {
+    position: fixed;
+    bottom: -100%; left: 0; right: 0;
+    z-index: 9400;
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 0 0 48px;
+    max-width: 500px;
+    margin: 0 auto;
+    transition: bottom .35s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 -8px 40px rgba(0,0,0,.4);
+    pointer-events: none;
+    display: none;
+  }
+
+  .error {
+    color: var(--red);
+    font-size: 12px;
+    padding: 8px 0;
+    text-align: center;
+    font-family: var(--mono);
+  }
+
+  /* Notification content inside drawer */
+  #notifSectionInner { display: none; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div>
+    <div class="header-title">Welland Canal<br>Bridges</div>
+    <div class="header-subtitle" id="updateTime">Loading…</div>
+  </div>
+  <button class="menu-btn" onclick="openDrawer()" aria-label="Settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+</header>
+
+<main>
+  <button class="notif-cta" id="notifCta" onclick="requestNotifPermission()">Enable Notifications</button>
+
+  <!-- Bridge cards generated by JS -->
+  <div id="bridgeCards"></div>
+
+  <div class="error" id="errorMsg"></div>
+</main>
+
+<!-- Canal scene -->
+<div class="canal-scene" aria-hidden="true">
+  <div class="waves-bg">
+    <svg class="waves-svg wave-anim3" viewBox="0 0 2880 130" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="wave-fill" d="M0,64 C240,96 480,32 720,64 C960,96 1200,32 1440,64 C1680,96 1920,32 2160,64 C2400,96 2640,32 2880,64 L2880,130 L0,130 Z"/>
+    </svg>
+    <svg class="waves-svg wave-anim2" viewBox="0 0 2880 130" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="wave-fill" d="M0,80 C360,48 720,112 1080,80 C1440,48 1800,112 2160,80 C2520,48 2700,112 2880,80 L2880,130 L0,130 Z" opacity=".7"/>
+    </svg>
+    <svg class="waves-svg wave-anim1" viewBox="0 0 2880 130" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="wave-fill" d="M0,96 C480,64 960,128 1440,96 C1920,64 2400,128 2880,96 L2880,130 L0,130 Z" opacity=".5"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Ship -->
+<div class="ship-layer" aria-hidden="true">
+  <div class="ship-container" onclick="openSwipeDon()">
+    <div class="ship-bob">
+      <div class="ship-wake"></div>
+      <svg width="72" height="40" viewBox="0 0 72 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4,28 L8,36 L64,36 L68,28 Z" fill="#1a3a5c" opacity="0.9"/>
+        <rect x="18" y="16" width="28" height="14" rx="2" fill="#1a3a5c" opacity="0.85"/>
+        <rect x="26" y="9" width="14" height="9" rx="1.5" fill="#1a3a5c" opacity="0.8"/>
+        <rect x="32" y="4" width="6" height="7" rx="1" fill="#1a3a5c" opacity="0.75"/>
+        <circle cx="35" cy="2" r="2" fill="#1a3a5c" opacity="0.3"/>
+        <circle cx="29" cy="1" r="1.5" fill="#1a3a5c" opacity="0.2"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Donation drawer -->
+<div id="swipeDonOverlay" onclick="closeSwipeDon()"></div>
+<div id="swipeDonDrawer">
+  <div style="display:flex;justify-content:center;padding:14px 0 4px;">
+    <div style="width:36px;height:4px;border-radius:2px;background:var(--border);"></div>
+  </div>
+  <div style="text-align:center;font-size:44px;margin:8px 0 4px;" id="swipeDonEmoji">🚢</div>
+  <div style="text-align:center;font-size:18px;font-weight:700;color:var(--text);font-family:var(--sans);padding:0 24px;line-height:1.3;" id="swipeDonTitle"></div>
+  <div style="text-align:center;font-size:13px;color:var(--text2);font-family:var(--sans);padding:8px 32px 20px;line-height:1.6;" id="swipeDonDesc"></div>
+  <div style="display:flex;gap:10px;padding:0 20px 12px;">
+    <a href="https://paypal.me/kvndbrl/2" target="_blank" rel="noopener" onclick="closeSwipeDon();" style="flex:1;text-align:center;padding:14px 4px;border-radius:14px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:16px;font-weight:700;text-decoration:none;">$2</a>
+    <a href="https://paypal.me/kvndbrl/5" target="_blank" rel="noopener" onclick="closeSwipeDon();" style="flex:1;text-align:center;padding:14px 4px;border-radius:14px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:16px;font-weight:700;text-decoration:none;">$5</a>
+    <a href="https://paypal.me/kvndbrl/10" target="_blank" rel="noopener" onclick="closeSwipeDon();" style="flex:1;text-align:center;padding:14px 4px;border-radius:14px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:16px;font-weight:700;text-decoration:none;">$10</a>
+  </div>
+  <button onclick="closeSwipeDon()" id="swipeDonSkip" style="width:calc(100% - 40px);margin:0 20px;padding:13px;border-radius:50px;border:none;background:var(--surface2);color:var(--text3);font-family:var(--sans);font-size:14px;cursor:pointer;">Maybe later</button>
+</div>
+
+<!-- Settings drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="settingsDrawer" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="drawer-header">
+    <span class="drawer-title">Settings</span>
+    <button class="drawer-close" onclick="closeDrawer()" aria-label="Close">✕</button>
+  </div>
+
+  <!-- Notifications -->
+  <div class="section-primary" onclick="toggleNotifMaster()">
+    <div>
+      <div class="section-primary-title">Notifications</div>
+      <div class="section-primary-desc">Get alerted when a bridge status changes.</div>
+    </div>
+    <div class="pref-toggle">
+      <input type="checkbox" id="notifMasterToggle"/>
+      <span class="pref-slider"></span>
+    </div>
+  </div>
+  <div id="notifSectionInner">
+    <!-- Per-bridge notification sections injected by JS -->
+    <div id="perBridgeNotifSections"></div>
+
+    <div class="settings-section-sub-label">TIME RANGES</div>
+    <div class="settings-section-desc">Leave empty to be notified at all times.</div>
+    <div style="padding:8px 20px 12px;">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">From</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="time" id="rangeStart" style="flex:1;padding:8px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:14px;"/>
+        <span style="color:var(--text3);">→</span>
+        <input type="time" id="rangeEnd" style="flex:1;padding:8px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:14px;"/>
+        <button onclick="clearTimeRange()" style="padding:8px 10px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:12px;">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Donation -->
+  <div style="padding:16px 20px;border-top:1px solid var(--border);">
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Support the project</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.5;">This app is free and independent. A small donation helps keep it running.</div>
+    <div style="display:flex;gap:8px;">
+      <a href="https://paypal.me/kvndbrl/2" target="_blank" rel="noopener" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#0070BA;color:#fff;font-size:13px;font-weight:700;text-decoration:none;">$2</a>
+      <a href="https://paypal.me/kvndbrl/5" target="_blank" rel="noopener" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#0070BA;color:#fff;font-size:13px;font-weight:700;text-decoration:none;">$5</a>
+      <a href="https://paypal.me/kvndbrl/10" target="_blank" rel="noopener" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#0070BA;color:#fff;font-size:13px;font-weight:700;text-decoration:none;">$10</a>
+    </div>
+  </div>
+
+  <div style="padding:12px 20px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);">Welland Canal Bridges · v1.0 · Not affiliated with the St. Lawrence Seaway.</div>
+</div>
+
+<script>
+const BACKEND = 'https://welland-canal-bridges.onrender.com';
+
+const BRIDGE_IDS = ['lakeshore','carlton','glendale','allanburg','mainwelland','clarence','jackknife1','jackknife2'];
+const BRIDGE_NAMES = {
+  lakeshore:  'Lakeshore Road',
+  carlton:    'Carlton Street',
+  glendale:   'Glendale Avenue',
+  allanburg:  'Highway 20',
+  mainwelland:'Main Street (Welland)',
+  clarence:   'Clarence Street',
+  jackknife1: 'Lock 8 North',
+  jackknife2: 'Lock 8 South',
+};
+
+const STATUS_LABELS = {
+  disponible:   'Available',
+  bientot_leve: 'Soon lifted',
+  raising:      'Raising',
+  leve:         'Lifted',
+  lowering:     'Lowering',
+  outage:       'Planned closure',
+};
+
+const STATUS_STEP = { bientot_leve:0, raising:1, leve:2, lowering:3 };
+
+let lastData = {};
+let notifSub = null;
+let vapidKey = '';
+
+// ── Build bridge cards ─────────────────────────────────────────────
+function buildCards() {
+  const container = document.getElementById('bridgeCards');
+  container.innerHTML = '';
+  const saved = localStorage.getItem('bridgePrefs');
+  const prefs = saved ? JSON.parse(saved) : BRIDGE_IDS;
+
+  for (const id of BRIDGE_IDS) {
+    if (!prefs.includes(id)) continue;
+    const C = capitalize(id);
+    const card = document.createElement('div');
+    card.className = 'bridge-card';
+    card.id = `card_
