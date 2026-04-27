@@ -354,10 +354,10 @@ function getMessages(bridge, status, data) {
       if (raised > now) raised.setDate(raised.getDate() - 1);
       const reopen = new Date(raised.getTime() + avgMin * 60000);
       if (reopen < now) return '';
-      return reopen.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Toronto' });
+      return reopen.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Toronto' });
     } else {
       const reopen = new Date(now.getTime() + avgMin * 60000);
-      return '~' + reopen.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Toronto' });
+      return '~' + reopen.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Toronto' });
     }
   })();
 
@@ -437,6 +437,16 @@ async function monitor() {
       lastData[bridge] = data[bridge];
 
       if (prev !== curr) {
+        // Guard against invalid transitions from lowering
+        const invalidTransitions = {
+          lowering: ['bientot_leve', 'raising', 'leve'],
+        };
+        if (invalidTransitions[prev]?.includes(curr)) {
+          log(`⚠️ Ignored invalid transition [${bridge}]: ${prev} → ${curr}`);
+          lastData[bridge] = data[bridge];
+          continue;
+        }
+
         anyChange = true;
         log(`🔄 Change [${bridge}]: ${prev} → ${curr}`);
 
