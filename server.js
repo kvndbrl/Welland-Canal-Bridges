@@ -516,6 +516,16 @@ app.get('/debug', async (req, res) => {
   }
 });
 
+// ── Debug subscribers endpoint ────────────────────────────────────────
+app.get('/debug-subs', (req, res) => {
+  res.json(subscriptions.map(s => ({
+    endpoint: s.endpoint.slice(-30),
+    notifTypes: s.notifTypes,
+    bridges: s.bridges,
+    theme: s.theme,
+  })));
+});
+
 // ── Test notification endpoint ────────────────────────────────────────
 app.get('/test-notif', async (req, res) => {
   const bridge = req.query.bridge || 'mainwelland';
