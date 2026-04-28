@@ -698,12 +698,15 @@ app.get('/history', (req, res) => {
 app.post('/subscribe', async (req, res) => {
   const sub = req.body;
   if (!sub || !sub.endpoint) return res.status(400).json({ error: 'Invalid subscription' });
-  const exists = subscriptions.find(s => s.endpoint === sub.endpoint);
-  if (!exists) {
+  const idx = subscriptions.findIndex(s => s.endpoint === sub.endpoint);
+  if (idx !== -1) {
+    subscriptions[idx] = { ...subscriptions[idx], ...sub };
+    log(`✏️ Updated subscriber. Total: ${subscriptions.length}`);
+  } else {
     subscriptions.push(sub);
-    await saveSubs();
     log(`➕ New subscriber. Total: ${subscriptions.length}`);
   }
+  await saveSubs();
   res.json({ ok: true });
 });
 
