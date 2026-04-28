@@ -335,9 +335,22 @@ function statusBadge(status) {
   return `${BASE_URL}${map[status] || '/badge-disponible.png'}`;
 }
 
+// Bridge types for accurate notification wording
+const BRIDGE_TYPES = {
+  lakeshore:   'bascule',
+  carlton:     'bascule',
+  queenston:   'bascule',
+  glendale:    'vertical',
+  allanburg:   'vertical',
+  mainwelland: 'bascule',
+  mellanby:    'bascule',
+  clarence:    'vertical',
+};
+
 function getMessages(bridge, status, data) {
   const n = BRIDGE_NAMES[bridge] || bridge;
   const raisedAt = data?.raisedSince;
+  const isVertical = BRIDGE_TYPES[bridge] === 'vertical';
 
   const avgMin = (() => {
     const h = liftHistory[bridge] || [];
@@ -363,10 +376,17 @@ function getMessages(bridge, status, data) {
 
   const reopenStr = liftTime ? ` · Reopen ${liftTime}` : '';
 
-  const msgs = {
-    bientot_leve: { title: `⚠️ ${n}`, body: `Lift soon · Expect delays` },
-    raising:      { title: `🔼 ${n}`, body: `Bridge raising${reopenStr}` },
-    leve:         { title: `🚢 ${n}`, body: `Bridge lifted${reopenStr}` },
+  const msgs = isVertical ? {
+    bientot_leve: { title: `⚠️ ${n}`, body: `Span rising soon · Expect delays` },
+    raising:      { title: `🔼 ${n}`, body: `Span rising${reopenStr}` },
+    leve:         { title: `🚢 ${n}`, body: `Span raised · Ship passing${reopenStr}` },
+    lowering:     { title: `🔽 ${n}`, body: `Span lowering · Opening soon` },
+    disponible:   { title: `✅ ${n}`, body: `Traffic normal` },
+    outage:       { title: `🚧 ${n}`, body: `Planned closure` },
+  } : {
+    bientot_leve: { title: `⚠️ ${n}`, body: `Bridge lifting soon · Expect delays` },
+    raising:      { title: `🔼 ${n}`, body: `Bridge lifting${reopenStr}` },
+    leve:         { title: `🚢 ${n}`, body: `Bridge lifted · Ship passing${reopenStr}` },
     lowering:     { title: `🔽 ${n}`, body: `Bridge lowering · Opening soon` },
     disponible:   { title: `✅ ${n}`, body: `Traffic normal` },
     outage:       { title: `🚧 ${n}`, body: `Planned closure` },
