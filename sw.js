@@ -25,10 +25,10 @@ self.addEventListener('push', function(event) {
     icon: data.icon || '/icon-192.png',
     badge: data.badge || '/icon-192.png',
     tag: tag,
-    renotify: true,
-    requireInteraction: !isAvailable,
-    silent: isAvailable,
-    vibrate: isAvailable ? [200] : vibrate,
+    renotify: true,          // Always replace previous notification with same tag
+    requireInteraction: false, // Never block dismissal — let user swipe away
+    silent: false,            // Always play sound/vibrate so user notices the update
+    vibrate: isAvailable ? [800] : vibrate,
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
@@ -37,9 +37,9 @@ self.addEventListener('push', function(event) {
 function detectStatus(data) {
   const body = (data.body || '').toLowerCase();
   const title = (data.title || '').toLowerCase();
-  if (body.includes('lift soon') || body.includes('expect delays')) return 'bientot_leve';
-  if (body.includes('bridge raising') || body.includes('raising')) return 'raising';
-  if (body.includes('bridge lifted') || body.includes('lifted')) return 'leve';
+  if (body.includes('lifting soon') || body.includes('rising soon') || body.includes('expect delays')) return 'bientot_leve';
+  if (body.includes('bridge lifting') || body.includes('span rising') || body.includes('raising')) return 'raising';
+  if (body.includes('bridge lifted') || body.includes('span raised') || body.includes('lifted')) return 'leve';
   if (body.includes('lowering') || body.includes('opening soon')) return 'lowering';
   if (body.includes('traffic normal') || body.includes('available')) return 'disponible';
   if (body.includes('scheduled') || body.includes('lift scheduled')) return 'scheduled';
