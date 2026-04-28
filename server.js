@@ -561,6 +561,57 @@ app.get('/test-notif', async (req, res) => {
   res.json({ ok: true, bridge, status });
 });
 
+// ── AIS Stream test endpoint ──────────────────────────────────────────
+app.get('/test-ais', (req, res) => {
+  const WebSocket = require('ws');
+  const vessels = [];
+  const TIMEOUT = 20000;
+
+  const ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
+
+  ws.on('open', () => {
+    ws.send(JSON.stringify({
+      APIKey: '2a7a49e8bdf2ea561d890b208005a9701335fdfb',
+      BoundingBoxes: [[[42.85, -79.30], [43.25, -79.15]]],
+      FilterMessageTypes: ['PositionReport', 'ShipStaticData']
+    }));
+  });
+
+  ws.on('message', (data) => {
+    try {
+      const msg = JSON.parse(data);
+      const meta = msg.MetaData;
+      if (meta) {
+        vessels.push({
+          name: meta.ShipName?.trim() || 'Unknown',
+          lat: meta.latitude,
+          lon: meta.longitude,
+          speed: msg.Message?.PositionReport?.Sog || null,
+          heading: msg.Message?.PositionReport?.TrueHeading || null,
+          mmsi: meta.MMSI,
+          type: msg.MessageType,
+        });
+      }
+    } catch(e) {}
+  });
+
+  ws.on('error', (e) => {
+    if (!res.headersSent) res.json({ ok: false, error: e.message });
+  });
+
+  setTimeout(() => {
+    ws.close();
+    if (!res.headersSent) {
+      res.json({
+        ok: true,
+        duration_sec: TIMEOUT / 1000,
+        vessels_detected: vessels.length,
+        vessels: [...new Map(vessels.map(v => [v.mmsi, v])).values()],
+      });
+    }
+  }, TIMEOUT);
+});
+
 app.get('/ping', (req, res) => res.json({ ok: true, subs: subscriptions.length }));
 
 app.get('/status', (req, res) => {
