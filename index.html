@@ -2036,8 +2036,16 @@ function toggleBridgeNotif(bridge) {
   const enabled = tog ? tog.checked : true;
 
   if (sub) sub.textContent = enabled ? 'Visible' : 'Hidden';
-  if (content) content.style.display = enabled ? 'block' : 'none';
-  if (enabled) renderPerBridgeCheckboxes(bridge);
+
+  if (enabled) {
+    // Restore checkboxes
+    if (content) content.style.display = 'block';
+    renderPerBridgeCheckboxes(bridge);
+  } else {
+    // Hide checkboxes and clear saved notif types for this bridge
+    if (content) content.style.display = 'none';
+    localStorage.removeItem('perBridgeNotif_' + bridge);
+  }
 
   const ALL_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
   const saved = localStorage.getItem('bridgePrefs');
