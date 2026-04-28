@@ -2034,7 +2034,7 @@ function toggleBridgeNotif(bridge) {
   const content = document.getElementById('perBridge'+C+'Content');
   const enabled = tog ? tog.checked : true;
 
-  if (sub) sub.textContent = enabled ? 'Notifications on' : 'Notifications off';
+  if (sub) sub.textContent = enabled ? 'Visible' : 'Hidden';
   if (content) content.style.display = enabled ? 'block' : 'none';
   if (enabled) renderPerBridgeCheckboxes(bridge);
 
@@ -2098,7 +2098,7 @@ function initBridgeNotifToggles() {
         <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 16px 6px 20px;cursor:pointer;" onclick="toggleBridgeNotifSection('${b}')">
           <div>
             <div style="font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans);" id="perBridge${C}Label">${NAMES[b]}</div>
-            <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px;" id="perBridge${C}Sub">${enabled ? 'Notifications on' : 'Notifications off'}</div>
+            <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px;" id="perBridge${C}Sub">${enabled ? 'Visible' : 'Hidden'}</div>
           </div>
           <label class="pref-toggle" onclick="event.stopPropagation()">
             <input type="checkbox" id="bridgeNotif${C}" ${enabled?'checked':''} onchange="toggleBridgeNotif('${b}')"/>
