@@ -612,6 +612,16 @@ app.get('/test-ais', (req, res) => {
   }, TIMEOUT);
 });
 
+// ── Remove subscriber by partial endpoint ────────────────────────────
+app.get('/remove-sub', async (req, res) => {
+  const partial = req.query.endpoint;
+  if (!partial) return res.status(400).json({ error: 'Missing endpoint param' });
+  const before = subscriptions.length;
+  subscriptions = subscriptions.filter(s => !s.endpoint.includes(partial));
+  await saveSubs();
+  res.json({ ok: true, removed: before - subscriptions.length, remaining: subscriptions.length });
+});
+
 app.get('/ping', (req, res) => res.json({ ok: true, subs: subscriptions.length }));
 
 app.get('/status', (req, res) => {
