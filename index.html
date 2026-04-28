@@ -21,16 +21,16 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://welland-canal-bridges.vercel.app/"/>
-  <meta property="og:title" content="Welland Canal bridges, bridge status, bridge lift notifications, St. Catharines, Port Colborne, Welland"/>
+  <meta property="og:title" content="Welland Canal Bridges — Real-time Status"/>
   <meta property="og:description" content="Real-time Welland Canal bridge status. Free push notifications for bridge lifts."/>
   <meta property="og:image" content="https://welland-canal-bridges.vercel.app/icon-512.png"/>
-  <meta property="og:locale" content="fr_CA"/>
+  <meta property="og:locale" content="en_CA"/>
   <meta property="og:site_name" content="Welland Canal Bridges"/>
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary"/>
-  <meta name="twitter:title" content="Ponts du canal de Beauharnois — Statut en temps réel"/>
-  <meta name="twitter:description" content="Welland Canal bridges, bridge status, bridge lift notifications, St. Catharines, Port Colborne, Welland"/>
+  <meta name="twitter:title" content="Welland Canal Bridges — Real-time Status"/>
+  <meta name="twitter:description" content="Real-time Welland Canal bridge status. Free push notifications for bridge lifts."/>
   <meta name="twitter:image" content="https://welland-canal-bridges.vercel.app/icon-512.png"/>
   <link rel="manifest" href="manifest.json"/>
   <link rel="icon" href="icon-192.png" type="image/png"/>
@@ -553,9 +553,9 @@
         <span style="display:inline-flex;width:56px;height:56px;color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8 a16 16 0 0 1 16 16 v12 l6 8 H10 l6 -8 V24 a16 16 0 0 1 16 -16 Z"/><path d="M26 52 a6 6 0 0 0 12 0"/><line x1="32" y1="8" x2="32" y2="4"/></svg></span>
       </div>
       <div class="name-modal-title" id="obNotifActivateTitle">Enable notifications</div>
-      <div class="name-modal-sub" id="obNotifActivateSub">Recevez des alertes en temps réel sur votre téléphone lors des levées de ponts.</div>
+      <div class="name-modal-sub" id="obNotifActivateSub">Receive real-time alerts on your phone when bridges are lifted.</div>
       <button class="name-modal-btn" id="obActivateBtn" onclick="obActivateNotifs()">Enable notifications</button>
-      <button class="name-modal-skip" onclick="obSkipNotifs()" id="obSkipNotifsBtn">Plus tard</button>
+      <button class="name-modal-skip" onclick="obSkipNotifs()" id="obSkipNotifsBtn">Maybe later</button>
     </div>
 
     <!-- Step 5: Confirmation -->
@@ -563,14 +563,14 @@
       <div style="display:flex;justify-content:center;margin-bottom:16px;">
         <span style="display:inline-flex;width:56px;height:56px;color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="22"/><path d="M20 32 L28 42 L44 24"/></svg></span>
       </div>
-      <div class="name-modal-title" id="obDoneTitle">Vous êtes prêt !</div>
-      <div class="name-modal-sub" id="obDoneSub">Vous recevrez des notifications lors des levées de ponts.</div>
+      <div class="name-modal-title" id="obDoneTitle">You're all set!</div>
+      <div class="name-modal-sub" id="obDoneSub">You'll receive notifications for bridge lifts.</div>
       <div id="obInstallCta" style="display:none;margin-bottom:12px;padding:14px;border-radius:16px;background:rgba(var(--accent-rgb),.08);border:1.5px solid rgba(var(--accent-rgb),.2);">
         <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;font-family:var(--sans);" id="obInstallTitle">Install the app</div>
-        <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-bottom:10px;" id="obInstallDesc">Ajoutez l'app sur votre écran d'accueil pour un accès rapide.</div>
-        <button onclick="obTriggerInstall()" class="name-modal-btn" style="margin-top:0;padding:11px;" id="obInstallBtn">Installer</button>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-bottom:10px;" id="obInstallDesc">Add the app to your home screen for quick access.</div>
+        <button onclick="obTriggerInstall()" class="name-modal-btn" style="margin-top:0;padding:11px;" id="obInstallBtn">Install</button>
       </div>
-      <button class="name-modal-btn" onclick="obClose()" id="obCloseBtn">Commencer</button>
+      <button class="name-modal-btn" onclick="obClose()" id="obCloseBtn">Get started</button>
     </div>
 
   </div>
@@ -578,7 +578,7 @@
 
 <header class="header">
   <div class="greeting-block" aria-live="polite">
-    <span class="greeting-text" id="greetingText">Bonjour !</span>
+    <span class="greeting-text" id="greetingText">Hello!</span>
     <span class="weather-text" id="weatherText"></span>
   </div>
   <button class="gear-btn" onclick="openDrawer()" aria-label="Settings">
@@ -3385,10 +3385,10 @@ document.addEventListener('visibilitychange',()=>{
     <div class="install-modal" id="installModal">
       <span class="install-modal-icon" id="installModalIcon"><span style="display:inline-flex;align-items:center;width:44px;height:44px;flex-shrink:0;color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"> <path d="M256.001,354.295h-67.322c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h67.322 c5.771,0,10.449-4.678,10.449-10.449S261.772,354.295,256.001,354.295z"/> <path d="M65.241,354.295H38.14c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h27.102 c5.77,0,10.449-4.678,10.449-10.449C75.69,358.973,71.012,354.295,65.241,354.295z"/> <path d="M488.038,354.295H449.83c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h38.209 c5.771,0,10.449-4.678,10.449-10.449S493.809,354.295,488.038,354.295z"/> <path d="M318.455,354.295h-36.106c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h36.106 c5.771,0,10.449-4.678,10.449-10.449S324.225,354.295,318.455,354.295z"/> <path d="M251.566,391.837h-36.107c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h36.107 c5.771,0,10.449-4.678,10.449-10.449S257.337,391.837,251.566,391.837z"/> <path d="M161.522,391.837h-0.137c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h0.137 c5.771,0,10.449-4.678,10.449-10.449S167.293,391.837,161.522,391.837z"/> <path d="M127.581,391.837H55.367c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h72.214 c5.771,0,10.449-4.678,10.449-10.449S133.352,391.837,127.581,391.837z"/> <path d="M456.36,391.837h-0.137c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h0.137 c5.771,0,10.449-4.678,10.449-10.449S462.131,391.837,456.36,391.837z"/> <path d="M422.42,391.837h-72.214c-5.771,0-10.449,4.678-10.449,10.449s4.678,10.449,10.449,10.449h72.214 c5.771,0,10.449-4.678,10.449-10.449S428.191,391.837,422.42,391.837z"/> <path d="M501.552,238.785c-0.028,0-0.055,0.004-0.083,0.004c-0.028,0-0.054-0.004-0.083-0.004 c-54.891,0-99.552-44.71-99.596-99.682v-29.388c0-5.771-4.678-10.449-10.449-10.449h-25.129c-5.771,0-10.449,4.678-10.449,10.449 v29.287c0,0.006-0.001,0.014-0.001,0.02c0,55.01-44.753,99.763-99.763,99.763c-55.01,0-99.763-44.754-99.763-99.763v-29.307 c0-5.771-4.678-10.449-10.449-10.449h-25.129c-5.771,0-10.449,4.678-10.449,10.449v29.307c0,55.01-44.753,99.763-99.763,99.763 C4.678,238.785,0,243.463,0,249.234v40.203v35.526c0,5.771,4.678,10.449,10.449,10.449h99.884v19.851 c0,5.771,4.678,10.449,10.449,10.449c5.771,0,10.449-4.678,10.449-10.449v-19.851h3.99v19.851c0,5.771,4.678,10.449,10.449,10.449 s10.449-4.678,10.449-10.449v-19.851h199.764v19.851c0,5.771,4.678,10.449,10.449,10.449s10.449-4.678,10.449-10.449v-19.851h3.99 v19.851c0,5.771,4.678,10.449,10.449,10.449s10.449-4.678,10.449-10.449v-19.851h99.716c5.771,0,10.449-4.678,10.449-10.449 v-33.725c0.102-0.586,0.166-1.186,0.166-1.801v-40.203h0.001C512.001,243.463,507.323,238.785,501.552,238.785z M438.692,242.027 c5.049,3.093,10.339,5.826,15.84,8.16v28.802h-15.84V242.027z M401.79,206.86c4.679,6.867,10.048,13.225,16.004,18.979v53.15 H401.79V206.86z M376.663,120.164h4.231v158.824h-4.231V120.164z M339.925,225.626c5.89-5.709,11.203-12.01,15.84-18.81v72.172 h-15.84V225.626z M303.188,250.07c5.501-2.347,10.792-5.092,15.84-8.196v37.115h-15.84V250.07z M266.45,259.226 c5.388-0.464,10.676-1.283,15.84-2.435v22.197h-15.84V259.226z M229.712,256.79c5.164,1.153,10.451,1.971,15.84,2.435v19.763 h-15.84V256.79z M192.976,241.874c5.048,3.104,10.338,5.85,15.84,8.196v28.919h-15.84V241.874z M156.239,206.817 c4.635,6.799,9.948,13.1,15.839,18.809v53.362h-15.839V206.817z M131.111,120.164h4.231v158.824h-4.231V120.164z M94.373,225.626 c5.89-5.709,11.203-12.01,15.84-18.809v72.171h-15.84V225.626z M57.637,250.07c5.501-2.347,10.792-5.092,15.84-8.196v37.115 h-15.84V250.07z M20.899,259.226c5.388-0.464,10.676-1.283,15.84-2.435v22.197h-15.84V259.226z M490.938,314.515h-0.001H20.899 v-14.629h99.763h25.011h0.118h220.423h25.011h0.118h99.596V314.515z M491.103,278.988H475.43v-22.133 c5.112,1.128,10.343,1.931,15.673,2.384V278.988z"/> </svg></span></span>
       <div class="install-modal-title" id="installModalTitle">Install the app</div>
-      <div class="install-modal-sub" id="installModalSub">Recevez des notifications en temps réel lors des levées de ponts.</div>
+      <div class="install-modal-sub" id="installModalSub">Receive real-time notifications for bridge lifts.</div>
       <ul class="install-modal-steps" id="installModalSteps"></ul>
-      <button class="install-modal-cta" id="installModalCta" onclick="installModalAction()">Installer</button>
-      <button class="install-modal-skip" id="installModalSkip" onclick="dismissInstallModal()">Plus tard</button>
+      <button class="install-modal-cta" id="installModalCta" onclick="installModalAction()">Install</button>
+      <button class="install-modal-skip" id="installModalSkip" onclick="dismissInstallModal()">Maybe later</button>
     </div>
   </div>
 
@@ -3435,7 +3435,7 @@ document.addEventListener('visibilitychange',()=>{
       <a href="https://paypal.me/kvndbrl/5" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:5,source:'modal'});closeDonationModal(true);" style="flex:1;text-align:center;padding:14px 4px;border-radius:14px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:16px;font-weight:700;text-decoration:none;">5 $</a>
       <a href="https://paypal.me/kvndbrl/10" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:10,source:'modal'});closeDonationModal(true);" style="flex:1;text-align:center;padding:14px 4px;border-radius:14px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:16px;font-weight:700;text-decoration:none;">10 $</a>
     </div>
-    <button onclick="closeDonationModal(false)" style="width:100%;padding:14px;border-radius:50px;border:none;background:var(--surface2);color:var(--text3);font-family:var(--sans);font-size:14px;cursor:pointer;" id="donModalSkip">Plus tard</button>
+    <button onclick="closeDonationModal(false)" style="width:100%;padding:14px;border-radius:50px;border:none;background:var(--surface2);color:var(--text3);font-family:var(--sans);font-size:14px;cursor:pointer;" id="donModalSkip">Maybe later</button>
   </div>
 </div>
 
@@ -3452,7 +3452,7 @@ document.addEventListener('visibilitychange',()=>{
 <div id="heatmapOverlay" style="display:none;" class="heatmap-overlay" onclick="if(event.target===this)closeHeatmap()">
   <div class="heatmap-modal">
     <button class="heatmap-close" onclick="closeHeatmap()">×</button>
-    <div class="heatmap-title" id="heatmapTitle">Historique des levées</div>
+    <div class="heatmap-title" id="heatmapTitle">Lift History</div>
     <div class="heatmap-sub" id="heatmapSub"></div>
     <div class="heatmap-stats" id="heatmapStats"></div>
     <div id="heatmapHotPeriods" style="display:none;font-size:12px;color:var(--text2);font-family:var(--sans);background:var(--surface2);border-radius:10px;padding:10px 14px;margin-bottom:12px;line-height:1.5;"></div>
@@ -3486,5 +3486,7 @@ document.addEventListener('visibilitychange',()=>{
     <a href="https://paypal.me/kvndbrl/5" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:5,source:'swipe'});closeDonationModal(true);closeSwipeDon();" style="flex:1;text-align:center;padding:14px 4px;border-radius:14px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:16px;font-weight:700;text-decoration:none;">5 $</a>
     <a href="https://paypal.me/kvndbrl/10" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:10,source:'swipe'});closeDonationModal(true);closeSwipeDon();" style="flex:1;text-align:center;padding:14px 4px;border-radius:14px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:16px;font-weight:700;text-decoration:none;">10 $</a>
   </div>
-  <button onclick="closeSwipeDon()" style="width:calc(100% - 40px);margin:0 20px;padding:13px;border-radius:50px;border:none;background:var(--surface2);color:var(--text3);font-family:var(--sans);font-size:14px;cursor:pointer;" id="swipeDonSkip">Plus tard</button>
+  <button onclick="closeSwipeDon()" style="width:calc(100% - 40px);margin:0 20px;padding:13px;border-radius:50px;border:none;background:var(--surface2);color:var(--text3);font-family:var(--sans);font-size:14px;cursor:pointer;" id="swipeDonSkip">Maybe later</button>
 </div>
+
+
