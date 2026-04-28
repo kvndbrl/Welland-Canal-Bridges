@@ -1558,6 +1558,7 @@ function updatePrenom(){
 }
 
 function showNameModalIfNeeded(){
+  if(isFBWebView){ setTimeout(showInstallModal, 800); return; }
   if(localStorage.getItem('nameAsked')) return;
   const t=TR['en'];
   // Step 1 labels
@@ -2522,7 +2523,7 @@ function toggleLang(){currentLang=false?'en':'fr';track('language_changed',{lang
 
 // ── Cache-first status loading ────────────────────────────────────────
 const STATUS_CACHE_KEY = 'wcb:cachedStatus';
-const STATUS_CACHE_MAX_AGE = 5 * 60 * 1000;
+const STATUS_CACHE_MAX_AGE = 2 * 60 * 1000;
 
 function loadCachedStatus() {
   try {
@@ -3363,7 +3364,7 @@ fetchStatus();
 fetchLiftHistory();
 
 // Pause polling when tab is hidden, resume and refresh immediately when visible
-let _fetchInterval=setInterval(fetchStatus,15000);
+let _fetchInterval=setInterval(fetchStatus,10000);
 let _greetInterval=setInterval(updateGreeting,60000);
 let _timerInterval=setInterval(refreshTimers,10000);
 document.addEventListener('visibilitychange',()=>{
@@ -3375,7 +3376,7 @@ document.addEventListener('visibilitychange',()=>{
     fetchStatus();
     updateGreeting();
     refreshTimers();
-    _fetchInterval=setInterval(fetchStatus,15000);
+    _fetchInterval=setInterval(fetchStatus,10000);
     _greetInterval=setInterval(updateGreeting,60000);
     _timerInterval=setInterval(refreshTimers,10000);
   }
