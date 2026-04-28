@@ -431,6 +431,8 @@
       <div id="ob-dot-2" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
       <div id="ob-dot-3" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
       <div id="ob-dot-4" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
+      <div id="ob-dot-5" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
+      <div id="ob-dot-6" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
     </div>
 
     <!-- Step 1: Name -->
@@ -446,40 +448,41 @@
     <div id="ob-step-2" style="display:none;">
       <div class="name-modal-title" id="obBridgeTitle">Which bridges to follow?</div>
       <div class="name-modal-sub" id="obBridgeSub">Choose which bridges to receive notifications for.</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:340px;overflow-y:auto;">
-        <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;max-height:52dvh;overflow-y:auto;padding-right:4px;">
+        <label style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;flex-shrink:0;">
           <input type="checkbox" id="ob-bridge-lakeshore" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
           <div><div style="font-size:13px;font-weight:600;color:var(--text);">Lakeshore Rd</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 1 — St. Catharines</div></div>
         </label>
-        <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;flex-shrink:0;">
           <input type="checkbox" id="ob-bridge-carlton" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
           <div><div style="font-size:13px;font-weight:600;color:var(--text);">Carlton St.</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 3A — St. Catharines</div></div>
         </label>
-        <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;flex-shrink:0;">
           <input type="checkbox" id="ob-bridge-queenston" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
           <div><div style="font-size:13px;font-weight:600;color:var(--text);">Queenston St.</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 4 — St. Catharines</div></div>
         </label>
-        <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;flex-shrink:0;">
           <input type="checkbox" id="ob-bridge-glendale" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
           <div><div style="font-size:13px;font-weight:600;color:var(--text);">Glendale Ave.</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 5 — St. Catharines</div></div>
         </label>
-        <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;flex-shrink:0;">
           <input type="checkbox" id="ob-bridge-allanburg" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
           <div><div style="font-size:13px;font-weight:600;color:var(--text);">Highway 20</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 11 — Allanburg</div></div>
         </label>
-        <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;flex-shrink:0;">
           <input type="checkbox" id="ob-bridge-mainwelland" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
-          <div><div style="font-size:13px;font-weight:600;color:var(--text);">Main Street</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Welland</div></div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text);">Main Street</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 19 — Welland</div></div>
         </label>
-        <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
-          <input type="checkbox" id="ob-bridge-clarence" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
-          <div><div style="font-size:13px;font-weight:600;color:var(--text);">Clarence Street</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Port Colborne</div></div>
-        </label>
-        <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;flex-shrink:0;">
           <input type="checkbox" id="ob-bridge-mellanby" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
-          <div><div style="font-size:13px;font-weight:600;color:var(--text);">Mellanby Ave.</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 19A — Port Colborne</div></div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text);">Mellanby Ave.</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 19A — Welland</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;border:2px solid var(--accent);background:rgba(var(--accent-rgb),.08);cursor:pointer;flex-shrink:0;">
+          <input type="checkbox" id="ob-bridge-clarence" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;"/>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text);">Clarence Street</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono);">Bridge 21 — Port Colborne</div></div>
         </label>
       </div>
+      <div style="text-align:center;font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:12px;">↕ Scroll to see all 8 bridges</div>
       <button class="name-modal-btn" onclick="obNext2()" id="obBridgeBtn">Continue</button>
     </div>
 
@@ -561,6 +564,16 @@
 
     <!-- Step 5: Confirmation -->
     <div id="ob-step-5" style="display:none;text-align:center;padding:8px 0;">
+      <div style="display:flex;justify-content:center;margin-bottom:16px;">
+        <span style="display:inline-flex;width:56px;height:56px;color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="22" cy="28" r="10"/><path d="M38 44 H16 a12 12 0 0 1 0-24 h1 a14 14 0 0 1 26 4 10 10 0 0 1 0 20 H38"/></svg></span>
+      </div>
+      <div class="name-modal-title">Show local weather?</div>
+      <div class="name-modal-sub" style="margin-bottom:20px;">Display temperature and conditions in the greeting. Requires location access.</div>
+      <button class="name-modal-btn" onclick="obEnableWeather()" id="obWeatherBtn">Enable weather</button>
+      <button class="name-modal-skip" onclick="obSkipWeather()">Skip</button>
+    </div>
+
+    <div id="ob-step-6" style="display:none;text-align:center;padding:8px 0;">
       <div style="display:flex;justify-content:center;margin-bottom:16px;">
         <span style="display:inline-flex;width:56px;height:56px;color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="22"/><path d="M20 32 L28 42 L44 24"/></svg></span>
       </div>
@@ -1299,8 +1312,8 @@ const isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 const isPWA=window.matchMedia('(display-mode:standalone)').matches;
 const ua=navigator.userAgent||'';
 const isFBWebView=ua.includes('FBAN')||ua.includes('FBAV')||ua.includes('Instagram')||ua.includes('FB_IAB');
-const isChrome=ua.includes('Chrome')&&!ua.includes('Edg')&&!ua.includes('OPR');
-const isSafari=/^((?!chrome|android).)*safari/i.test(ua);
+const isChrome=ua.includes('Chrome')&&!ua.includes('Edg')&&!ua.includes('OPR')&&!ua.includes('FBAN')&&!ua.includes('FBAV');
+const isSafari=/^((?!chrome|android).)*safari/i.test(ua)&&!ua.includes('FBAN')&&!ua.includes('FBAV');
 const isNativeBrowser=isChrome||isSafari;
 const isExternalBrowser=isMobile&&!isPWA&&!isFBWebView&&!isNativeBrowser;
 
@@ -1417,7 +1430,7 @@ function closeGeoModal(){
 function initWeatherToggle(){
   const enabled=localStorage.getItem('weatherEnabled');
   const tog=document.getElementById('weatherToggleInput');
-  if(enabled!=='0'){
+  if(enabled==='1'){
     if(tog){tog.checked=true;tog.setAttribute('aria-checked','true');}
     // Show cached weather instantly while fetching
     const cached=localStorage.getItem('weatherCache');
@@ -1453,7 +1466,7 @@ let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstallPrompt = e; });
 
 function obSetStep(n) {
-  [1,2,3,4,5].forEach(i => {
+  [1,2,3,4,5,6].forEach(i => {
     const step = document.getElementById(`ob-step-${i}`);
     if(step) step.style.display = i===n ? 'block' : 'none';
     const dot = document.getElementById(`ob-dot-${i}`);
@@ -1512,17 +1525,31 @@ function obSkipNotifs() {
 
 function obShowConfirmation() {
   localStorage.setItem('nameAsked','1');
+  obSetStep(5); // weather step before final
+}
+
+function obEnableWeather() {
+  localStorage.setItem('weatherEnabled','1');
+  fetchWeather();
+  obGoToFinal();
+}
+
+function obSkipWeather() {
+  localStorage.setItem('weatherEnabled','0');
+  obGoToFinal();
+}
+
+function obGoToFinal() {
   const notifEnabled = localStorage.getItem('notificationsEnabled') === 'true';
   const sub = document.getElementById('obDoneSub');
   if(sub) sub.textContent = notifEnabled
-    ? (false ? 'Vous recevrez des notifications lors des levées de ponts.' : 'You will receive notifications for bridge lifts.')
-    : (false ? 'Vous pouvez activer les notifications à tout moment dans les réglages.' : 'You can enable notifications anytime in settings.');
-  // Always show install CTA if not already installed
+    ? 'You will receive notifications for bridge lifts.'
+    : 'You can enable notifications anytime in settings.';
   if(!isInstalled) {
     const ic = document.getElementById('obInstallCta');
     if(ic) ic.style.display = 'block';
   }
-  obSetStep(5);
+  obSetStep(6);
 }
 
 function obTriggerInstall() {
