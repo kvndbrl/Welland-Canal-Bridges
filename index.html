@@ -2120,7 +2120,7 @@ function initBridgeNotifToggles() {
       `;
       group.appendChild(row);
       container.appendChild(group);
-      renderPerBridgeCheckboxes(b);
+      if (enabled) renderPerBridgeCheckboxes(b);
     });
     container.appendChild(group);
   });
