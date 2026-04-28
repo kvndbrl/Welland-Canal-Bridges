@@ -21,7 +21,7 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://welland-canal-bridges.vercel.app/"/>
-  <meta property="og:title" content="Ponts du canal de Beauharnois — Statut en temps réel"/>
+  <meta property="og:title" content="Welland Canal bridges, bridge status, bridge lift notifications, St. Catharines, Port Colborne, Welland"/>
   <meta property="og:description" content="Real-time Welland Canal bridge status. Free push notifications for bridge lifts."/>
   <meta property="og:image" content="https://welland-canal-bridges.vercel.app/icon-512.png"/>
   <meta property="og:locale" content="fr_CA"/>
@@ -30,7 +30,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary"/>
   <meta name="twitter:title" content="Ponts du canal de Beauharnois — Statut en temps réel"/>
-  <meta name="twitter:description" content="Statut en temps réel des ponts du canal de Beauharnois. Notifications push gratuites."/>
+  <meta name="twitter:description" content="Welland Canal bridges, bridge status, bridge lift notifications, St. Catharines, Port Colborne, Welland"/>
   <meta name="twitter:image" content="https://welland-canal-bridges.vercel.app/icon-512.png"/>
   <link rel="manifest" href="manifest.json"/>
   <link rel="icon" href="icon-192.png" type="image/png"/>
@@ -2282,8 +2282,12 @@ function toggleOptionalNotifs(){
 
 function loadNotifTypes(){
   const saved=localStorage.getItem('notifTypes');
+  const OLD_DEFAULT='["bientot_leve","leve","outage"]';
   const SAFE_DEFAULT=['bientot_leve','raising','leve','lowering','disponible','outage'];
-  const types=saved?JSON.parse(saved):SAFE_DEFAULT;
+  if(!saved||saved===OLD_DEFAULT){
+    localStorage.setItem('notifTypes',JSON.stringify(SAFE_DEFAULT));
+  }
+  const types=JSON.parse(localStorage.getItem('notifTypes'));
   const active=types.length?types:SAFE_DEFAULT;
   NT_TYPES.forEach(t=>{
     const el=document.getElementById(getNotifTypeId(t));
