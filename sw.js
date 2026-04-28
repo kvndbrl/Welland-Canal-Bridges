@@ -25,10 +25,14 @@ self.addEventListener('push', function(event) {
     icon: data.icon || '/icon-192.png',
     badge: data.badge || '/icon-192.png',
     tag: tag,
-    renotify: true,          // Always replace previous notification with same tag
-    requireInteraction: false, // Never block dismissal — let user swipe away
-    silent: false,            // Always play sound/vibrate so user notices the update
+    renotify: true,
+    requireInteraction: false,
+    silent: false,
     vibrate: isAvailable ? [800] : vibrate,
+    // Force high priority to show on locked screen (Android)
+    priority: 'high',
+    importance: 'high',
+    visibility: 'public',
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
