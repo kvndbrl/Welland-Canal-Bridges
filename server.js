@@ -396,16 +396,7 @@ function getMessages(bridge, status, data) {
 
 // ── Send notifications ────────────────────────────────────────────────
 async function sendNotifications(bridge, status, bridgeData = {}) {
-  if (status === 'disponible') {
-    if (!disponibleSince[bridge]) {
-      disponibleSince[bridge] = Date.now();
-      setTimeout(() => {
-        if (lastStatus[bridge] === 'disponible') sendNotifications(bridge, 'disponible', bridgeData);
-        disponibleSince[bridge] = null;
-      }, DISPONIBLE_MIN_MS);
-      return;
-    }
-  } else {
+  if (status !== 'disponible') {
     disponibleSince[bridge] = null;
   }
 
