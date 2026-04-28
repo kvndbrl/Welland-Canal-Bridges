@@ -2938,11 +2938,11 @@ function installModalAction(){
 
 function showInstallModalIfNeeded(){
   if(isPWA) return;
-  if(isFBWebView){ setTimeout(showInstallModal, 1200); return; }
+  if(isFBWebView||isExternalBrowser) return; // browser gate handles this
   if(!isMobile) return;
   if(localStorage.getItem('installPromptSeen')) return;
   if(localStorage.getItem('notificationsEnabled')==='true') return;
-  // Don't show if onboarding was just completed (user already saw install CTA in step 5)
+  if(!localStorage.getItem('nameAsked')) return; // wait for onboarding to complete
   const nameAskedAt = localStorage.getItem('nameAskedAt');
   if(nameAskedAt && Date.now() - parseInt(nameAskedAt) < 60000) return;
   setTimeout(showInstallModal, 4000);
