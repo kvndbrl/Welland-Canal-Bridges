@@ -377,14 +377,14 @@ function getMessages(bridge, status, data) {
   const reopenStr = liftTime ? ` · Reopen ${liftTime}` : '';
 
   const msgs = isVertical ? {
-    bientot_leve: { title: `⚠️ ${n}`, body: `Span rising soon · Expect delays` },
+    bientot_leve: { title: `⚠️ ${n}`, body: `Span rising soon · Still open, expect delays` },
     raising:      { title: `🔼 ${n}`, body: `Span rising${reopenStr}` },
     leve:         { title: `🚢 ${n}`, body: `Span raised · Ship passing${reopenStr}` },
     lowering:     { title: `🔽 ${n}`, body: `Span lowering · Opening soon` },
     disponible:   { title: `✅ ${n}`, body: `Traffic normal` },
     outage:       { title: `🚧 ${n}`, body: `Planned closure` },
   } : {
-    bientot_leve: { title: `⚠️ ${n}`, body: `Bridge lifting soon · Expect delays` },
+    bientot_leve: { title: `⚠️ ${n}`, body: `Bridge lifting soon · Still open, expect delays` },
     raising:      { title: `🔼 ${n}`, body: `Bridge lifting${reopenStr}` },
     leve:         { title: `🚢 ${n}`, body: `Bridge lifted · Ship passing${reopenStr}` },
     lowering:     { title: `🔽 ${n}`, body: `Bridge lowering · Opening soon` },
