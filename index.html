@@ -1316,6 +1316,7 @@ const isChrome=ua.includes('Chrome')&&!ua.includes('Edg')&&!ua.includes('OPR')&&
 const isSafari=/^((?!chrome|android).)*safari/i.test(ua)&&!ua.includes('FBAN')&&!ua.includes('FBAV');
 const isNativeBrowser=isChrome||isSafari;
 const isExternalBrowser=isMobile&&!isPWA&&!isFBWebView&&!isNativeBrowser;
+const needsBrowserGate=isFBWebView||isExternalBrowser;
 
 // WMO weather code → emoji
 function wmoEmoji(code){
@@ -1589,7 +1590,7 @@ function updatePrenom(){
 }
 
 function showNameModalIfNeeded(){
-  if(isFBWebView||isExternalBrowser){ setTimeout(showBrowserGate, 800); return; }
+  if(needsBrowserGate){ setTimeout(showBrowserGate, 800); return; }
   if(localStorage.getItem('nameAsked')) return;
   const t=TR['en'];
   // Step 1 labels
@@ -2691,7 +2692,7 @@ function openDrawerToNotifs(){
 
 async function toggleNotifications(){
   const t=TR['en'];
-  if(isFBWebView||isExternalBrowser){showBrowserGate();return;}
+  if(needsBrowserGate){showBrowserGate();return;}
   if(!isPWA){showBrowserGate();return;}
   if(!('Notification'in window)||!('serviceWorker'in navigator)){alert(t.ns);return;}
   try{
@@ -2938,7 +2939,7 @@ function installModalAction(){
 
 function showInstallModalIfNeeded(){
   if(isPWA) return;
-  if(isFBWebView||isExternalBrowser) return; // browser gate handles this
+  if(needsBrowserGate) return; // browser gate handles this
   if(!isMobile) return;
   if(localStorage.getItem('installPromptSeen')) return;
   if(localStorage.getItem('notificationsEnabled')==='true') return;
