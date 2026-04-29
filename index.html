@@ -1063,7 +1063,7 @@
     </div>
   </label>
 
-  <label class="pref-row" style="border-top:1px solid var(--border);cursor:pointer;" onclick="toggleWeather()">
+  <label class="pref-row" style="border-top:1px solid var(--border);cursor:pointer;" onclick="event.preventDefault();toggleWeather()">
     <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
       <span class="pref-row-label" id="weatherToggleLabel">Weather</span>
       <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;line-height:1.4;" id="weatherToggleDesc">Show local weather in the greeting.</div>
