@@ -217,7 +217,7 @@ async function umamiTrack(eventName, data = {}) {
 }
 
 webpush.setVapidDetails(
-  process.env.VAPID_EMAIL,
+  'mailto:admin@wellandcanalbridges.app',
   process.env.VAPID_PUBLIC_KEY,
   process.env.VAPID_PRIVATE_KEY
 );
