@@ -2693,7 +2693,7 @@ function openDrawerToNotifs(){
 async function toggleNotifications(){
   const t=TR['en'];
   if(needsBrowserGate){showBrowserGate();return;}
-  if(!isPWA){showBrowserGate();return;}
+  if(!isPWA){showInstallModal();return;}
   if(!('Notification'in window)||!('serviceWorker'in navigator)){alert(t.ns);return;}
   try{
     const p=await Notification.requestPermission();
