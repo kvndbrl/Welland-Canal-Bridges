@@ -2240,10 +2240,10 @@ const PER_BRIDGE_TYPES = [
   { key: 'bientot_leve', fr: 'Lift imminent',     en: 'Lift imminent',     descFr: 'Quelques minutes avant que le pont commence à se lever.',         descEn: 'A few minutes before the bridge starts to rise.', default: true },
   { key: 'leve',         fr: 'Bridge lifted',            en: 'Bridge lifted',     descFr: 'Dès que le pont est levé, avec l\'heure de réouverture estimée.', descEn: 'As soon as the bridge is lifted, with estimated reopen time.', default: true },
   { key: 'outage',       fr: 'Planned closure',  en: 'Planned closure',   descFr: 'Fermetures planifiées connues à l\'avance.',                      descEn: 'Known planned closures notified in advance.', default: true },
-  { key: 'raising',      fr: 'Bridge raising',   en: 'Bridge raising',    descFr: 'When the bridge physically starts to rise.',                  descEn: 'When the bridge physically starts to rise.', default: false },
-  { key: 'lowering',     fr: 'Bridge lowering', en: 'Bridge lowering',   descFr: 'When the bridge comes back down — reopening imminent.',                descEn: 'When the bridge comes back down — reopening imminent.', default: false },
-  { key: 'disponible',   fr: 'Disponible',            en: 'Available',         descFr: 'As soon as traffic resumes after a lift.',                  descEn: 'As soon as traffic resumes after a lift.', default: false },
-  { key: 'achalandage',  fr: 'Busy period',    en: 'Busy period',       descFr: 'Alerte 30 min avant une période historiquement chargée.',          descEn: 'Alert 30 min before a historically busy period.', default: false },
+  { key: 'raising',      fr: 'Bridge raising',   en: 'Bridge raising',    descFr: 'When the bridge physically starts to rise.',                  descEn: 'When the bridge physically starts to rise.', default: true },
+  { key: 'lowering',     fr: 'Bridge lowering', en: 'Bridge lowering',   descFr: 'When the bridge comes back down — reopening imminent.',                descEn: 'When the bridge comes back down — reopening imminent.', default: true },
+  { key: 'disponible',   fr: 'Disponible',            en: 'Available',         descFr: 'As soon as traffic resumes after a lift.',                  descEn: 'As soon as traffic resumes after a lift.', default: true },
+  { key: 'achalandage',  fr: 'Busy period',    en: 'Busy period',       descFr: 'Alerte 30 min avant une période historiquement chargée.',          descEn: 'Alert 30 min before a historically busy period.', default: true },
 ];
 
 function getPerBridgeNotifTypes(bridge) {
@@ -2327,7 +2327,7 @@ function toggleOptionalNotifs(){
 function loadNotifTypes(){
   const saved=localStorage.getItem('notifTypes');
   const OLD_DEFAULT='["bientot_leve","leve","outage"]';
-  const SAFE_DEFAULT=['bientot_leve','raising','leve','lowering','disponible','outage'];
+  const SAFE_DEFAULT=['bientot_leve','raising','leve','lowering','disponible','outage','scheduled','achalandage'];
   if(!saved||saved===OLD_DEFAULT){
     localStorage.setItem('notifTypes',JSON.stringify(SAFE_DEFAULT));
   }
