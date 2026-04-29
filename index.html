@@ -2592,7 +2592,10 @@ async function fetchStatus(){
   try{
     const errEl=document.getElementById('errorMsg');
     if(retries===0 && errEl) errEl.textContent='Connecting\u2026';
-    const r=await fetch(BACKEND+'/status',{signal:AbortSignal.timeout(60000)});
+    // Only fetch pages needed for visible bridges
+    const visibleBridges = getSelBridges();
+    const bridgesParam = visibleBridges.length ? '?bridges=' + visibleBridges.join(',') : '';
+    const r=await fetch(BACKEND+'/status'+bridgesParam,{signal:AbortSignal.timeout(60000)});
     const d=await r.json();
     const bridgeData = d.bridges || d;
     lastData=bridgeData;

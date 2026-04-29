@@ -141,10 +141,13 @@ function extractLiftsFromHtml(html, bridgeKeyword) {
   return null;
 }
 
-async function fetchBridgeStatus() {
+async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
+  const needsSCT = requestedBridges.some(id => SCT_BRIDGES.includes(id));
+  const needsPC  = requestedBridges.some(id => PC_BRIDGES.includes(id));
+
   const [sctHtml, pcHtml] = await Promise.all([
-    fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgeSCT'),
-    fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC'),
+    needsSCT ? fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgeSCT') : Promise.resolve(''),
+    needsPC  ? fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC')  : Promise.resolve(''),
   ]);
 
   function extractTextPairs(html) {
@@ -388,8 +391,26 @@ async function monitor() {
 // ── Routes ────────────────────────────────────────────────────────────
 app.get('/ping', (req, res) => res.json({ ok: true, subs: subscriptions.length }));
 
-app.get('/status', (req, res) => {
+app.get('/status', async (req, res) => {
   res.set('Cache-Control', 'no-store');
+
+  // If bridges param provided, fetch only needed pages and return fresh data
+  const bridgesParam = req.query.bridges;
+  if (bridgesParam) {
+    const requested = bridgesParam.split(',').filter(id => BRIDGE_IDS.includes(id));
+    if (requested.length > 0) {
+      try {
+        const fresh = await fetchBridgeStatus(requested);
+        // Merge fresh data into lastData
+        for (const id of requested) {
+          lastData[id] = fresh[id];
+        }
+      } catch(e) {
+        log('❌ Status fetch error:', e.message);
+      }
+    }
+  }
+
   res.json({ bridges: lastData, last_updated: new Date().toISOString() });
 });
 
