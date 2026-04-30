@@ -717,6 +717,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
       <div id="lastLiftLakeshore" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+      <button class="heatmap-btn" onclick="showMapModal('lakeshore')" style="margin-top:6px;">🚢 Real-time View</button>
       <button class="heatmap-btn" onclick="showHeatmap('lakeshore')" id="heatmapBtnLakeshore" style="">📊 History</button>
     </div>
   </section>
@@ -767,6 +768,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
       <div id="lastLiftCarlton" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+      <button class="heatmap-btn" onclick="showMapModal('carlton')" style="margin-top:6px;">🚢 Real-time View</button>
       <button class="heatmap-btn" onclick="showHeatmap('carlton')" id="heatmapBtnCarlton" style="">📊 History</button>
     </div>
   </section>
@@ -817,6 +819,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
       <div id="lastLiftQueenston" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+      <button class="heatmap-btn" onclick="showMapModal('queenston')" style="margin-top:6px;">🚢 Real-time View</button>
       <button class="heatmap-btn" onclick="showHeatmap('queenston')" id="heatmapBtnQueenston" style="">📊 History</button>
     </div>
   </section>
@@ -867,6 +870,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
       <div id="lastLiftGlendale" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+      <button class="heatmap-btn" onclick="showMapModal('glendale')" style="margin-top:6px;">🚢 Real-time View</button>
       <button class="heatmap-btn" onclick="showHeatmap('glendale')" id="heatmapBtnGlendale" style="">📊 History</button>
     </div>
   </section>
@@ -914,6 +918,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
       <div id="lastLiftAllanburg" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+      <button class="heatmap-btn" onclick="showMapModal('allanburg')" style="margin-top:6px;">🚢 Real-time View</button>
       <button class="heatmap-btn" onclick="showHeatmap('allanburg')" id="heatmapBtnAllanburg" style="">📊 History</button>
     </div>
   </section>
@@ -961,6 +966,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
       <div id="lastLiftMainwelland" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+      <button class="heatmap-btn" onclick="showMapModal('mainwelland')" style="margin-top:6px;">🚢 Real-time View</button>
       <button class="heatmap-btn" onclick="showHeatmap('mainwelland')" id="heatmapBtnMainwelland" style="">📊 History</button>
     </div>
   </section>
@@ -1008,6 +1014,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
       <div id="lastLiftClarence" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+      <button class="heatmap-btn" onclick="showMapModal('clarence')" style="margin-top:6px;">🚢 Real-time View</button>
       <button class="heatmap-btn" onclick="showHeatmap('clarence')" id="heatmapBtnClarence" style="">📊 History</button>
     </div>
   </section>
@@ -1055,6 +1062,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
       <div id="lastLiftMellanby" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+      <button class="heatmap-btn" onclick="showMapModal('mellanby')" style="margin-top:6px;">🚢 Real-time View</button>
       <button class="heatmap-btn" onclick="showHeatmap('mellanby')" id="heatmapBtnMellanby" style="">📊 History</button>
     </div>
   </section>
@@ -3677,4 +3685,45 @@ document.addEventListener('visibilitychange',()=>{
     }
   }
 })();
+</script>
+
+<!-- Map modal -->
+<div id="mapModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;">
+  <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:0 0 32px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px;">
+      <div style="font-size:15px;font-weight:700;color:var(--text);font-family:var(--sans);" id="mapModalTitle">Real-time View</div>
+      <button onclick="closeMapModal()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px;">✕</button>
+    </div>
+    <div style="padding:0 16px;">
+      <iframe id="mapModalFrame" src="" width="100%" height="380" frameborder="0" style="border-radius:16px;display:block;"></iframe>
+    </div>
+    <div style="padding:12px 16px 0;font-size:11px;color:var(--text3);font-family:var(--mono);text-align:center;">Powered by MarineTraffic</div>
+  </div>
+</div>
+
+<script>
+const BRIDGE_MAP_COORDS = {
+  lakeshore:   { name: 'Lakeshore Rd (Bridge 1)',   lat: '43.2162', lon: '-79.2121' },
+  carlton:     { name: 'Carlton St. (Bridge 3A)',    lat: '43.1917', lon: '-79.2007' },
+  queenston:   { name: 'Queenston St. (Bridge 4)',   lat: '43.1654', lon: '-79.1949' },
+  glendale:    { name: 'Glendale Ave. (Bridge 5)',   lat: '43.1450', lon: '-79.1923' },
+  allanburg:   { name: 'Highway 20 (Bridge 11)',     lat: '43.0761', lon: '-79.2107' },
+  mainwelland: { name: 'Main St. (Bridge 19)',       lat: '42.8964', lon: '-79.2467' },
+  mellanby:    { name: 'Mellanby Ave. (Bridge 19A)', lat: '42.8859', lon: '-79.2487' },
+  clarence:    { name: 'Clarence St. (Bridge 21)',   lat: '42.9012', lon: '-79.2455' },
+};
+
+function showMapModal(bridge) {
+  const b = BRIDGE_MAP_COORDS[bridge];
+  if (!b) return;
+  document.getElementById('mapModalTitle').textContent = b.name;
+  document.getElementById('mapModalFrame').src =
+    `https://www.marinetraffic.com/en/ais/embed/zoom:16/centery:${b.lat}/centerx:${b.lon}/shownames:1/mmsi:0/shipid:0/fleet:/fleet_id:0/type:0/speed_min:0/speed_max:99`;
+  document.getElementById('mapModalOverlay').style.display = 'flex';
+}
+
+function closeMapModal() {
+  document.getElementById('mapModalOverlay').style.display = 'none';
+  document.getElementById('mapModalFrame').src = '';
+}
 </script>
