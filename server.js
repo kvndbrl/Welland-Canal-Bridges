@@ -314,7 +314,7 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
     });
 
     try {
-      await webpush.sendNotification(sub, payload);
+      await webpush.sendNotification(sub, payload, { urgency: 'high', TTL: 300 });
       sent++;
     } catch (e) {
       if (e.statusCode === 410 || e.statusCode === 404) {
