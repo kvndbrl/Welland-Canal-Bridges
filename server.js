@@ -43,6 +43,7 @@ let liftActive  = Object.fromEntries(BRIDGE_IDS.map(id => [id, false]));
 let loweringActive = Object.fromEntries(BRIDGE_IDS.map(id => [id, null]));
 let subscriptions = [];
 let disponibleSince = Object.fromEntries(BRIDGE_IDS.map(id => [id, null]));
+let monitorTimeout = null;
 
 // ── Redis helpers ─────────────────────────────────────────────────────
 async function redisCmd(...args) {
@@ -386,8 +387,20 @@ async function monitor() {
     }
 
     if (!anyChange) log('💤 No changes');
+
+    // Adaptive polling — 5s if any bridge is active, 15s otherwise
+    const anyActive = BRIDGE_IDS.some(id =>
+      ['bientot_leve','raising','leve','lowering'].includes(lastStatus[id])
+    );
+    const nextPoll = anyActive ? 5000 : 15000;
+    if (anyActive) log(`⚡ Active bridges detected — polling every 5s`);
+    clearTimeout(monitorTimeout);
+    monitorTimeout = setTimeout(monitor, nextPoll);
+
   } catch (e) {
     log('❌ Monitor error:', e.message);
+    clearTimeout(monitorTimeout);
+    monitorTimeout = setTimeout(monitor, 15000);
   }
 }
 
@@ -553,7 +566,7 @@ async function start() {
   await loadHistory();
   await loadLastStatus();
   monitor();
-  setInterval(monitor, 15000);
+  // Adaptive polling managed inside monitor() via setTimeout
   app.listen(PORT, () => {
     log(`🚀 Server running on port ${PORT}`);
     setInterval(() => {
