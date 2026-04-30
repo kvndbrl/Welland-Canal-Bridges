@@ -340,8 +340,11 @@ async function monitor() {
       lastData[bridge] = data[bridge];
 
       if (prev !== curr) {
+        // Only block truly impossible transitions
+        // lowering → raising or leve is physically impossible
+        // but lowering → bientot_leve can happen if site skips states
         const invalidTransitions = {
-          lowering: ['bientot_leve', 'raising', 'leve'],
+          lowering: ['raising', 'leve'],
         };
         if (invalidTransitions[prev]?.includes(curr)) {
           log(`⚠️ Ignored invalid transition [${bridge}]: ${prev} → ${curr}`);
