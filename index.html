@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
@@ -35,7 +35,43 @@
   <link rel="manifest" href="manifest.json"/>
   <link rel="icon" href="icon-192.png" type="image/png"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <title>Welland Canal Bridges</title>
+  <title>Welland Canal Bridges — Real-time Bridge Status & Lift Notifications</title>
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Welland Canal Bridges",
+    "url": "https://welland-canal-bridges.vercel.app",
+    "description": "Real-time status of all 8 Welland Canal bridges with free push notifications for bridge lifts. Track Lakeshore Rd, Carlton St., Queenston St., Glendale Ave., Highway 20, Main St., Mellanby Ave., and Clarence St. bridges.",
+    "applicationCategory": "TravelApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CAD"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "Welland",
+      "containedInPlace": {
+        "@type": "AdministrativeArea",
+        "name": "Niagara Region, Ontario, Canada"
+      }
+    },
+    "featureList": [
+      "Real-time bridge lift status",
+      "Push notifications before and during lifts",
+      "Lift history and peak hour heatmap",
+      "Estimated reopen times",
+      "All 8 Welland Canal bridges tracked",
+      "No account required",
+      "Free to use"
+    ],
+    "keywords": "Welland Canal bridges, bridge lift status, bridge notifications, St. Catharines bridges, Port Colborne bridge, Welland bridge traffic, canal bridge alert, Niagara Region traffic"
+  }
+  </script>
   <style>
     :root{
       --bg:#f0f2f5;--surface:#fff;--surface2:#f7f8fa;--border:rgba(0,0,0,.06);
