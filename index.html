@@ -409,17 +409,31 @@
 </head>
 <body>
 
-<!-- Desktop warning banner -->
-<div id="desktopBanner" style="display:none;background:#1a2a4a;color:#a8c8ff;text-align:center;padding:10px 16px;font-size:13px;font-family:var(--sans);border-bottom:1px solid rgba(255,255,255,.1);">
-  📱 For the best experience, use this app on a phone or tablet.
+
+<!-- Desktop warning modal -->
+<div id="desktopOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border-radius:24px;width:90%;max-width:420px;padding:32px 28px;text-align:center;box-shadow:0 40px 80px rgba(0,0,0,.6);">
+    <div style="font-size:48px;margin-bottom:16px;">📱</div>
+    <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px;font-family:var(--sans);">Designed for mobile</div>
+    <div style="font-size:14px;color:var(--text3);line-height:1.6;margin-bottom:24px;font-family:var(--sans);">For the best experience and to receive bridge lift notifications, use this app on a phone or tablet.</div>
+    <button onclick="dismissDesktopOverlay()" style="width:100%;padding:15px;border-radius:50px;border:none;background:var(--accent);color:white;font-family:var(--sans);font-size:16px;font-weight:700;cursor:pointer;">Got it</button>
+  </div>
 </div>
+
 <script>
   function checkDesktop() {
-    if(window.innerWidth >= 1024) {
-      document.getElementById('desktopBanner').style.display = 'block';
+    const overlay = document.getElementById('desktopOverlay');
+    const dismissed = sessionStorage.getItem('desktopDismissed');
+    if(window.innerWidth >= 1024 && !dismissed) {
+      overlay.style.display = 'flex';
     } else {
-      document.getElementById('desktopBanner').style.display = 'none';
+      overlay.style.display = 'none';
     }
+  }
+  function dismissDesktopOverlay() {
+    sessionStorage.setItem('desktopDismissed', '1');
+    document.getElementById('desktopOverlay').style.display = 'none';
+    showNameModalIfNeeded();
   }
   checkDesktop();
   window.addEventListener('resize', checkDesktop);
@@ -1643,6 +1657,7 @@ function updatePrenom(){
 
 function showNameModalIfNeeded(){
   if(needsBrowserGate){ setTimeout(showBrowserGate, 800); return; }
+  if(window.innerWidth >= 1024 && !sessionStorage.getItem('desktopDismissed')) return;
   if(localStorage.getItem('nameAsked')) return;
   const t=TR['en'];
   // Step 1 labels
