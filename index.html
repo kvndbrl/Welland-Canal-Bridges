@@ -165,6 +165,12 @@
     *{margin:0;padding:0;box-sizing:border-box;}
     html,body{height:100%;}
     body{font-family:var(--sans);background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:28px 16px 160px;transition:background .3s;overflow-y:auto;overflow-x:hidden;}
+
+    #appWrapper.landscape { width: 100vw !important; max-width: 100vw !important; padding: 0 16px; box-sizing: border-box; }
+    #appWrapper.landscape .header { width: 100% !important; max-width: 100% !important; }
+    #appWrapper.landscape #cardsMain { width: 100% !important; max-width: 100% !important; }
+    #appWrapper.landscape #funFactCard { width: 100% !important; max-width: 100% !important; }
+    #appWrapper.landscape .notify-btn { width: 100% !important; max-width: 100% !important; }
     .waves-bg{position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:2;pointer-events:none;overflow:hidden;}
     .waves-svg{position:absolute;bottom:0;left:0;width:200%;height:100%;pointer-events:none;}
     .wave1{fill:var(--wave-color);opacity:var(--wave-opacity);}
@@ -2041,12 +2047,7 @@ function updateOrientation() {
   if (!main) return;
   const isLandscape = isLandscapeMode();
   main.classList.toggle('landscape', isLandscape);
-  const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
-  if (wrapper) {
-    wrapper.style.width = isLandscape ? vw + 'px' : '';
-    wrapper.style.maxWidth = isLandscape ? vw + 'px' : '';
-    wrapper.style.overflowX = isLandscape ? 'hidden' : '';
-  }
+  if (wrapper) wrapper.classList.toggle('landscape', isLandscape);
 }
 
 window.addEventListener('resize', updateOrientation);
