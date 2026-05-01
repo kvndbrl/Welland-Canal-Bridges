@@ -220,6 +220,21 @@
     main{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;align-items:stretch;padding-bottom:130px;}
     .bridge-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:8px;overflow:hidden;border:1px solid var(--border);animation:fadeUp .4s ease both;flex-shrink:0;}
     .bridge-card:nth-child(1){animation-delay:0s;}.bridge-card:nth-child(2){animation-delay:.05s;}
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      #cardsMain {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 8px;
+      }
+      #cardsMain .bridge-card {
+        margin-bottom: 0;
+      }
+      #cardsMain .fun-fact-card {
+        grid-column: 1 / -1;
+      }
+    }
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     .bridge-name{padding:14px 16px 0;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-family:var(--mono);display:flex;align-items:center;gap:8px;}
     .closure-badge{position:relative;display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0;}
@@ -668,7 +683,7 @@
   </button>
 </header>
 
-<main>
+<main id="cardsMain">
 
   <section class="bridge-card" id="cardLakeshore" aria-label="Lakeshore Rd">
     <div class="bridge-name" aria-hidden="true">
@@ -1153,6 +1168,21 @@
     </div>
   </label>
 
+  <!-- Font size slider -->
+  <div style="border-top:1px solid var(--border);padding:12px 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <span class="pref-row-label" id="fontSizeLabel">Text size</span>
+      <span style="font-size:11px;color:var(--text3);font-family:var(--mono);" id="fontSizeValue">Normal</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:11px;color:var(--text3);font-family:var(--sans);">A</span>
+      <input type="range" id="fontSizeSlider" min="0" max="3" step="1" value="1"
+        oninput="applyFontSize(this.value)"
+        style="flex:1;accent-color:var(--accent);height:4px;cursor:pointer;"/>
+      <span style="font-size:16px;color:var(--text3);font-family:var(--sans);">A</span>
+    </div>
+  </div>
+
   <label class="pref-row" style="border-top:1px solid var(--border);cursor:pointer;" onclick="event.preventDefault();toggleWeather()">
     <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
       <span class="pref-row-label" id="weatherToggleLabel">Weather</span>
@@ -1325,21 +1355,12 @@ function updateTimeline(bridge, status, data) {
 }
 
 // ── Changelog ────────────────────────────────────────────────────────
-const CHANGELOG_VERSION = '1.5';
+const CHANGELOG_VERSION = '1.3';
 const CHANGELOG = {
-  fr: [
-    { icon: 'bridge',  text: '"Bientôt levé" — nouvel état pour savoir que le pont va se lever, avant qu\'il commence à bouger' },
-    { icon: 'notif',   text: 'Notifications par pont — désactivez un pont ou choisissez quelles alertes recevoir pour chaque pont' },
-    { icon: 'history', text: 'Toutes les levées prévues affichées dans la carte, pas seulement la première' },
-    { icon: 'vibrate', text: 'Vibrations distinctes selon le statut — chaque type de levée a son propre signal (Android)' },
-    { icon: 'fact',    text: '"Saviez-vous que ?" — un fait local sur la région à chaque ouverture de l\'app' },
-  ],
   en: [
-    { icon: 'bridge',  text: '"Lifting soon" — new state to know the bridge is about to rise, before it starts moving' },
-    { icon: 'notif',   text: 'Per-bridge notifications — disable a bridge or choose which alerts to receive for each one' },
-    { icon: 'history', text: 'All scheduled lifts shown on the card, not just the first one' },
-    { icon: 'vibrate', text: 'Distinct vibration patterns by status — each lift type has its own signal (Android)' },
-    { icon: 'fact',    text: '"Did you know?" — a local fact about the region every time you open the app' },
+    { icon: 'vessel',   text: 'Real-time View — interactive vessel map for each bridge, directly in the app' },
+    { icon: 'notif',    text: 'Instant notifications — "Available" alerts now arrive immediately' },
+    { icon: 'fact',     text: 'Text size — adjust the text size in settings to your preference' },
   ]
 };
 
@@ -1982,6 +2003,24 @@ let currentLang=localStorage.getItem('appLang')||(bLang.startsWith('en')?'en':'f
 
 function applyDark(d){document.body.classList.toggle('dark',d);const i=document.getElementById('darkToggleInput');i.checked=d;i.setAttribute('aria-checked',d?'true':'false');}
 function toggleDark(){const d=document.getElementById('darkToggleInput').checked;localStorage.setItem('darkMode',d?'1':'0');applyDark(d);}
+
+const FONT_SIZE_LEVELS = [0.9, 1.0, 1.15, 1.30];
+const FONT_SIZE_LABELS = ['Small','Normal','Large','Extra large'];
+
+function applyFontSize(level) {
+  const zoom = FONT_SIZE_LEVELS[level] || 1.0;
+  document.documentElement.style.zoom = zoom;
+  localStorage.setItem('fontSize', level);
+  const label = document.getElementById('fontSizeValue');
+  if (label) label.textContent = FONT_SIZE_LABELS[level];
+  const slider = document.getElementById('fontSizeSlider');
+  if (slider) slider.value = level;
+}
+
+function initFontSize() {
+  const saved = parseInt(localStorage.getItem('fontSize') ?? '1');
+  applyFontSize(saved);
+}
 const sd=localStorage.getItem('darkMode');
 if(sd!==null)applyDark(sd==='1');else applyDark(window.matchMedia('(prefers-color-scheme:dark)').matches);
 
@@ -3383,7 +3422,7 @@ function hexToRgba(hex, alpha) {
   const b = parseInt(hex.slice(4,6),16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
-loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();
+loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();
 
 renderFunFact();
 
@@ -3576,11 +3615,25 @@ document.addEventListener('visibilitychange',()=>{
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
       <span style="display:inline-flex;width:26px;height:26px;color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22 L8 42 L20 42 L20 22 Z"/><path d="M20 22 Q44 14 52 10 L52 54 Q44 50 20 42"/><line x1="20" y1="42" x2="20" y2="54"/><line x1="28" y1="44" x2="26" y2="54"/><path d="M52 28 Q58 30 58 32 Q58 34 52 36"/></svg></span>
       <span style="font-size:18px;font-weight:700;color:var(--text);font-family:var(--sans);" id="changelogTitle">Nouveautés</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--text3);font-family:var(--mono);">v1.0</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--text3);font-family:var(--mono);">v1.3</span>
     </div>
     <div style="width:32px;height:3px;background:var(--accent);border-radius:2px;margin-bottom:20px;"></div>
     <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;" id="changelogItems"></div>
-    <button onclick="dismissChangelog()" style="width:100%;padding:15px;border-radius:50px;border:none;background:var(--accent);color:white;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;" id="changelogCta">C'est compris !</button>
+    <button onclick="dismissChangelog()" style="width:100%;padding:15px;border-radius:50px;border:none;background:var(--accent);color:white;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;" id="changelogCta">Got it!</button>
+    <div style="margin-top:14px;">
+      <div style="background:rgba(var(--accent-rgb),.07);border:1.5px solid rgba(var(--accent-rgb),.2);border-radius:16px;padding:14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:16px;">❤️</span>
+          <span style="font-size:14px;font-weight:700;color:var(--text);font-family:var(--sans);">Enjoying the app?</span>
+        </div>
+        <div style="font-size:12px;color:var(--text3);font-family:var(--sans);margin-bottom:10px;line-height:1.5;">Your support keeps this project alive and free.</div>
+        <div style="display:flex;gap:6px;">
+          <a href="https://paypal.me/kvndbrl/2" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:2,source:'changelog'});dismissChangelog();" style="flex:1;text-align:center;padding:9px 4px;border-radius:10px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;text-decoration:none;">2 $</a>
+          <a href="https://paypal.me/kvndbrl/5" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:5,source:'changelog'});dismissChangelog();" style="flex:1;text-align:center;padding:9px 4px;border-radius:10px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;text-decoration:none;">5 $</a>
+          <a href="https://paypal.me/kvndbrl/10" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:10,source:'changelog'});dismissChangelog();" style="flex:1;text-align:center;padding:9px 4px;border-radius:10px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;text-decoration:none;">10 $</a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
