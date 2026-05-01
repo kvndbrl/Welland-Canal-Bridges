@@ -2022,15 +2022,14 @@ function updateOrientation() {
   main.classList.toggle('landscape', isLandscape);
 }
 
-// Standard events
+// All methods combined for maximum compatibility
 window.addEventListener('resize', updateOrientation);
 window.addEventListener('orientationchange', () => setTimeout(updateOrientation, 150));
-
-// PWA / screen.orientation API
 if (screen.orientation) {
   screen.orientation.addEventListener('change', () => setTimeout(updateOrientation, 150));
 }
-
+// Polling fallback for PWA standalone mode
+setInterval(updateOrientation, 500);
 updateOrientation();
 
 function initFontSize() {
