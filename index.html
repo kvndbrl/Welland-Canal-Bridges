@@ -3719,21 +3719,21 @@ document.addEventListener('visibilitychange',()=>{
 
 <script>
 const BRIDGE_MAP_COORDS = {
-  lakeshore:   { name: 'Lakeshore Rd (Bridge 1)',   lat: '43.2162', lon: '-79.2121' },
-  carlton:     { name: 'Carlton St. (Bridge 3A)',    lat: '43.1917', lon: '-79.2007' },
-  queenston:   { name: 'Queenston St. (Bridge 4)',   lat: '43.1654', lon: '-79.1949' },
-  glendale:    { name: 'Glendale Ave. (Bridge 5)',   lat: '43.1450', lon: '-79.1923' },
-  allanburg:   { name: 'Highway 20 (Bridge 11)',     lat: '43.0761', lon: '-79.2107' },
-  mainwelland: { name: 'Main St. (Bridge 19)',       lat: '42.8964', lon: '-79.2467' },
-  mellanby:    { name: 'Mellanby Ave. (Bridge 19A)', lat: '42.8859', lon: '-79.2487' },
-  clarence:    { name: 'Clarence St. (Bridge 21)',   lat: '42.9012', lon: '-79.2455' },
+  lakeshore:   { name: 'Lakeshore Rd (Bridge 1)',   lat: '43.2162', lon: '-79.2121', zoom: 14 },
+  carlton:     { name: 'Carlton St. (Bridge 3A)',    lat: '43.1917', lon: '-79.2007', zoom: 14 },
+  queenston:   { name: 'Queenston St. (Bridge 4)',   lat: '43.1654', lon: '-79.1949', zoom: 14 },
+  glendale:    { name: 'Glendale Ave. (Bridge 5)',   lat: '43.1450', lon: '-79.1923', zoom: 14 },
+  allanburg:   { name: 'Highway 20 (Bridge 11)',     lat: '43.0761', lon: '-79.2107', zoom: 14 },
+  mainwelland: { name: 'Main St. (Bridge 19)',       lat: '42.8964', lon: '-79.2467', zoom: 15 },
+  mellanby:    { name: 'Mellanby Ave. (Bridge 19A)', lat: '42.8859', lon: '-79.2487', zoom: 14 },
+  clarence:    { name: 'Clarence St. (Bridge 21)',   lat: '42.9012', lon: '-79.2455', zoom: 14 },
 };
 
 function showMapModal(bridge) {
   const b = BRIDGE_MAP_COORDS[bridge];
   if (!b) return;
   document.getElementById('mapModalTitle').textContent = b.name;
-  const url = `https://www.vesselfinder.com/aismap?zoom=14&lat=${b.lat}&lon=${b.lon}&width=100%25&height=380&names=1&track=1`;
+  const url = `https://www.vesselfinder.com/aismap?zoom=${b.zoom}&lat=${b.lat}&lon=${b.lon}&width=100%25&height=380&names=1&track=1`;
   document.getElementById('mapModalFrame').src = url;
   document.getElementById('mapModalOverlay').style.display = 'flex';
 }
