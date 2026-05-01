@@ -425,6 +425,7 @@
   <script defer src="https://cloud.umami.is/script.js" data-website-id="55f8d024-75be-4f1c-82fa-33de2d47bdcd"></script>
 </head>
 <body>
+<div id="appWrapper">
 
 
 <!-- Desktop warning modal -->
@@ -2026,11 +2027,9 @@ function applyFontSize(level) {
 }
 
 function isLandscapeMode() {
-  // Most reliable method for PWA standalone
   if (screen.orientation && screen.orientation.type) {
     return screen.orientation.type.includes('landscape');
   }
-  // Fallback
   const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
   const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   return vw > vh;
@@ -2038,21 +2037,16 @@ function isLandscapeMode() {
 
 function updateOrientation() {
   const main = document.getElementById('cardsMain');
-  const header = document.getElementById('appHeader');
-  const notifyBtn = document.getElementById('notifyBtn');
-  const funFact = document.getElementById('funFactCard');
+  const wrapper = document.getElementById('appWrapper');
   if (!main) return;
   const isLandscape = isLandscapeMode();
   main.classList.toggle('landscape', isLandscape);
   const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
-  const w = isLandscape ? vw + 'px' : '';
-  const mw = isLandscape ? vw + 'px' : '';
-  [main, header, notifyBtn, funFact].forEach(el => {
-    if (!el) return;
-    el.style.width = w;
-    el.style.maxWidth = mw;
-    el.style.boxSizing = isLandscape ? 'border-box' : '';
-  });
+  if (wrapper) {
+    wrapper.style.width = isLandscape ? vw + 'px' : '';
+    wrapper.style.maxWidth = isLandscape ? vw + 'px' : '';
+    wrapper.style.overflowX = isLandscape ? 'hidden' : '';
+  }
 }
 
 window.addEventListener('resize', updateOrientation);
@@ -3730,6 +3724,7 @@ document.addEventListener('visibilitychange',()=>{
     </div>
   </div>
 </div>
+</div><!-- end appWrapper -->
 <!-- Swipe-up donation drawer -->
 <div id="swipeDonOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9300;backdrop-filter:blur(4px);" onclick="closeSwipeDon()"></div>
 <div id="swipeDonDrawer" style="position:fixed;bottom:-100%;left:0;right:0;z-index:9400;background:var(--surface);border-radius:24px 24px 0 0;padding:0 0 48px;max-width:500px;margin:0 auto;transition:bottom .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.4);pointer-events:none;">
