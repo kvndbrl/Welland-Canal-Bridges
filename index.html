@@ -2028,18 +2028,27 @@ function applyFontSize(level) {
 function updateOrientation() {
   const main = document.getElementById('cardsMain');
   if (!main) return;
-  // Use screen dimensions which work reliably in PWA standalone mode
-  const isLandscape = screen.width > screen.height || window.innerWidth > window.innerHeight;
+  const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const isLandscape = vw > vh;
   main.classList.toggle('landscape', isLandscape);
+  if (isLandscape) {
+    main.style.width = vw + 'px';
+    main.style.maxWidth = vw + 'px';
+  } else {
+    main.style.width = '';
+    main.style.maxWidth = '';
+  }
 }
 
-// All methods combined for maximum compatibility
 window.addEventListener('resize', updateOrientation);
 window.addEventListener('orientationchange', () => setTimeout(updateOrientation, 150));
 if (screen.orientation) {
   screen.orientation.addEventListener('change', () => setTimeout(updateOrientation, 150));
 }
-// Polling fallback for PWA standalone mode
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', updateOrientation);
+}
 setInterval(updateOrientation, 500);
 updateOrientation();
 
