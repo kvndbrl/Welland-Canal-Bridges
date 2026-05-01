@@ -3704,7 +3704,7 @@ document.addEventListener('visibilitychange',()=>{
 </script>
 
 <!-- Map modal -->
-<div id="mapModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;">
+<div id="mapModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeMapModal()">
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:0 0 32px;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px;">
       <div style="font-size:15px;font-weight:700;color:var(--text);font-family:var(--sans);" id="mapModalTitle">Real-time View</div>
@@ -3722,11 +3722,11 @@ const BRIDGE_MAP_COORDS = {
   lakeshore:   { name: 'Lakeshore Rd (Bridge 1)',   lat: '43.2162', lon: '-79.2121', zoom: 14 },
   carlton:     { name: 'Carlton St. (Bridge 3A)',    lat: '43.1917', lon: '-79.2007', zoom: 14 },
   queenston:   { name: 'Queenston St. (Bridge 4)',   lat: '43.1654', lon: '-79.1949', zoom: 14 },
-  glendale:    { name: 'Glendale Ave. (Bridge 5)',   lat: '43.1450', lon: '-79.1923', zoom: 14 },
+  glendale:    { name: 'Glendale Ave. (Bridge 5)',   lat: '43.1450', lon: '-79.1923', zoom: 15 },
   allanburg:   { name: 'Highway 20 (Bridge 11)',     lat: '43.0761', lon: '-79.2107', zoom: 14 },
-  mainwelland: { name: 'Main St. (Bridge 19)',       lat: '42.8964', lon: '-79.2467', zoom: 15 },
-  mellanby:    { name: 'Mellanby Ave. (Bridge 19A)', lat: '42.8859', lon: '-79.2487', zoom: 14 },
-  clarence:    { name: 'Clarence St. (Bridge 21)',   lat: '42.9012', lon: '-79.2455', zoom: 14 },
+  mainwelland: { name: 'Main St. (Bridge 19)',       lat: '42.89689', lon: '-79.25270', zoom: 15 },
+  mellanby:    { name: 'Mellanby Ave. (Bridge 19A)', lat: '42.89449', lon: '-79.24890', zoom: 15 },
+  clarence:    { name: 'Clarence St. (Bridge 21)',   lat: '42.88416', lon: '-79.25277', zoom: 15 },
 };
 
 function showMapModal(bridge) {
