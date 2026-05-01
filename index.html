@@ -1843,8 +1843,14 @@ async function syncPrefs(){
     d.notifTypes=getSelNotifTypes();
     d.notifDays=getSelDays();
     d.notifDays2=getSelDays2();
-    // Per-bridge overrides
-    // Per-bridge notif types handled server-side
+    // Send per-bridge notif types (including empty arrays)
+    const ALL_BRIDGES=['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
+    for(const b of ALL_BRIDGES){
+      const saved=localStorage.getItem('perBridgeNotif_'+b);
+      if(saved!==null){
+        try{ d['notifTypes_'+b]=JSON.parse(saved); }catch(e){}
+      }
+    }
     await fetch(BACKEND+'/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
   }catch(e){console.error(e);}
 }
