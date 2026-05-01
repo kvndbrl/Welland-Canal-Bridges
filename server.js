@@ -302,8 +302,15 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
     if (!bridges.includes(bridge)) { skippedBridge++; continue; }
 
     const bridgeKey = `notifTypes_${bridge}`;
-    const allowedTypes = sub[bridgeKey] || sub.notifTypes || ['bientot_leve','raising','leve','lowering','disponible','outage'];
+    const perBridgeTypes = sub[bridgeKey];
+    const globalTypes = sub.notifTypes;
+    // Use per-bridge types if defined (even if empty), then global, then default
+    const allowedTypes = Array.isArray(perBridgeTypes) ? perBridgeTypes
+      : Array.isArray(globalTypes) ? globalTypes
+      : ['bientot_leve','raising','leve','lowering','disponible','outage'];
     const isClosing = status === 'disponible';
+    // If no types selected, skip all notifications including disponible
+    if (allowedTypes.length === 0) continue;
     if (!isClosing && !allowedTypes.includes(status)) continue;
 
     const payload = JSON.stringify({
