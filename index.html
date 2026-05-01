@@ -221,19 +221,17 @@
     .bridge-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:8px;overflow:hidden;border:1px solid var(--border);animation:fadeUp .4s ease both;flex-shrink:0;}
     .bridge-card:nth-child(1){animation-delay:0s;}.bridge-card:nth-child(2){animation-delay:.05s;}
 
-    @media (orientation: landscape) and (max-height: 500px) {
-      #cardsMain {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        padding: 8px;
-      }
-      #cardsMain .bridge-card {
-        margin-bottom: 0;
-      }
-      #cardsMain .fun-fact-card {
-        grid-column: 1 / -1;
-      }
+    #cardsMain.landscape {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 8px;
+    }
+    #cardsMain.landscape .bridge-card {
+      margin-bottom: 0;
+    }
+    #cardsMain.landscape .fun-fact-card {
+      grid-column: 1 / -1;
     }
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     .bridge-name{padding:14px 16px 0;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-family:var(--mono);display:flex;align-items:center;gap:8px;}
@@ -2016,6 +2014,17 @@ function applyFontSize(level) {
   const slider = document.getElementById('fontSizeSlider');
   if (slider) slider.value = level;
 }
+
+function updateOrientation() {
+  const main = document.getElementById('cardsMain');
+  if (!main) return;
+  const isLandscape = window.innerWidth > window.innerHeight;
+  main.classList.toggle('landscape', isLandscape);
+}
+
+window.addEventListener('resize', updateOrientation);
+window.addEventListener('orientationchange', () => setTimeout(updateOrientation, 100));
+updateOrientation();
 
 function initFontSize() {
   const saved = parseInt(localStorage.getItem('fontSize') ?? '1');
