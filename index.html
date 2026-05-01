@@ -715,12 +715,12 @@
       </div>
       <div class="refresh-time" id="refreshLakeshore">—</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div id="lastLiftLakeshore" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+    <div style="padding:4px 16px 10px;">
+      <div id="lastLiftLakeshore" style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
         <button class="heatmap-btn" onclick="showMapModal('lakeshore')">🚢 Real-time View</button>
+        <button class="heatmap-btn" onclick="showHeatmap('lakeshore')" id="heatmapBtnLakeshore">📊 History</button>
       </div>
-      <button class="heatmap-btn" onclick="showHeatmap('lakeshore')" id="heatmapBtnLakeshore">📊 History</button>
     </div>
   </section>
   <section class="bridge-card" id="cardCarlton" aria-label="Carlton St.">
@@ -768,12 +768,12 @@
       </div>
       <div class="refresh-time" id="refreshCarlton">—</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div id="lastLiftCarlton" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+    <div style="padding:4px 16px 10px;">
+      <div id="lastLiftCarlton" style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
         <button class="heatmap-btn" onclick="showMapModal('carlton')">🚢 Real-time View</button>
+        <button class="heatmap-btn" onclick="showHeatmap('carlton')" id="heatmapBtnCarlton">📊 History</button>
       </div>
-      <button class="heatmap-btn" onclick="showHeatmap('carlton')" id="heatmapBtnCarlton">📊 History</button>
     </div>
   </section>
   <section class="bridge-card" id="cardQueenston" aria-label="Queenston St.">
@@ -821,12 +821,12 @@
       </div>
       <div class="refresh-time" id="refreshQueenston">—</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div id="lastLiftQueenston" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+    <div style="padding:4px 16px 10px;">
+      <div id="lastLiftQueenston" style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
         <button class="heatmap-btn" onclick="showMapModal('queenston')">🚢 Real-time View</button>
+        <button class="heatmap-btn" onclick="showHeatmap('queenston')" id="heatmapBtnQueenston">📊 History</button>
       </div>
-      <button class="heatmap-btn" onclick="showHeatmap('queenston')" id="heatmapBtnQueenston">📊 History</button>
     </div>
   </section>
   <section class="bridge-card" id="cardGlendale" aria-label="Glendale Ave.">
@@ -874,12 +874,12 @@
       </div>
       <div class="refresh-time" id="refreshGlendale">—</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div id="lastLiftGlendale" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+    <div style="padding:4px 16px 10px;">
+      <div id="lastLiftGlendale" style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
         <button class="heatmap-btn" onclick="showMapModal('glendale')">🚢 Real-time View</button>
+        <button class="heatmap-btn" onclick="showHeatmap('glendale')" id="heatmapBtnGlendale">📊 History</button>
       </div>
-      <button class="heatmap-btn" onclick="showHeatmap('glendale')" id="heatmapBtnGlendale">📊 History</button>
     </div>
   </section>
   <section class="bridge-card" id="cardAllanburg" aria-label="Highway 20">
@@ -924,12 +924,12 @@
       </div>
       <div class="refresh-time" id="refreshAllanburg">—</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div id="lastLiftAllanburg" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+    <div style="padding:4px 16px 10px;">
+      <div id="lastLiftAllanburg" style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
         <button class="heatmap-btn" onclick="showMapModal('allanburg')">🚢 Real-time View</button>
+        <button class="heatmap-btn" onclick="showHeatmap('allanburg')" id="heatmapBtnAllanburg">📊 History</button>
       </div>
-      <button class="heatmap-btn" onclick="showHeatmap('allanburg')" id="heatmapBtnAllanburg">📊 History</button>
     </div>
   </section>
   <section class="bridge-card" id="cardMainwelland" aria-label="Main St. (Welland)">
@@ -974,12 +974,12 @@
       </div>
       <div class="refresh-time" id="refreshMainwelland">—</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div id="lastLiftMainwelland" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+    <div style="padding:4px 16px 10px;">
+      <div id="lastLiftMainwelland" style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
         <button class="heatmap-btn" onclick="showMapModal('mainwelland')">🚢 Real-time View</button>
+        <button class="heatmap-btn" onclick="showHeatmap('mainwelland')" id="heatmapBtnMainwelland">📊 History</button>
       </div>
-      <button class="heatmap-btn" onclick="showHeatmap('mainwelland')" id="heatmapBtnMainwelland">📊 History</button>
     </div>
   </section>
   <section class="bridge-card" id="cardClarence" aria-label="Clarence St.">
@@ -1024,12 +1024,12 @@
       </div>
       <div class="refresh-time" id="refreshClarence">—</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div id="lastLiftClarence" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+    <div style="padding:4px 16px 10px;">
+      <div id="lastLiftClarence" style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
         <button class="heatmap-btn" onclick="showMapModal('clarence')">🚢 Real-time View</button>
+        <button class="heatmap-btn" onclick="showHeatmap('clarence')" id="heatmapBtnClarence">📊 History</button>
       </div>
-      <button class="heatmap-btn" onclick="showHeatmap('clarence')" id="heatmapBtnClarence">📊 History</button>
     </div>
   </section>
   <section class="bridge-card" id="cardMellanby" aria-label="Mellanby Ave.">
@@ -1074,12 +1074,12 @@
       </div>
       <div class="refresh-time" id="refreshMellanby">—</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;">
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div id="lastLiftMellanby" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></div>
+    <div style="padding:4px 16px 10px;">
+      <div id="lastLiftMellanby" style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
         <button class="heatmap-btn" onclick="showMapModal('mellanby')">🚢 Real-time View</button>
+        <button class="heatmap-btn" onclick="showHeatmap('mellanby')" id="heatmapBtnMellanby">📊 History</button>
       </div>
-      <button class="heatmap-btn" onclick="showHeatmap('mellanby')" id="heatmapBtnMellanby">📊 History</button>
     </div>
   </section>
 
@@ -3733,7 +3733,7 @@ function showMapModal(bridge) {
   const b = BRIDGE_MAP_COORDS[bridge];
   if (!b) return;
   document.getElementById('mapModalTitle').textContent = b.name;
-  const url = `https://www.marinetraffic.com/en/ais/embed/zoom:17/centery:${b.lat}/centerx:${b.lon}/maptype:1/shownames:1/mmsi:0/shipid:0/fleet:/fleet_id:0/type:0/speed_min:0/speed_max:99`;
+  const url = `https://www.vesselfinder.com/aismap?zoom=16&lat=${b.lat}&lon=${b.lon}&width=100%25&height=380&names=1&track=1`;
   document.getElementById('mapModalFrame').src = url;
   document.getElementById('mapModalOverlay').style.display = 'flex';
 }
