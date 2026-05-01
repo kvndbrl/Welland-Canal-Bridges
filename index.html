@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <!-- WCB v1.0.4 -->
   <meta name="theme-color" content="#0a1628"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -673,7 +673,7 @@
   </div>
 </div>
 
-<header class="header">
+<header class="header" id="appHeader">
   <div class="greeting-block" aria-live="polite">
     <span class="greeting-text" id="greetingText">Hello!</span>
     <span class="weather-text" id="weatherText"></span>
@@ -2025,20 +2025,34 @@ function applyFontSize(level) {
   if (slider) slider.value = level;
 }
 
-function updateOrientation() {
-  const main = document.getElementById('cardsMain');
-  if (!main) return;
+function isLandscapeMode() {
+  // Most reliable method for PWA standalone
+  if (screen.orientation && screen.orientation.type) {
+    return screen.orientation.type.includes('landscape');
+  }
+  // Fallback
   const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
   const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  const isLandscape = vw > vh;
+  return vw > vh;
+}
+
+function updateOrientation() {
+  const main = document.getElementById('cardsMain');
+  const header = document.getElementById('appHeader');
+  const notifyBtn = document.getElementById('notifyBtn');
+  const funFact = document.getElementById('funFactCard');
+  if (!main) return;
+  const isLandscape = isLandscapeMode();
   main.classList.toggle('landscape', isLandscape);
-  if (isLandscape) {
-    main.style.width = vw + 'px';
-    main.style.maxWidth = vw + 'px';
-  } else {
-    main.style.width = '';
-    main.style.maxWidth = '';
-  }
+  const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  const w = isLandscape ? vw + 'px' : '';
+  const mw = isLandscape ? vw + 'px' : '';
+  [main, header, notifyBtn, funFact].forEach(el => {
+    if (!el) return;
+    el.style.width = w;
+    el.style.maxWidth = mw;
+    el.style.boxSizing = isLandscape ? 'border-box' : '';
+  });
 }
 
 window.addEventListener('resize', updateOrientation);
