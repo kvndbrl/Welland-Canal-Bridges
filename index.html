@@ -671,14 +671,14 @@
           <input type="checkbox" id="ob-nt-raising" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;margin-top:2px;"/>
           <div>
             <div style="font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans);" id="obNtRaisingLabel">Bridge raising</div>
-            <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;" id="obNtRaisingDesc">Notifié quand le pont commence physiquement à se lever.</div>
+            <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;" id="obNtRaisingDesc">When the bridge physically starts to rise.</div>
           </div>
         </label>
         <label style="display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:12px;background:var(--surface2);cursor:pointer;">
           <input type="checkbox" id="ob-nt-lowering" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;margin-top:2px;"/>
           <div>
             <div style="font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans);" id="obNtLoweringLabel">Bridge lowering</div>
-            <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;" id="obNtLoweringDesc">Avisé quand le pont redescend et que la réouverture est imminente.</div>
+            <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;" id="obNtLoweringDesc">When the bridge comes back down — reopening imminent.</div>
           </div>
         </label>
         <label style="display:none;" style="display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:12px;background:var(--surface2);cursor:pointer;">
@@ -2092,29 +2092,17 @@ function applyFontSize(level) {
   if (slider) slider.value = level;
 }
 
-function isLandscapeMode() {
-  if (screen.orientation && screen.orientation.type) {
-    return screen.orientation.type.includes('landscape');
-  }
-  const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
-  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  return vw > vh;
-}
-
 function updateOrientation() {
   const main = document.getElementById('cardsMain');
   const wrapper = document.getElementById('appWrapper');
   if (!main) return;
-  const isLandscape = isLandscapeMode();
+  const isLandscape = window.innerWidth > window.innerHeight;
   main.classList.toggle('landscape', isLandscape);
   if (wrapper) wrapper.classList.toggle('landscape', isLandscape);
 }
 
 window.addEventListener('resize', updateOrientation);
 window.addEventListener('orientationchange', () => setTimeout(updateOrientation, 150));
-if (screen.orientation) {
-  screen.orientation.addEventListener('change', () => setTimeout(updateOrientation, 150));
-}
 if (window.visualViewport) window.visualViewport.addEventListener('resize', updateOrientation);
 updateOrientation();
 
