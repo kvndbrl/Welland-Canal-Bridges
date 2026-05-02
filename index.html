@@ -165,6 +165,11 @@
     *{margin:0;padding:0;box-sizing:border-box;}
     html,body{height:100%;}
     body{font-family:var(--sans);background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:28px 16px 160px;transition:background .3s;overflow-y:auto;overflow-x:hidden;}
+
+    /* Simplified view — hide advanced elements */
+    body.simplified .heatmap-btn,
+    body.simplified [id^="lastLift"],
+    body.simplified .lifts-block { display:none !important; }
     .waves-bg{position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:2;pointer-events:none;overflow:hidden;}
     .waves-svg{position:absolute;bottom:0;left:0;width:200%;height:100%;pointer-events:none;}
     .wave1{fill:var(--wave-color);opacity:var(--wave-opacity);}
@@ -1247,6 +1252,20 @@
     </div>
   </label>
 
+  <div style="border-top:1px solid var(--border);padding:12px 16px;">
+    <div style="font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans);margin-bottom:10px;">View mode</div>
+    <div style="display:flex;gap:8px;">
+      <button id="btnViewSimple" onclick="setViewMode('simple')" style="flex:1;padding:10px 8px;border-radius:12px;border:2px solid transparent;cursor:pointer;text-align:left;background:var(--surface2);transition:all .2s;">
+        <div style="font-size:12px;font-weight:700;color:var(--text);font-family:var(--sans);margin-bottom:3px;">Simple</div>
+        <div style="font-size:10px;color:var(--text3);font-family:var(--sans);line-height:1.4;">Status only. Clean and minimal.</div>
+      </button>
+      <button id="btnViewAdvanced" onclick="setViewMode('advanced')" style="flex:1;padding:10px 8px;border-radius:12px;border:2px solid transparent;cursor:pointer;text-align:left;background:var(--surface2);transition:all .2s;">
+        <div style="font-size:12px;font-weight:700;color:var(--text);font-family:var(--sans);margin-bottom:3px;">Advanced</div>
+        <div style="font-size:10px;color:var(--text3);font-family:var(--sans);line-height:1.4;">Includes map, history and last lift.</div>
+      </button>
+    </div>
+  </div>
+
   <!-- Theme -->
   <div class="settings-section-label" id="themeSectionLabel">Themes</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 16px 16px;">
@@ -2062,6 +2081,27 @@ let currentLang=localStorage.getItem('appLang')||(bLang.startsWith('en')?'en':'f
 
 function applyDark(d){document.body.classList.toggle('dark',d);const i=document.getElementById('darkToggleInput');i.checked=d;i.setAttribute('aria-checked',d?'true':'false');}
 function toggleDark(){const d=document.getElementById('darkToggleInput').checked;localStorage.setItem('darkMode',d?'1':'0');applyDark(d);}
+
+function setViewMode(mode) {
+  localStorage.setItem('viewMode', mode);
+  applyViewMode(mode);
+}
+
+function applyViewMode(mode) {
+  document.body.classList.toggle('simplified', mode === 'simple');
+  const btnSimple = document.getElementById('btnViewSimple');
+  const btnAdvanced = document.getElementById('btnViewAdvanced');
+  if (btnSimple && btnAdvanced) {
+    const accent = 'var(--accent)';
+    btnSimple.style.borderColor = mode === 'simple' ? accent : 'transparent';
+    btnAdvanced.style.borderColor = mode === 'advanced' ? accent : 'transparent';
+  }
+}
+
+function initSimplifiedView() {
+  const mode = localStorage.getItem('viewMode') || 'advanced';
+  applyViewMode(mode);
+}
 
 const FONT_SIZE_LEVELS = [0.9, 1.0, 1.15, 1.30];
 const FONT_SIZE_LABELS = ['Small','Normal','Large','Extra large'];
@@ -3551,7 +3591,7 @@ function hexToRgba(hex, alpha) {
   const b = parseInt(hex.slice(4,6),16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
-loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();
+loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();initSimplifiedView();
 
 renderFunFact();
 
