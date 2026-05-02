@@ -1252,6 +1252,17 @@
     </div>
   </div>
 
+  <label class="pref-row" style="border-top:1px solid var(--border);">
+    <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
+      <span class="pref-row-label">Landscape mode</span>
+      <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;line-height:1.4;">Enable 2-column layout when rotating your phone.</div>
+    </div>
+    <div class="pref-toggle">
+      <input type="checkbox" id="landscapeToggleInput" onchange="toggleLandscape()" role="switch"/>
+      <span class="pref-slider"></span>
+    </div>
+  </label>
+
   <label class="pref-row" style="border-top:1px solid var(--border);cursor:pointer;" onclick="event.preventDefault();toggleWeather()">
     <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
       <span class="pref-row-label" id="weatherToggleLabel">Weather</span>
@@ -2092,11 +2103,24 @@ function applyFontSize(level) {
   if (slider) slider.value = level;
 }
 
+function toggleLandscape() {
+  const enabled = document.getElementById('landscapeToggleInput').checked;
+  localStorage.setItem('landscapeEnabled', enabled ? '1' : '0');
+  updateOrientation();
+}
+
+function initLandscapeToggle() {
+  const enabled = localStorage.getItem('landscapeEnabled') === '1';
+  const toggle = document.getElementById('landscapeToggleInput');
+  if (toggle) toggle.checked = enabled;
+}
+
 function updateOrientation() {
   const main = document.getElementById('cardsMain');
   const wrapper = document.getElementById('appWrapper');
   if (!main) return;
-  const isLandscape = window.innerWidth > window.innerHeight;
+  const landscapeEnabled = localStorage.getItem('landscapeEnabled') === '1';
+  const isLandscape = landscapeEnabled && window.innerWidth > window.innerHeight;
   main.classList.toggle('landscape', isLandscape);
   if (wrapper) wrapper.classList.toggle('landscape', isLandscape);
 }
@@ -3560,7 +3584,7 @@ function hexToRgba(hex, alpha) {
   const b = parseInt(hex.slice(4,6),16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
-loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();
+loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();initLandscapeToggle();
 
 renderFunFact();
 
