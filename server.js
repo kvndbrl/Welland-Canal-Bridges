@@ -29,17 +29,6 @@ const BRIDGE_NAMES = {
   clarence:    'Clarence St. (Bridge 21)',
 };
 
-const BRIDGE_NAMES = {
-  lakeshore:  'Lakeshore Rd (Bridge 1)',
-  carlton:    'Carlton St. (Bridge 3A)',
-  queenston:  'Queenston St. (Bridge 4)',
-  glendale:   'Glendale Ave. (Bridge 5)',
-  allanburg:  'Route 20 (Bridge 11)',
-  mainwelland:'Main St. (Bridge 19)',
-  mellanby:   'Mellanby Ave. (Bridge 19A)',
-  clarence:   'Clarence St. (Bridge 21)',
-};
-
 const SCT_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg'];
 const PC_BRIDGES  = ['mainwelland','mellanby','clarence'];
 
