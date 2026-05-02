@@ -743,6 +743,12 @@
   </button>
 </header>
 
+<div style="padding:0 16px 8px;margin-top:-4px;">
+  <button onclick="openDonateModal()" style="display:flex;align-items:center;gap:6px;background:var(--accent);border:none;border-radius:12px;padding:8px 14px;font-family:var(--sans);font-size:13px;font-weight:600;color:#fff;cursor:pointer;width:100%;justify-content:center;opacity:.85;">
+    ❤️ Support this project
+  </button>
+</div>
+
 <main id="cardsMain">
 
   <section class="bridge-card" id="cardLakeshore" aria-label="Lakeshore Rd">
@@ -3829,6 +3835,42 @@ document.addEventListener('visibilitychange',()=>{
   </div>
 </div>
 </div><!-- end appWrapper -->
+
+<!-- Donate modal -->
+<div id="donateModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeDonateModal()">
+  <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:28px 24px 48px;position:relative;">
+    <button onclick="closeDonateModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:32px;margin-bottom:10px;">❤️</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);font-family:var(--sans);margin-bottom:6px;">Enjoying the app?</div>
+      <div style="font-size:13px;color:var(--text3);font-family:var(--sans);line-height:1.5;">This is a free, independent project maintained by one developer. Your support keeps it alive and ad-free.</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
+        <a href="https://paypal.me/kvndbrl/2" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:2,source:'main_cta'});closeDonateModal();" style="display:block;text-align:center;padding:12px 4px;border-radius:12px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;text-decoration:none;">2 $</a>
+        <div style="font-size:9px;color:var(--text3);font-family:var(--sans);text-align:center;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Less than a latte ☕</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
+        <a href="https://paypal.me/kvndbrl/5" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:5,source:'main_cta'});closeDonateModal();" style="display:block;text-align:center;padding:12px 4px;border-radius:12px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;text-decoration:none;">5 $</a>
+        <div style="font-size:9px;color:var(--text3);font-family:var(--sans);text-align:center;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Less than a glass of wine at the bar 🍷</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
+        <a href="https://paypal.me/kvndbrl/10" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:10,source:'main_cta'});closeDonateModal();" style="display:block;text-align:center;padding:12px 4px;border-radius:12px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;text-decoration:none;">10 $</a>
+        <div style="font-size:9px;color:var(--text3);font-family:var(--sans);text-align:center;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Less than a meal at the local diner 🍟</div>
+      </div>
+    </div>
+    <button onclick="closeDonateModal()" style="width:100%;padding:12px;border-radius:50px;border:none;background:var(--surface2);color:var(--text3);font-family:var(--sans);font-size:14px;cursor:pointer;">Maybe later</button>
+  </div>
+</div>
+
+<script>
+function openDonateModal() {
+  document.getElementById('donateModalOverlay').style.display = 'flex';
+}
+function closeDonateModal() {
+  document.getElementById('donateModalOverlay').style.display = 'none';
+}
+</script>
 <!-- Swipe-up donation drawer -->
 <div id="swipeDonOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9300;backdrop-filter:blur(4px);" onclick="closeSwipeDon()"></div>
 <div id="swipeDonDrawer" style="position:fixed;bottom:-100%;left:0;right:0;z-index:9400;background:var(--surface);border-radius:24px 24px 0 0;padding:0 0 48px;max-width:500px;margin:0 auto;transition:bottom .35s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(0,0,0,.4);pointer-events:none;">
