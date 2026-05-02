@@ -148,23 +148,28 @@ function extractLiftsFromHtml(html, bridgeKeyword) {
 }
 
 function extractClosuresFromHtml(html, bridgeKeyword) {
-  // Find the bridge section
-  const idx = html.toLowerCase().indexOf(bridgeKeyword.toLowerCase());
-  if (idx === -1) return [];
+  // Match ALL closure entries in the page
+  const closureRegex = /([^\n<]{3,60})\s+Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})[^<]*/gi;
+  const matches = [...html.matchAll(closureRegex)];
 
-  // Look for "PLANNED BRIDGE CLOSURE" section near the bridge
-  const section = html.slice(Math.max(0, idx - 200), idx + 3000);
+  // Only keep closures where the bridge name appears in the closure text
+  const keyword = bridgeKeyword.toLowerCase();
+  const filtered = matches.filter(m => m[1].toLowerCase().includes(keyword));
 
-  // Match closure entries like "Main St. (Bridge 19) Closure. MAY 4, 2026 07:00 - MAY 7, 2026 17:00 (24/7)"
-  const closureRegex = /Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})[^<]*/gi;
-  const matches = [...section.matchAll(closureRegex)];
+  // If no name match, fall back to proximity-based search within bridge section
+  const toProcess = filtered.length > 0 ? filtered : (() => {
+    const idx = html.toLowerCase().indexOf(keyword);
+    if (idx === -1) return [];
+    const section = html.slice(idx, idx + 1500);
+    return [...section.matchAll(closureRegex)];
+  })();
 
-  return matches.map(m => ({
+  return toProcess.map(m => ({
     raw: m[0].trim(),
-    start: m[1].trim(),
-    end: m[2].trim(),
-    startDate: new Date(m[1].trim()),
-    endDate: new Date(m[2].trim()),
+    start: m[2].trim(),
+    end: m[3].trim(),
+    startDate: new Date(m[2].trim()),
+    endDate: new Date(m[3].trim()),
   })).filter(c => !isNaN(c.startDate) && c.endDate > new Date());
 }
 
