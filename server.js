@@ -148,17 +148,10 @@ function extractLiftsFromHtml(html, bridgeKeyword) {
 }
 
 function extractClosuresFromHtml(html, bridgeKeyword) {
-  // Match ALL closure entries in the page
   const closureRegex = /([^\n<]{3,60})\s+Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})[^<]*/gi;
   const allMatches = [...html.matchAll(closureRegex)];
-
-  log(`🔍 [${bridgeKeyword}] Found ${allMatches.length} total closures. Names: ${allMatches.map(m => m[1].trim()).join(' | ')}`);
-
-  // Only keep closures where the bridge name appears in the closure text
   const keyword = bridgeKeyword.toLowerCase();
   const filtered = allMatches.filter(m => m[1].toLowerCase().includes(keyword));
-
-  log(`🔍 [${bridgeKeyword}] Filtered to ${filtered.length} matching closures`);
 
   return filtered.map(m => ({
     raw: m[0].trim(),
@@ -232,9 +225,7 @@ async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
       outageEnd: null,
     };
     if (result[id].closures?.length) {
-      log(`🚧 [${id}] Closures found: ${JSON.stringify(result[id].closures.map(c => c.raw))}`);
-    } else if (id === 'mainwelland') {
-      log(`🔍 [mainwelland] No closures found`);
+      log(`🚧 [${id}] Closures: ${result[id].closures.map(c => c.start + ' → ' + c.end).join(', ')}`);
     }
   }
 
