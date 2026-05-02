@@ -241,6 +241,11 @@ async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
       closures: extractClosuresFromHtml(html, kw),
       outageEnd: null,
     };
+    if (result[id].closures?.length) {
+      log(`🚧 [${id}] Closures found: ${JSON.stringify(result[id].closures.map(c => c.raw))}`);
+    } else if (id === 'mainwelland') {
+      log(`🔍 [mainwelland] No closures found`);
+    }
   }
 
   return result;
