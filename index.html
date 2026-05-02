@@ -2183,36 +2183,36 @@ function trackLiftStatus(bridge, status, raisedSince){
   }
 }
 
-function getLiftTimerText(bridge,status,lang){
-  lang='en'; // Welland: English only
-
-  // Use server-calculated estimatedWait if available
-  const estimatedWait = lastData && lastData[bridge]?.estimatedWait;
+function getLiftTimerText(bridge, status, lang) {
+  lang = 'en';
+  const d = lastData && lastData[bridge];
+  const avgLift = d?.avgLift || 16;
+  const avgLowering = d?.avgLowering || 3;
 
   if (status === 'lowering') {
-    return estimatedWait
-      ? `Bridge lowering \u2014 ~${estimatedWait} min to reopen`
-      : 'Bridge lowering \u2014 Opening soon';
+    return `Bridge lowering \u2014 ~${avgLowering} min to reopen`;
   }
 
-  const start = liftStartTimes[bridge];
-  const elapsedMs = start ? Date.now() - start : 0;
-  const elapsedMin = Math.floor(elapsedMs / 60000);
-
-  if (estimatedWait !== null && estimatedWait !== undefined) {
-    if (elapsedMin < 1) return `Lifted less than a minute ago \u2014 ~${estimatedWait} min remaining`;
-    if (estimatedWait <= 0) return `Lifted ${elapsedMin} min ago \u2014 Should reopen soon`;
-    return `Lifted ${elapsedMin} min ago \u2014 ~${estimatedWait} min remaining`;
+  if (status === 'bientot_leve' || status === 'raising') {
+    return `Expected wait: ~${avgLift + avgLowering} min`;
   }
 
-  // Fallback to old logic
-  const avgMin = (lastData && lastData[bridge]?.avgLiftDuration) || liftAvgMin;
-  if (!start) return `Average duration: ~${avgMin} min`;
-  if (elapsedMin > 120) return `Average duration: ~${avgMin} min`;
-  const remaining = Math.max(0, avgMin - elapsedMin);
-  if (elapsedMin < 1) return `Lifted less than a minute ago \u2014 ~${avgMin} min remaining`;
-  if (remaining <= 0) return `Lifted ${elapsedMin} min ago \u2014 Should reopen soon`;
-  return `Lifted ${elapsedMin} min ago \u2014 ~${remaining} min remaining`;
+  if (status === 'leve') {
+    // Compute elapsed from raisedAt (server-provided ISO timestamp)
+    const raisedAt = d?.raisedAt;
+    let elapsedMin = 0;
+    if (raisedAt) {
+      elapsedMin = Math.floor((Date.now() - new Date(raisedAt)) / 60000);
+    } else if (liftStartTimes[bridge]) {
+      elapsedMin = Math.floor((Date.now() - liftStartTimes[bridge]) / 60000);
+    }
+    const remaining = Math.max(0, avgLift - elapsedMin) + avgLowering;
+    if (elapsedMin < 1) return `Lifted less than a minute ago \u2014 ~${remaining} min remaining`;
+    if (remaining <= avgLowering) return `Lifted ${elapsedMin} min ago \u2014 Should reopen soon`;
+    return `Lifted ${elapsedMin} min ago \u2014 ~${remaining} min remaining`;
+  }
+
+  return '';
 }
 
 // Update timer every 10 seconds
