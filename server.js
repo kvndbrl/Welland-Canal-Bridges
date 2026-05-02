@@ -18,6 +18,16 @@ webpush.setVapidDetails('mailto:admin@wellandcanalbridges.app', VAPID_PUBLIC, VA
 
 // ── Bridges config ────────────────────────────────────────────────────
 const BRIDGE_IDS = ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence'];
+const BRIDGE_NAMES = {
+  lakeshore:   'Lakeshore Rd (Bridge 1)',
+  carlton:     'Carlton St. (Bridge 3A)',
+  queenston:   'Queenston St. (Bridge 4)',
+  glendale:    'Glendale Ave. (Bridge 5)',
+  allanburg:   'Highway 20 (Bridge 11)',
+  mainwelland: 'Main St. (Bridge 19)',
+  mellanby:    'Mellanby Ave. (Bridge 19A)',
+  clarence:    'Clarence St. (Bridge 21)',
+};
 
 const BRIDGE_NAMES = {
   lakeshore:  'Lakeshore Rd (Bridge 1)',
@@ -148,6 +158,27 @@ function extractLiftsFromHtml(html, bridgeKeyword) {
   return null;
 }
 
+function extractClosuresFromHtml(html, bridgeKeyword) {
+  // Find the bridge section
+  const idx = html.toLowerCase().indexOf(bridgeKeyword.toLowerCase());
+  if (idx === -1) return [];
+
+  // Look for "PLANNED BRIDGE CLOSURE" section near the bridge
+  const section = html.slice(Math.max(0, idx - 200), idx + 3000);
+
+  // Match closure entries like "Main St. (Bridge 19) Closure. MAY 4, 2026 07:00 - MAY 7, 2026 17:00 (24/7)"
+  const closureRegex = /Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})[^<]*/gi;
+  const matches = [...section.matchAll(closureRegex)];
+
+  return matches.map(m => ({
+    raw: m[0].trim(),
+    start: m[1].trim(),
+    end: m[2].trim(),
+    startDate: new Date(m[1].trim()),
+    endDate: new Date(m[2].trim()),
+  })).filter(c => !isNaN(c.startDate) && c.endDate > new Date());
+}
+
 async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
   const needsSCT = requestedBridges.some(id => SCT_BRIDGES.includes(id));
   const needsPC  = requestedBridges.some(id => PC_BRIDGES.includes(id));
@@ -207,7 +238,7 @@ async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
       status,
       raisedSince,
       next_lifts: extractLiftsFromHtml(html, kw),
-      closures: null,
+      closures: extractClosuresFromHtml(html, kw),
       outageEnd: null,
     };
   }
@@ -403,6 +434,39 @@ async function monitor() {
     }
 
     if (!anyChange) log('💤 No changes');
+
+    // Check for upcoming closures within 24h
+    for (const bridge of BRIDGE_IDS) {
+      const closures = data[bridge]?.closures || [];
+      for (const closure of closures) {
+        const hoursUntil = (closure.startDate - Date.now()) / 3600000;
+        if (hoursUntil > 0 && hoursUntil <= 24) {
+          const key = `closure:${bridge}:${closure.start}`;
+          const alreadyNotified = await redisCmd('GET', key);
+          if (!alreadyNotified) {
+            await redisCmd('SET', key, '1', 'EX', 86400);
+            const n = BRIDGE_NAMES[bridge] || bridge;
+            const msg = {
+              title: `🚧 ${n}`,
+              body: `Planned closure starting ${closure.start}`,
+              bridge,
+              status: 'outage',
+              tag: `closure-${bridge}-${closure.start}`,
+            };
+            log(`📅 Closure notification [${bridge}]: ${closure.start}`);
+            for (const sub of subscriptions) {
+              const bridges = sub.bridges || BRIDGE_IDS;
+              if (!bridges.includes(bridge)) continue;
+              try {
+                await webpush.sendNotification(sub, JSON.stringify(msg), { urgency: 'high', TTL: 3600 });
+              } catch(e) {
+                if (e.statusCode === 410) subscriptions.splice(subscriptions.indexOf(sub), 1);
+              }
+            }
+          }
+        }
+      }
+    }
 
     // Adaptive polling — 5s if any bridge is active, 15s otherwise
     const anyActive = BRIDGE_IDS.some(id =>
