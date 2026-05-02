@@ -150,21 +150,17 @@ function extractLiftsFromHtml(html, bridgeKeyword) {
 function extractClosuresFromHtml(html, bridgeKeyword) {
   // Match ALL closure entries in the page
   const closureRegex = /([^\n<]{3,60})\s+Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})[^<]*/gi;
-  const matches = [...html.matchAll(closureRegex)];
+  const allMatches = [...html.matchAll(closureRegex)];
+
+  log(`🔍 [${bridgeKeyword}] Found ${allMatches.length} total closures. Names: ${allMatches.map(m => m[1].trim()).join(' | ')}`);
 
   // Only keep closures where the bridge name appears in the closure text
   const keyword = bridgeKeyword.toLowerCase();
-  const filtered = matches.filter(m => m[1].toLowerCase().includes(keyword));
+  const filtered = allMatches.filter(m => m[1].toLowerCase().includes(keyword));
 
-  // If no name match, fall back to proximity-based search within bridge section
-  const toProcess = filtered.length > 0 ? filtered : (() => {
-    const idx = html.toLowerCase().indexOf(keyword);
-    if (idx === -1) return [];
-    const section = html.slice(idx, idx + 1500);
-    return [...section.matchAll(closureRegex)];
-  })();
+  log(`🔍 [${bridgeKeyword}] Filtered to ${filtered.length} matching closures`);
 
-  return toProcess.map(m => ({
+  return filtered.map(m => ({
     raw: m[0].trim(),
     start: m[2].trim(),
     end: m[3].trim(),
