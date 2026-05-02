@@ -79,6 +79,12 @@ async function loadHistory() {
       try { liftHistory[id] = JSON.parse(raw); }
       catch(e) {}
     }
+    // Restore liftActive if last entry has no loweredAt (lift was in progress)
+    const last = liftHistory[id]?.[liftHistory[id].length - 1];
+    if (last && last.raisedAt && !last.loweredAt) {
+      liftActive[id] = true;
+      log(`🔄 Restored liftActive[${id}] from history (raisedAt: ${last.raisedAt})`);
+    }
   }
 }
 
@@ -366,6 +372,7 @@ async function monitor() {
           liftActive[bridge] = true;
           loweringActive[bridge] = null;
           liftHistory[bridge].push({ raisedAt: new Date().toISOString(), bridge });
+          await saveHistory(bridge); // persist raisedAt immediately
         }
         if (curr === 'lowering') {
           loweringActive[bridge] = Date.now();
@@ -389,6 +396,8 @@ async function monitor() {
 
         lastStatus[bridge] = curr;
         await saveLastStatus();
+        const wait = getEstimatedWait(bridge);
+        if (wait) log(`⏱️ [${bridge}] estimatedWait: ~${wait} min`);
         await sendNotifications(bridge, curr, data[bridge]);
       }
     }
@@ -455,8 +464,6 @@ function getEstimatedWait(bridge) {
   const avgLowering = completedLowering.length
     ? Math.round(completedLowering.reduce((a,b) => a + b.loweringDurationMin, 0) / completedLowering.length)
     : 2;
-
-  log(`📊 [${bridge}] status:${status} avgLift:${avgLift}min (n=${completed.length}) avgLowering:${avgLowering}min (n=${completedLowering.length})`);
 
   if (status === 'lowering') return avgLowering;
   if (status === 'bientot_leve') return avgLift + avgLowering;
