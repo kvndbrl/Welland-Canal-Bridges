@@ -456,6 +456,8 @@ function getEstimatedWait(bridge) {
     ? Math.round(completedLowering.reduce((a,b) => a + b.loweringDurationMin, 0) / completedLowering.length)
     : 2;
 
+  log(`📊 [${bridge}] status:${status} avgLift:${avgLift}min (n=${completed.length}) avgLowering:${avgLowering}min (n=${completedLowering.length})`);
+
   if (status === 'lowering') return avgLowering;
   if (status === 'bientot_leve') return avgLift + avgLowering;
   if (status === 'raising') return avgLift + avgLowering;
