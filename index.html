@@ -165,13 +165,6 @@
     *{margin:0;padding:0;box-sizing:border-box;}
     html,body{height:100%;}
     body{font-family:var(--sans);background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:28px 16px 160px;transition:background .3s;overflow-y:auto;overflow-x:hidden;}
-
-    #appWrapper.landscape { width: 100vw !important; max-width: 100vw !important; padding: 0 16px; box-sizing: border-box; }
-    #appWrapper.landscape .header { width: 100% !important; max-width: 100% !important; }
-    #appWrapper.landscape #cardsMain { width: 100% !important; max-width: 100% !important; }
-    #appWrapper.landscape #belowCardsSection { width: 100% !important; max-width: 100% !important; display: flex; flex-direction: column; align-items: center; }
-    #appWrapper.landscape #belowCardsSection .notify-btn { width: 50% !important; }
-    #appWrapper.landscape #belowCardsSection #funFactCard { width: 100% !important; max-width: 100% !important; box-sizing: border-box; }
     .waves-bg{position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:2;pointer-events:none;overflow:hidden;}
     .waves-svg{position:absolute;bottom:0;left:0;width:200%;height:100%;pointer-events:none;}
     .wave1{fill:var(--wave-color);opacity:var(--wave-opacity);}
@@ -227,23 +220,6 @@
     main{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;align-items:stretch;padding-bottom:130px;}
     .bridge-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:8px;overflow:hidden;border:1px solid var(--border);animation:fadeUp .4s ease both;flex-shrink:0;}
     .bridge-card:nth-child(1){animation-delay:0s;}.bridge-card:nth-child(2){animation-delay:.05s;}
-
-    #cardsMain.landscape {
-      display: grid !important;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding: 8px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    #cardsMain.landscape .bridge-card {
-      margin-bottom: 0;
-      min-width: 0;
-      width: 100%;
-    }
-    #cardsMain.landscape .fun-fact-card {
-      grid-column: 1 / -1;
-    }
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     .bridge-name{padding:14px 16px 0;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-family:var(--mono);display:flex;align-items:center;gap:8px;}
     .closure-badge{position:relative;display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0;}
@@ -1252,17 +1228,6 @@
     </div>
   </div>
 
-  <label class="pref-row" style="border-top:1px solid var(--border);">
-    <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
-      <span class="pref-row-label">Landscape mode</span>
-      <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;line-height:1.4;">Enable 2-column layout when rotating your phone.</div>
-    </div>
-    <div class="pref-toggle">
-      <input type="checkbox" id="landscapeToggleInput" onchange="toggleLandscape()" role="switch"/>
-      <span class="pref-slider"></span>
-    </div>
-  </label>
-
   <label class="pref-row" style="border-top:1px solid var(--border);cursor:pointer;" onclick="event.preventDefault();toggleWeather()">
     <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
       <span class="pref-row-label" id="weatherToggleLabel">Weather</span>
@@ -2103,32 +2068,11 @@ function applyFontSize(level) {
   if (slider) slider.value = level;
 }
 
-function toggleLandscape() {
-  const enabled = document.getElementById('landscapeToggleInput').checked;
-  localStorage.setItem('landscapeEnabled', enabled ? '1' : '0');
-  updateOrientation();
-}
 
-function initLandscapeToggle() {
-  const enabled = localStorage.getItem('landscapeEnabled') === '1';
-  const toggle = document.getElementById('landscapeToggleInput');
-  if (toggle) toggle.checked = enabled;
-}
 
-function updateOrientation() {
-  const main = document.getElementById('cardsMain');
-  const wrapper = document.getElementById('appWrapper');
-  if (!main) return;
-  const landscapeEnabled = localStorage.getItem('landscapeEnabled') === '1';
-  const isLandscape = landscapeEnabled && window.innerWidth > window.innerHeight;
-  main.classList.toggle('landscape', isLandscape);
-  if (wrapper) wrapper.classList.toggle('landscape', isLandscape);
-}
 
-window.addEventListener('resize', updateOrientation);
-window.addEventListener('orientationchange', () => setTimeout(updateOrientation, 150));
-if (window.visualViewport) window.visualViewport.addEventListener('resize', updateOrientation);
-updateOrientation();
+
+
 
 function initFontSize() {
   const saved = parseInt(localStorage.getItem('fontSize') ?? '1');
@@ -3584,7 +3528,7 @@ function hexToRgba(hex, alpha) {
   const b = parseInt(hex.slice(4,6),16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
-loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();initLandscapeToggle();
+loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();
 
 renderFunFact();
 
