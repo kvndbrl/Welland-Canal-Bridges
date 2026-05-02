@@ -434,8 +434,41 @@ app.get('/status', async (req, res) => {
     }
   }
 
-  res.json({ bridges: lastData, last_updated: new Date().toISOString() });
+  const enriched = {};
+  for (const id of BRIDGE_IDS) {
+    enriched[id] = { ...lastData[id], estimatedWait: getEstimatedWait(id) };
+  }
+  res.json({ bridges: enriched, last_updated: new Date().toISOString() });
 });
+
+function getEstimatedWait(bridge) {
+  const status = lastStatus[bridge];
+  if (!['bientot_leve','raising','leve','lowering'].includes(status)) return null;
+
+  const history = liftHistory[bridge] || [];
+  const completed = history.filter(e => e.durationMin);
+  const completedLowering = history.filter(e => e.loweringDurationMin);
+
+  const avgLift = completed.length
+    ? Math.round(completed.reduce((a,b) => a + b.durationMin, 0) / completed.length)
+    : 20;
+  const avgLowering = completedLowering.length
+    ? Math.round(completedLowering.reduce((a,b) => a + b.loweringDurationMin, 0) / completedLowering.length)
+    : 2;
+
+  if (status === 'lowering') return avgLowering;
+  if (status === 'bientot_leve') return avgLift + avgLowering;
+  if (status === 'raising') return avgLift + avgLowering;
+
+  // leve — subtract elapsed time
+  const current = liftHistory[bridge]?.[liftHistory[bridge].length - 1];
+  if (current?.raisedAt) {
+    const elapsed = Math.round((Date.now() - new Date(current.raisedAt)) / 60000);
+    const remaining = Math.max(1, avgLift - elapsed) + avgLowering;
+    return remaining;
+  }
+  return avgLift + avgLowering;
+}
 
 app.get('/history', (req, res) => {
   res.set('Cache-Control', 'no-store');
