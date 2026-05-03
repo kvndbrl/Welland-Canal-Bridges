@@ -79,10 +79,20 @@ async function loadHistory() {
       catch(e) {}
     }
     // Restore liftActive if last entry has no loweredAt (lift was in progress)
+    // Only restore if raisedAt is within the last 4 hours — avoids stale data
     const last = liftHistory[id]?.[liftHistory[id].length - 1];
     if (last && last.raisedAt && !last.loweredAt) {
-      liftActive[id] = true;
-      log(`🔄 Restored liftActive[${id}] from history (raisedAt: ${last.raisedAt})`);
+      const ageMin = (Date.now() - new Date(last.raisedAt)) / 60000;
+      if (ageMin < 240) {
+        liftActive[id] = true;
+        log(`🔄 Restored liftActive[${id}] raisedAt:${last.raisedAt} (${Math.round(ageMin)}min ago)`);
+      } else {
+        // Too old — mark as completed with unknown loweredAt so it doesn't affect estimates
+        last.loweredAt = last.raisedAt;
+        last.durationMin = 0;
+        await saveHistory(id);
+        log(`⚠️ Stale liftActive[${id}] discarded (${Math.round(ageMin)}min ago)`);
+      }
     }
   }
 }
