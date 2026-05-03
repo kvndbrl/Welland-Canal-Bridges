@@ -548,6 +548,7 @@ function getLiftData(bridge) {
   // Convert to today's full ISO timestamp
   let raisedAt = null;
   const raisedSince = lastData[bridge]?.raisedSince;
+  log(`🕐 [${bridge}] status:${status} raisedSince:${raisedSince}`);
   if (raisedSince && status === 'leve') {
     const [h, m] = raisedSince.split(':').map(Number);
     const now = new Date();
