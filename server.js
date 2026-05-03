@@ -483,6 +483,24 @@ async function monitor() {
 // ── Routes ────────────────────────────────────────────────────────────
 app.get('/ping', (req, res) => res.json({ ok: true, subs: subscriptions.length }));
 
+app.get('/admin/fix-raisedAt', async (req, res) => {
+  const results = {};
+  for (const id of BRIDGE_IDS) {
+    const last = liftHistory[id]?.[liftHistory[id].length - 1];
+    if (last && last.raisedAt && !last.loweredAt) {
+      const ageMin = Math.round((Date.now() - new Date(last.raisedAt)) / 60000);
+      const newRaisedAt = new Date().toISOString();
+      last.raisedAt = newRaisedAt;
+      await saveHistory(id);
+      results[id] = { fixed: true, wasAgeMin: ageMin, newRaisedAt };
+    } else {
+      results[id] = { fixed: false };
+    }
+  }
+  log(`🔧 fix-raisedAt: ${JSON.stringify(results)}`);
+  res.json(results);
+});
+
 app.get('/status', async (req, res) => {
   res.set('Cache-Control', 'no-store');
 
