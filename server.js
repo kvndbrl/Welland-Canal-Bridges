@@ -561,8 +561,9 @@ function getLiftData(bridge) {
     const current = history[history.length - 1];
     if (current && current.raisedAt && !current.loweredAt) {
       const ageMin = (Date.now() - new Date(current.raisedAt)) / 60000;
-      // Only trust if less than 4 hours old
-      if (ageMin < 240) raisedAt = current.raisedAt;
+      // Only trust if within reasonable lift duration (avgLift + 60min buffer)
+      const maxAge = avgLift + 60;
+      if (ageMin < maxAge) raisedAt = current.raisedAt;
     }
   }
 

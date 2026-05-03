@@ -2247,7 +2247,6 @@ function getLiftTimerText(bridge, status, lang) {
   }
 
   if (status === 'leve') {
-    // Compute elapsed from raisedAt (server-provided ISO timestamp)
     const raisedAt = d?.raisedAt;
     let elapsedMin = 0;
     if (raisedAt) {
@@ -2255,6 +2254,10 @@ function getLiftTimerText(bridge, status, lang) {
     } else if (liftStartTimes[bridge]) {
       elapsedMin = Math.floor((Date.now() - liftStartTimes[bridge]) / 60000);
     }
+    // Sanity cap — if elapsed > avgLift + 60, don't show a stale count
+    const cap = avgLift + 60;
+    if (!raisedAt && !liftStartTimes[bridge]) return `Bridge lifted \u2014 Should reopen soon`;
+    if (elapsedMin > cap) return `Bridge lifted \u2014 Should reopen soon`;
     const remaining = Math.max(0, avgLift - elapsedMin) + avgLowering;
     if (elapsedMin < 1) return `Lifted less than a minute ago \u2014 ~${remaining} min remaining`;
     if (remaining <= avgLowering) return `Lifted ${elapsedMin} min ago \u2014 Should reopen soon`;
