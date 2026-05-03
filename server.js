@@ -395,11 +395,11 @@ async function monitor() {
         anyChange = true;
         log(`🔄 Change [${bridge}]: ${prev} → ${curr}`);
 
-        if (['raising','bientot_leve'].includes(curr) && !liftActive[bridge]) {
+        if (['raising','bientot_leve','leve'].includes(curr) && !liftActive[bridge]) {
           liftActive[bridge] = true;
           loweringActive[bridge] = null;
           liftHistory[bridge].push({ raisedAt: new Date().toISOString(), bridge });
-          await saveHistory(bridge); // persist raisedAt immediately
+          await saveHistory(bridge);
         }
         if (curr === 'lowering') {
           loweringActive[bridge] = Date.now();
@@ -545,21 +545,25 @@ function getLiftData(bridge) {
     : 2;
 
   // Use raisedSince from Seaway scraper as source of truth (e.g. "22:37")
-  // Convert to today's full ISO timestamp
   let raisedAt = null;
   const raisedSince = lastData[bridge]?.raisedSince;
+
   if (raisedSince && status === 'leve') {
+    // Seaway provides "raised since HH:MM" — most reliable
     const [h, m] = raisedSince.split(':').map(Number);
     const now = new Date();
     const candidate = new Date(now);
     candidate.setHours(h, m, 0, 0);
-    // If the time is in the future, it means it was yesterday
     if (candidate > now) candidate.setDate(candidate.getDate() - 1);
     raisedAt = candidate.toISOString();
-  } else {
-    // Fallback to history raisedAt
+  } else if (status === 'leve' && liftActive[bridge]) {
+    // Fallback: use the timestamp when we first detected the lift started
     const current = history[history.length - 1];
-    raisedAt = (current && !current.loweredAt) ? current.raisedAt : null;
+    if (current && current.raisedAt && !current.loweredAt) {
+      const ageMin = (Date.now() - new Date(current.raisedAt)) / 60000;
+      // Only trust if less than 4 hours old
+      if (ageMin < 240) raisedAt = current.raisedAt;
+    }
   }
 
   return { avgLift, avgLowering, raisedAt };
