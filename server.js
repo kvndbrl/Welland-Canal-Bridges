@@ -235,7 +235,7 @@ async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
       outageEnd: null,
     };
     if (result[id].closures?.length) {
-      log(`🚧 [${id}] Closures: ${result[id].closures.map(c => c.start + ' → ' + c.end).join(', ')}`);
+      // logged on status change only
     }
   }
 
@@ -548,7 +548,6 @@ function getLiftData(bridge) {
   // Convert to today's full ISO timestamp
   let raisedAt = null;
   const raisedSince = lastData[bridge]?.raisedSince;
-  log(`🕐 [${bridge}] status:${status} raisedSince:${raisedSince}`);
   if (raisedSince && status === 'leve') {
     const [h, m] = raisedSince.split(':').map(Number);
     const now = new Date();
