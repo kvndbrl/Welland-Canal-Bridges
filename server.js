@@ -544,8 +544,23 @@ function getLiftData(bridge) {
     ? Math.round(completedLowering.reduce((a,b) => a + b.loweringDurationMin, 0) / completedLowering.length)
     : 2;
 
-  const current = history[history.length - 1];
-  const raisedAt = (current && !current.loweredAt) ? current.raisedAt : null;
+  // Use raisedSince from Seaway scraper as source of truth (e.g. "22:37")
+  // Convert to today's full ISO timestamp
+  let raisedAt = null;
+  const raisedSince = lastData[bridge]?.raisedSince;
+  if (raisedSince && status === 'leve') {
+    const [h, m] = raisedSince.split(':').map(Number);
+    const now = new Date();
+    const candidate = new Date(now);
+    candidate.setHours(h, m, 0, 0);
+    // If the time is in the future, it means it was yesterday
+    if (candidate > now) candidate.setDate(candidate.getDate() - 1);
+    raisedAt = candidate.toISOString();
+  } else {
+    // Fallback to history raisedAt
+    const current = history[history.length - 1];
+    raisedAt = (current && !current.loweredAt) ? current.raisedAt : null;
+  }
 
   return { avgLift, avgLowering, raisedAt };
 }
