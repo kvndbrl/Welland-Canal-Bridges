@@ -1,3 +1,15 @@
+// SW v1.0.6 — force cache clear
+self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
+});
+
 // Nautical vibration patterns inspired by maritime signaling
 const VIBRATION_PATTERNS = {
   bientot_leve: [200,100,200,100,200],        // 3 short — warning signal
