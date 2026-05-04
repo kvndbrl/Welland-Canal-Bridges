@@ -2966,17 +2966,9 @@ function loadCachedStatus() {
     if (Date.now() - ts > STATUS_CACHE_MAX_AGE) return false;
     lastData = data.bridges || data;
     lastUpdated = data.last_updated || new Date().toISOString();
-
-    // Check if any bridge just became disponible (was active before)
-    const activeStatuses = ['leve','raising','lowering','bientot_leve'];
-    const isFirstPoll = Object.keys(prevStatusMap).length === 0;
+    // Initialize prevStatusMap from cache without triggering toast
     for (const [bridge, info] of Object.entries(lastData)) {
-      const prev = prevStatusMap[bridge];
-      const curr = info.status;
-      if (!isFirstPoll && prev && activeStatuses.includes(prev) && curr === 'disponible') {
-        setTimeout(showDonationToast, 3000);
-      }
-      prevStatusMap[bridge] = curr;
+      prevStatusMap[bridge] = info.status;
     }
     updateDisplay();
     refreshTimers();
@@ -3006,6 +2998,16 @@ async function fetchStatus(){
     saveCachedStatus(d);
     retries=0;
     if(errEl) errEl.textContent='';
+    // Track status changes for donation toast
+    const activeStatuses=['leve','raising','lowering','bientot_leve'];
+    for(const [bridge, info] of Object.entries(bridgeData)){
+      const prev=prevStatusMap[bridge];
+      const curr=info.status;
+      if(prev && activeStatuses.includes(prev) && curr==='disponible'){
+        setTimeout(showDonationToast,3000);
+      }
+      prevStatusMap[bridge]=curr;
+    }
     for(const b of ['lakeshore','carlton','queenston','glendale','allanburg','mainwelland','mellanby','clarence']){
       if(bridgeData[b]) trackLiftStatus(b, bridgeData[b].status, bridgeData[b].raisedSince);
     }
