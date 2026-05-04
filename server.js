@@ -590,12 +590,11 @@ function getLiftData(bridge) {
     candidate.setHours(h, m, 0, 0);
     if (candidate > now) candidate.setDate(candidate.getDate() - 1);
     raisedAt = candidate.toISOString();
-  } else if (status === 'leve' && liftActive[bridge]) {
+  } else if (status === 'leve') {
     // Fallback: use the timestamp when we first detected the lift started
     const current = history[history.length - 1];
     if (current && current.raisedAt && !current.loweredAt) {
       const ageMin = (Date.now() - new Date(current.raisedAt)) / 60000;
-      // Only trust if within reasonable lift duration (avgLift + 60min buffer)
       const maxAge = avgLift + 60;
       if (ageMin < maxAge) raisedAt = current.raisedAt;
     }
