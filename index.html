@@ -745,10 +745,28 @@
   </button>
 </header>
 
-<div style="padding:0 16px 8px;margin-top:-4px;">
-  <button onclick="openDonateModal()" style="display:flex;align-items:center;gap:6px;background:var(--accent);border:none;border-radius:12px;padding:8px 14px;font-family:var(--sans);font-size:13px;font-weight:600;color:#fff;cursor:pointer;width:100%;justify-content:center;opacity:.85;">
-    ❤️ Support this project
-  </button>
+<div style="padding:0 16px 10px;margin-top:-4px;">
+  <div style="background:var(--surface);border-radius:14px;padding:14px 14px 12px;box-shadow:var(--shadow);">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      <span style="font-size:18px;">❤️</span>
+      <span style="font-size:13px;font-weight:700;color:var(--text);font-family:var(--sans);">Using the app regularly?</span>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-bottom:10px;line-height:1.4;">Servers cost money even when bridges are open. Your support matters.</div>
+    <div style="display:flex;gap:8px;">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
+        <a href="https://paypal.me/kvndbrl/2" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:2,source:'main_cta'});" style="display:block;text-align:center;padding:10px 4px;border-radius:10px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;text-decoration:none;">2 $</a>
+        <div id="mainDonCompar2" style="font-size:9px;color:var(--text3);font-family:var(--sans);text-align:center;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Less than a latte ☕</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
+        <a href="https://paypal.me/kvndbrl/5" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:5,source:'main_cta'});" style="display:block;text-align:center;padding:10px 4px;border-radius:10px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;text-decoration:none;">5 $</a>
+        <div id="mainDonCompar5" style="font-size:9px;color:var(--text3);font-family:var(--sans);text-align:center;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Less than a glass of wine at the bar 🍷</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
+        <a href="https://paypal.me/kvndbrl/10" target="_blank" rel="noopener noreferrer" onclick="track('donation_clicked',{amount:10,source:'main_cta'});" style="display:block;text-align:center;padding:10px 4px;border-radius:10px;background:#0070BA;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;text-decoration:none;">10 $</a>
+        <div id="mainDonCompar10" style="font-size:9px;color:var(--text3);font-family:var(--sans);text-align:center;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Less than a meal at the local diner 🍟</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="multiBridgeAlert" role="alert" aria-live="assertive" style="display:none;width:100%;max-width:500px;margin:0 0 10px;padding:10px 14px;border-radius:12px;background:rgba(220,80,0,.13);border:1px solid rgba(220,80,0,.35);font-size:12px;color:#e05000;font-family:var(--mono);line-height:1.5;"></div>
@@ -1954,6 +1972,20 @@ async function syncPrefs(){
 }
 
 let lastData=null;
+let prevStatusMap={};
+
+function showDonationToast() {
+  // Only show once per session
+  if (sessionStorage.getItem('donToastShown')) return;
+  sessionStorage.setItem('donToastShown', '1');
+  const toast = document.createElement('div');
+  toast.setAttribute('role', 'status');
+  toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:10px 18px;font-family:var(--sans);font-size:12px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:9998;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:8px;animation:fadeUp .3s ease both;';
+  toast.innerHTML = '❤️ <span>Glad we saved you time? <strong>Support the app</strong></span>';
+  toast.onclick = () => { openDonateModal(); toast.remove(); };
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.transition = 'opacity .5s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 6000);
+}
 let lastUpdated=null;
 function openDrawer(){
   const trigger = document.getElementById('drawerTrigger');
@@ -2934,6 +2966,17 @@ function loadCachedStatus() {
     if (Date.now() - ts > STATUS_CACHE_MAX_AGE) return false;
     lastData = data.bridges || data;
     lastUpdated = data.last_updated || new Date().toISOString();
+
+    // Check if any bridge just became disponible (was active before)
+    const activeStatuses = ['leve','raising','lowering','bientot_leve'];
+    for (const [bridge, info] of Object.entries(lastData)) {
+      const prev = prevStatusMap[bridge];
+      const curr = info.status;
+      if (prev && activeStatuses.includes(prev) && curr === 'disponible') {
+        setTimeout(showDonationToast, 3000);
+      }
+      prevStatusMap[bridge] = curr;
+    }
     updateDisplay();
     refreshTimers();
     return true;
@@ -3651,7 +3694,7 @@ function hexToRgba(hex, alpha) {
   const b = parseInt(hex.slice(4,6),16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
-loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();initSimplifiedView();
+loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();initSimplifiedView();initDonCompar();
 
 renderFunFact();
 
@@ -3940,6 +3983,22 @@ document.addEventListener('visibilitychange',()=>{
 </div>
 
 <script>
+function initDonCompar() {
+  const sets = [
+    { c2: 'Less than a latte ☕', c5: 'Less than a glass of wine at the bar 🍷', c10: 'Less than a meal at the local diner 🍟' },
+    { c2: 'Less than a chocolate bar 🍫', c5: 'Less than a pint at the pub 🍺', c10: 'Less than a tank of gas ⛽' },
+    { c2: 'Less than a pack of gum 🍬', c5: 'Less than a fancy coffee ☕', c10: 'Less than a pizza slice 🍕' },
+  ];
+  const idx = Math.floor(Date.now() / 86400000) % sets.length;
+  const s = sets[idx];
+  const el2 = document.getElementById('mainDonCompar2');
+  const el5 = document.getElementById('mainDonCompar5');
+  const el10 = document.getElementById('mainDonCompar10');
+  if(el2) el2.textContent = s.c2;
+  if(el5) el5.textContent = s.c5;
+  if(el10) el10.textContent = s.c10;
+}
+
 function openDonateModal() {
   document.getElementById('donateModalOverlay').style.display = 'flex';
 }
