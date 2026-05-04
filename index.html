@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <!-- WCB v1.0.4 -->
   <meta name="theme-color" content="#0a1628"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -84,7 +84,7 @@
     }
     body.dark{
       --bg:#080b14;--surface:#111827;--surface2:#161d2e;--border:rgba(255,255,255,.08);
-      --text:#f0f4ff;--text2:#a8b8d8;--text3:#7a8aaa;
+      --text:#f0f4ff;--text2:#a8b8d8;--text3:#9aaac8;
       --green:#3ddd6a;--green-bg:rgba(61,221,106,.12);
       --yellow:#f0b020;--yellow-bg:rgba(240,176,32,.12);
       --red:#f06060;--red-bg:rgba(240,96,96,.12);
@@ -104,7 +104,7 @@
     body.theme-cathariner.dark{
       --bg:#060e06;--surface:#0c180c;--surface2:#101e10;
       --border:rgba(50,160,60,.07);
-      --text:#dff0df;--text2:#88c88a;--text3:#4e784e;
+      --text:#dff0df;--text2:#88c88a;--text3:#70a872;
       --accent:#4aba50;--accent-rgb:74,186,80;--wave-color:#2a8a2e;--wave-opacity:.2;
       --shadow:0 2px 16px rgba(0,0,0,.5);
     }
@@ -119,7 +119,7 @@
     body.theme-wellander.dark{
       --bg:#0f0606;--surface:#1e0c0c;--surface2:#261010;
       --border:rgba(200,60,70,.07);
-      --text:#f0dede;--text2:#d88888;--text3:#a85858;
+      --text:#f0dede;--text2:#d88888;--text3:#c87878;
       --accent:#e05060;--accent-rgb:224,80,96;--wave-color:#b03040;--wave-opacity:.2;
       --shadow:0 2px 16px rgba(0,0,0,.5);
     }
@@ -134,7 +134,7 @@
     body.theme-colbornian.dark{
       --bg:#06090f;--surface:#0c1220;--surface2:#101828;
       --border:rgba(50,110,220,.07);
-      --text:#deeaff;--text2:#88a8e0;--text3:#5070b0;
+      --text:#deeaff;--text2:#88a8e0;--text3:#7090c8;
       --accent:#4a7ede;--accent-rgb:74,126,222;--wave-color:#2a58b8;--wave-opacity:.2;
       --shadow:0 2px 16px rgba(0,0,0,.5);
     }
@@ -149,7 +149,7 @@
     body.theme-allanburger.dark{
       --bg:#08090e;--surface:#10121e;--surface2:#161828;
       --border:rgba(80,100,160,.07);
-      --text:#dce0ee;--text2:#8898c8;--text3:#586090;
+      --text:#dce0ee;--text2:#8898c8;--text3:#7888b0;
       --accent:#6878a8;--accent-rgb:104,120,168;--wave-color:#3e4e7e;--wave-opacity:.2;
       --shadow:0 2px 16px rgba(0,0,0,.5);
     }
@@ -162,6 +162,27 @@
     .theme-swatch-dot{width:40px;height:40px;border-radius:50%;border:3px solid transparent;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.2);}
     .theme-swatch.active .theme-swatch-dot{border-color:var(--text);transform:scale(1.15);box-shadow:0 3px 12px rgba(0,0,0,.3);}
     .theme-swatch-name{font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:none;color:var(--text2);font-family:var(--sans);text-align:center;line-height:1.3;}
+
+
+    /* Focus visible for keyboard navigation */
+    :focus-visible {
+      outline: 3px solid var(--accent) !important;
+      outline-offset: 2px !important;
+      border-radius: 4px;
+    }
+    button:focus-visible, a:focus-visible, input:focus-visible, [role="switch"]:focus-visible {
+      outline: 3px solid var(--accent) !important;
+      outline-offset: 2px !important;
+    }
+    /* Accessibility — reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .ship-container { display: none !important; }
+    }
     *{margin:0;padding:0;box-sizing:border-box;}
     html,body{height:100%;}
     body{font-family:var(--sans);background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:28px 16px 160px;transition:background .3s;overflow-y:auto;overflow-x:hidden;}
@@ -191,7 +212,7 @@
     .header{width:100%;max-width:430px;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding:0 4px;gap:12px;flex-shrink:0;}
     .greeting-block{display:flex;flex-direction:column;min-width:0;flex:1;}
     .greeting-text{display:block;font-size:clamp(16px,5vw,22px);font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
-    .weather-text{display:block;font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:12px;white-space:normal;line-height:1.4;}
+    .weather-text{display:block;font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:12px;white-space:normal;line-height:1.4;}
 
     /* No notifications modal */
     .no-notif-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px);}
@@ -717,7 +738,7 @@
     <span class="greeting-text" id="greetingText">Hello!</span>
     <span class="weather-text" id="weatherText"></span>
   </div>
-  <button class="gear-btn" onclick="openDrawer()" aria-label="Settings">
+  <button class="gear-btn" onclick="openDrawer()" aria-label="Open settings" aria-expanded="false" aria-controls="drawerPanel" id="drawerTrigger">
     <span class="burger-line"></span>
     <span class="burger-line"></span>
     <span class="burger-line"></span>
@@ -730,9 +751,9 @@
   </button>
 </div>
 
-<div id="multiBridgeAlert" style="display:none;width:100%;max-width:500px;margin:0 0 10px;padding:10px 14px;border-radius:12px;background:rgba(220,80,0,.13);border:1px solid rgba(220,80,0,.35);font-size:12px;color:#e05000;font-family:var(--mono);line-height:1.5;"></div>
+<div id="multiBridgeAlert" role="alert" aria-live="assertive" style="display:none;width:100%;max-width:500px;margin:0 0 10px;padding:10px 14px;border-radius:12px;background:rgba(220,80,0,.13);border:1px solid rgba(220,80,0,.35);font-size:12px;color:#e05000;font-family:var(--mono);line-height:1.5;"></div>
 
-<main id="cardsMain">
+<main id="cardsMain" aria-label="Bridge status cards">
 
   <section class="bridge-card" id="cardLakeshore" aria-label="Lakeshore Rd">
     <div class="bridge-name" aria-hidden="true">
@@ -747,14 +768,14 @@
       </span>
     </div>
     <div class="status-block">
-      <div class="status-pill disponible" id="pillLakeshore" role="status" aria-live="polite">
+      <div class="status-pill disponible" id="pillLakeshore" role="status" aria-live="polite" aria-atomic="true" role="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
         <span id="labelLakeshore">Loading...</span>
       </div>
     </div>
     <div class="duration-block" id="durationLakeshore" aria-hidden="true">
       <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerLakeshore">—</span>
+      <span class="timer-text" id="timerLakeshore" aria-live="polite" aria-atomic="true">—</span>
     </div>
     <div><span id="vesselNameLakeshore" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
     <div class="bridge-timeline" id="timelineLakeshore">
@@ -801,14 +822,14 @@
       </span>
     </div>
     <div class="status-block">
-      <div class="status-pill disponible" id="pillCarlton" role="status" aria-live="polite">
+      <div class="status-pill disponible" id="pillCarlton" role="status" aria-live="polite" aria-atomic="true" role="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
         <span id="labelCarlton">Loading...</span>
       </div>
     </div>
     <div class="duration-block" id="durationCarlton" aria-hidden="true">
       <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerCarlton">—</span>
+      <span class="timer-text" id="timerCarlton" aria-live="polite" aria-atomic="true">—</span>
     </div>
     <div><span id="vesselNameCarlton" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
     <div class="bridge-timeline" id="timelineCarlton">
@@ -855,14 +876,14 @@
       </span>
     </div>
     <div class="status-block">
-      <div class="status-pill disponible" id="pillQueenston" role="status" aria-live="polite">
+      <div class="status-pill disponible" id="pillQueenston" role="status" aria-live="polite" aria-atomic="true" role="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
         <span id="labelQueenston">Loading...</span>
       </div>
     </div>
     <div class="duration-block" id="durationQueenston" aria-hidden="true">
       <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerQueenston">—</span>
+      <span class="timer-text" id="timerQueenston" aria-live="polite" aria-atomic="true">—</span>
     </div>
     <div><span id="vesselNameQueenston" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
     <div class="bridge-timeline" id="timelineQueenston">
@@ -909,14 +930,14 @@
       </span>
     </div>
     <div class="status-block">
-      <div class="status-pill disponible" id="pillGlendale" role="status" aria-live="polite">
+      <div class="status-pill disponible" id="pillGlendale" role="status" aria-live="polite" aria-atomic="true" role="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
         <span id="labelGlendale">Loading...</span>
       </div>
     </div>
     <div class="duration-block" id="durationGlendale" aria-hidden="true">
       <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerGlendale">—</span>
+      <span class="timer-text" id="timerGlendale" aria-live="polite" aria-atomic="true">—</span>
     </div>
     <div><span id="vesselNameGlendale" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
     <div class="bridge-timeline" id="timelineGlendale">
@@ -963,14 +984,14 @@
       </span>
     </div>
     <div class="status-block">
-      <div class="status-pill disponible" id="pillAllanburg" role="status" aria-live="polite">
+      <div class="status-pill disponible" id="pillAllanburg" role="status" aria-live="polite" aria-atomic="true" role="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
         <span id="labelAllanburg">Loading...</span>
       </div>
     </div>
     <div class="duration-block" id="durationAllanburg" aria-hidden="true">
       <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerAllanburg">—</span>
+      <span class="timer-text" id="timerAllanburg" aria-live="polite" aria-atomic="true">—</span>
     </div>
     <div><span id="vesselNameAllanburg" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
     <div class="bridge-timeline" id="timelineAllanburg">
@@ -1014,14 +1035,14 @@
       </span>
     </div>
     <div class="status-block">
-      <div class="status-pill disponible" id="pillMainwelland" role="status" aria-live="polite">
+      <div class="status-pill disponible" id="pillMainwelland" role="status" aria-live="polite" aria-atomic="true" role="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
         <span id="labelMainwelland">Loading...</span>
       </div>
     </div>
     <div class="duration-block" id="durationMainwelland" aria-hidden="true">
       <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerMainwelland">—</span>
+      <span class="timer-text" id="timerMainwelland" aria-live="polite" aria-atomic="true">—</span>
     </div>
     <div><span id="vesselNameMainwelland" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
     <div class="bridge-timeline" id="timelineMainwelland">
@@ -1065,14 +1086,14 @@
       </span>
     </div>
     <div class="status-block">
-      <div class="status-pill disponible" id="pillClarence" role="status" aria-live="polite">
+      <div class="status-pill disponible" id="pillClarence" role="status" aria-live="polite" aria-atomic="true" role="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
         <span id="labelClarence">Loading...</span>
       </div>
     </div>
     <div class="duration-block" id="durationClarence" aria-hidden="true">
       <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerClarence">—</span>
+      <span class="timer-text" id="timerClarence" aria-live="polite" aria-atomic="true">—</span>
     </div>
     <div><span id="vesselNameClarence" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
     <div class="bridge-timeline" id="timelineClarence">
@@ -1116,14 +1137,14 @@
       </span>
     </div>
     <div class="status-block">
-      <div class="status-pill disponible" id="pillMellanby" role="status" aria-live="polite">
+      <div class="status-pill disponible" id="pillMellanby" role="status" aria-live="polite" aria-atomic="true" role="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
         <span id="labelMellanby">Loading...</span>
       </div>
     </div>
     <div class="duration-block" id="durationMellanby" aria-hidden="true">
       <span class="timer-icon" aria-hidden="true">&#x23F1;&#xFE0F;</span>
-      <span class="timer-text" id="timerMellanby">—</span>
+      <span class="timer-text" id="timerMellanby" aria-live="polite" aria-atomic="true">—</span>
     </div>
     <div><span id="vesselNameMellanby" style="font-size:11px;color:var(--text3);font-family:var(--mono);"></span></div>
     <div class="bridge-timeline" id="timelineMellanby">
@@ -1249,7 +1270,7 @@
       <div style="font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:2px;line-height:1.4;" id="weatherToggleDesc">Show local weather in the greeting.</div>
     </div>
     <div class="pref-toggle" style="pointer-events:none;">
-      <input type="checkbox" id="weatherToggleInput" role="switch" aria-checked="false"/>
+      <input type="checkbox" id="weatherToggleInput" role="switch" aria-label="Show weather in greeting" aria-checked="false"/>
       <span class="pref-slider"></span>
     </div>
   </label>
@@ -1935,6 +1956,8 @@ async function syncPrefs(){
 let lastData=null;
 let lastUpdated=null;
 function openDrawer(){
+  const trigger = document.getElementById('drawerTrigger');
+  if(trigger) trigger.setAttribute('aria-expanded','true');
   document.getElementById('settingsDrawer').classList.add('open');
   document.getElementById('settingsDrawer').removeAttribute('aria-hidden');
   document.getElementById('drawerOverlay').classList.add('open');
@@ -1943,6 +1966,8 @@ function openDrawer(){
   initBridgeNotifToggles();
 }
 function closeDrawer(){
+  const trigger = document.getElementById('drawerTrigger');
+  if(trigger) trigger.setAttribute('aria-expanded','false');
   document.getElementById('settingsDrawer').classList.remove('open');
   document.getElementById('settingsDrawer').setAttribute('aria-hidden','true');
   document.getElementById('drawerOverlay').classList.remove('open');
