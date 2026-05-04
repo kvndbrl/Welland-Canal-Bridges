@@ -135,6 +135,7 @@ function parseStatusFromText(text) {
   if (t.includes('lowering')) return { status: 'lowering', raisedSince: null };
   const raisedMatch = text.match(/raised since\s+(\d{1,2}:\d{2})/i);
   if (raisedMatch) return { status: 'leve', raisedSince: raisedMatch[1] };
+  if (t.includes('work in progress') || t.includes('travaux en cours')) return { status: 'outage', raisedSince: null };
   if (t.includes('unavailable')) return { status: 'leve', raisedSince: null };
   if (t.includes('available')) return { status: 'disponible', raisedSince: null };
   return null;
@@ -309,14 +310,14 @@ function getMessages(bridge, status, data) {
     leve:         { title: `🚢 ${n}`, body: `Span raised · Ship passing${reopenStr}` },
     lowering:     { title: `🔽 ${n}`, body: `Span lowering · Opening soon` },
     disponible:   { title: `✅ ${n}`, body: `Normal traffic` },
-    outage:       { title: `🚧 ${n}`, body: `Planned closure` },
+    outage:       { title: `🚧 ${n}`, body: `Bridge closed — work in progress` },
   } : {
     bientot_leve: { title: `⚠️ ${n}`, body: `Bridge lifting soon · Still open, expect delays` },
     raising:      { title: `🔼 ${n}`, body: `Bridge lifting${reopenStr}` },
     leve:         { title: `🚢 ${n}`, body: `Bridge lifted · Ship passing${reopenStr}` },
     lowering:     { title: `🔽 ${n}`, body: `Bridge lowering · Opening soon` },
     disponible:   { title: `✅ ${n}`, body: `Normal traffic` },
-    outage:       { title: `🚧 ${n}`, body: `Planned closure` },
+    outage:       { title: `🚧 ${n}`, body: `Bridge closed — work in progress` },
   };
   return msgs[status] || msgs.disponible;
 }
