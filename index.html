@@ -3671,7 +3671,7 @@ function hexToRgba(hex, alpha) {
   const b = parseInt(hex.slice(4,6),16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
-loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();initSimplifiedView();initDonCompar();
+loadPrefs();loadNotifTypes();loadDays();loadTR();loadTheme();applyTrans();initWeatherToggle();updateCardVisibility();initFontSize();initSimplifiedView();
 
 renderFunFact();
 
@@ -3811,6 +3811,7 @@ if('serviceWorker'in navigator){
   });
 }
 loadCachedStatus();
+initDonCompar();
 fetchStatus();
 fetchLiftHistory();
 
