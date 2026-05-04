@@ -432,6 +432,39 @@ async function monitor() {
 
     if (!anyChange) log('💤 No changes');
 
+    // Multi-bridge alert
+    const MULTI_CORRIDORS = [
+      { bridges: ['queenston','glendale'], msgEn: 'Queenston & Glendale bridges lifted — consider the QEW' },
+      { bridges: ['lakeshore','carlton'], msgEn: 'Lakeshore & Carlton bridges lifted — multiple bridges blocked' },
+      { bridges: ['carlton','queenston'], msgEn: 'Carlton & Queenston bridges lifted — multiple bridges blocked' },
+      { bridges: ['mainwelland','mellanby','clarence'], msgEn: '3 Port Colborne bridges lifted — expect major delays' },
+    ];
+    for (const corridor of MULTI_CORRIDORS) {
+      const activeCount = corridor.bridges.filter(b => ['leve','raising'].includes(lastStatus[b])).length;
+      if (activeCount >= 2) {
+        const key = `multi:${corridor.bridges.join('-')}:${new Date().toISOString().slice(0,13)}`;
+        const alreadySent = await redisCmd('GET', key);
+        if (!alreadySent) {
+          await redisCmd('SET', key, '1', 'EX', 3600);
+          log(`🌉🌉 Multi-bridge alert: ${corridor.bridges.join(', ')}`);
+          for (const sub of subscriptions) {
+            const subBridges = sub.bridges || BRIDGE_IDS;
+            if (!corridor.bridges.some(b => subBridges.includes(b))) continue;
+            try {
+              await webpush.sendNotification(sub, JSON.stringify({
+                title: '⚠️ Multiple bridges lifted',
+                body: corridor.msgEn,
+                tag: `multi-${corridor.bridges.join('-')}`,
+                status: 'multi',
+              }), { urgency: 'high', TTL: 3600 });
+            } catch(e) {
+              if (e.statusCode === 410) subscriptions.splice(subscriptions.indexOf(sub), 1);
+            }
+          }
+        }
+      }
+    }
+
     // Check for upcoming closures within 24h
     for (const bridge of BRIDGE_IDS) {
       const closures = data[bridge]?.closures || [];

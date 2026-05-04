@@ -730,6 +730,8 @@
   </button>
 </div>
 
+<div id="multiBridgeAlert" style="display:none;width:100%;max-width:500px;margin:0 0 10px;padding:10px 14px;border-radius:12px;background:rgba(220,80,0,.13);border:1px solid rgba(220,80,0,.35);font-size:12px;color:#e05000;font-family:var(--mono);line-height:1.5;"></div>
+
 <main id="cardsMain">
 
   <section class="bridge-card" id="cardLakeshore" aria-label="Lakeshore Rd">
@@ -2687,7 +2689,18 @@ function updateDisplay(){
     // Take the Green banner — only for St. Catharines bridges when disponible
     const takeGreenBridges = ['lakeshore','carlton','queenston','glendale'];
     const tgEl = document.getElementById('takeGreen'+C);
-    if(tgEl) tgEl.style.display = (takeGreenBridges.includes(b) && lastData[b].status==='disponible') ? 'block' : 'none';
+    if(tgEl && takeGreenBridges.includes(b) && lastData[b].status==='disponible') {
+      const liftsRaw = lastData[b].next_lifts;
+      let nextLiftText = '';
+      if (liftsRaw && liftsRaw !== 'No scheduled lifts' && liftsRaw !== 'null') {
+        const firstLine = liftsRaw.split('\n')[0].trim();
+        if (firstLine) nextLiftText = ` · Next lift: ${firstLine}`;
+      }
+      tgEl.innerHTML = `🟢 <strong>Take the Green</strong> · Bridge available for the next 15 min${nextLiftText}`;
+      tgEl.style.display = 'block';
+    } else if(tgEl) {
+      tgEl.style.display = 'none';
+    }
 
     // Closure banner
     const closureBanner = document.getElementById('closureBanner'+C);
@@ -2702,6 +2715,26 @@ function updateDisplay(){
       }
     }
   });
+
+  // Multi-bridge alert
+  const CORRIDORS = [
+    { bridges: ['queenston','glendale'], label: 'Queenston & Glendale lifted — consider the QEW to go around' },
+    { bridges: ['lakeshore','carlton'], label: 'Lakeshore & Carlton lifted — multiple bridges blocked' },
+    { bridges: ['carlton','queenston'], label: 'Carlton & Queenston lifted — multiple bridges blocked' },
+    { bridges: ['mainwelland','mellanby','clarence'], label: '3 Port Colborne bridges lifted — expect major delays' },
+  ];
+  const alertEl = document.getElementById('multiBridgeAlert');
+  if (alertEl && lastData) {
+    const activeAlerts = CORRIDORS.filter(c =>
+      c.bridges.filter(bid => ['leve','raising','lowering'].includes(lastData[bid]?.status)).length >= 2
+    );
+    if (activeAlerts.length > 0) {
+      alertEl.innerHTML = '⚠️ ' + activeAlerts.map(a => `<strong>${a.label}</strong>`).join('<br>⚠️ ');
+      alertEl.style.display = 'block';
+    } else {
+      alertEl.style.display = 'none';
+    }
+  }
   updateCards();
 }
 
