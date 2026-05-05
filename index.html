@@ -2973,7 +2973,10 @@ async function fetchStatus(){
     // Only fetch pages needed for visible bridges
     const visibleBridges = getSelBridges();
     const bridgesParam = visibleBridges.length ? '?bridges=' + visibleBridges.join(',') : '';
-    const r=await fetch(BACKEND+'/status'+bridgesParam,{signal:AbortSignal.timeout(60000)});
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+    const r=await fetch(BACKEND+'/status'+bridgesParam,{signal:controller.signal});
+    clearTimeout(timeoutId);
     const d=await r.json();
     const bridgeData = d.bridges || d;
     lastData=bridgeData;
@@ -3811,6 +3814,21 @@ if('serviceWorker'in navigator){
   });
 }
 loadCachedStatus();
+function initDonCompar() {
+  const sets = [
+    { c2: 'Less than a latte ☕', c5: 'Less than a glass of wine at the bar 🍷', c10: 'Less than a meal at the local diner 🍟' },
+    { c2: 'Less than a chocolate bar 🍫', c5: 'Less than a pint at the pub 🍺', c10: 'Less than a tank of gas ⛽' },
+    { c2: 'Less than a pack of gum 🍬', c5: 'Less than a fancy coffee ☕', c10: 'Less than a pizza slice 🍕' },
+  ];
+  const idx = Math.floor(Date.now() / 86400000) % sets.length;
+  const s = sets[idx];
+  const el2 = document.getElementById('mainDonCompar2');
+  const el5 = document.getElementById('mainDonCompar5');
+  const el10 = document.getElementById('mainDonCompar10');
+  if(el2) el2.textContent = s.c2;
+  if(el5) el5.textContent = s.c5;
+  if(el10) el10.textContent = s.c10;
+}
 initDonCompar();
 fetchStatus();
 fetchLiftHistory();
@@ -3965,21 +3983,6 @@ document.addEventListener('visibilitychange',()=>{
 </div>
 
 <script>
-function initDonCompar() {
-  const sets = [
-    { c2: 'Less than a latte ☕', c5: 'Less than a glass of wine at the bar 🍷', c10: 'Less than a meal at the local diner 🍟' },
-    { c2: 'Less than a chocolate bar 🍫', c5: 'Less than a pint at the pub 🍺', c10: 'Less than a tank of gas ⛽' },
-    { c2: 'Less than a pack of gum 🍬', c5: 'Less than a fancy coffee ☕', c10: 'Less than a pizza slice 🍕' },
-  ];
-  const idx = Math.floor(Date.now() / 86400000) % sets.length;
-  const s = sets[idx];
-  const el2 = document.getElementById('mainDonCompar2');
-  const el5 = document.getElementById('mainDonCompar5');
-  const el10 = document.getElementById('mainDonCompar10');
-  if(el2) el2.textContent = s.c2;
-  if(el5) el5.textContent = s.c5;
-  if(el10) el10.textContent = s.c10;
-}
 
 function openDonateModal() {
   document.getElementById('donateModalOverlay').style.display = 'flex';
