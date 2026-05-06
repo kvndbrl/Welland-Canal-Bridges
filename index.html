@@ -2432,7 +2432,7 @@ function toggleBridgeNotifSection(bridge) {
   const C = capitalize(bridge);
   const content = document.getElementById('perBridge'+C+'Content');
   if (!content) return;
-  const open = content.style.display === 'none';
+  const open = content.style.display === 'none' || content.style.display === '';
   content.style.display = open ? 'block' : 'none';
   const chevron = document.getElementById('perBridge'+C+'Chevron');
   if (chevron) chevron.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
@@ -2528,7 +2528,7 @@ function initBridgeNotifToggles() {
             <span class="pref-slider"></span>
           </label>
         </div>
-        <div id="perBridge${C}Content" style="display:${enabled?'block':'none'};padding:0 16px 10px 20px;">
+        <div id="perBridge${C}Content" style="display:none;padding:0 16px 10px 20px;">
           <div id="perBridge${C}Checkboxes"></div>
         </div>
       `;
