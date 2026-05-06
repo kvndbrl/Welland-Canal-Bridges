@@ -2432,11 +2432,12 @@ function toggleBridgeNotifSection(bridge) {
   const C = capitalize(bridge);
   const content = document.getElementById('perBridge'+C+'Content');
   if (!content) return;
-  // Don't expand if bridge is hidden
   const tog = document.getElementById('bridgeNotif'+C);
   if (tog && !tog.checked) return;
   const open = content.style.display === 'none';
   content.style.display = open ? 'block' : 'none';
+  const chevron = document.getElementById('perBridge'+C+'Chevron');
+  if (chevron) chevron.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
   if (open) renderPerBridgeCheckboxes(bridge);
 }
 
@@ -2517,9 +2518,12 @@ function initBridgeNotifToggles() {
       const row = document.createElement('div');
       row.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 16px 6px 20px;cursor:pointer;" onclick="toggleBridgeNotifSection('${b}')">
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans);" id="perBridge${C}Label">${NAMES[b]}</div>
-            <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px;" id="perBridge${C}Sub">${enabled ? 'Visible' : 'Hidden'}</div>
+          <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">
+            <span id="perBridge${C}Chevron" style="font-size:10px;color:var(--accent);transition:transform .2s;display:inline-block;transform:rotate(${enabled?'0':'-90'}deg);">▾</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans);" id="perBridge${C}Label">${NAMES[b]}</div>
+              <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px;" id="perBridge${C}Sub">${enabled ? 'Visible' : 'Hidden'}</div>
+            </div>
           </div>
           <label class="pref-toggle" onclick="event.stopPropagation()">
             <input type="checkbox" id="bridgeNotif${C}" ${enabled?'checked':''} onchange="toggleBridgeNotif('${b}')"/>
