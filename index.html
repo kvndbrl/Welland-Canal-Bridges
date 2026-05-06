@@ -2432,8 +2432,6 @@ function toggleBridgeNotifSection(bridge) {
   const C = capitalize(bridge);
   const content = document.getElementById('perBridge'+C+'Content');
   if (!content) return;
-  const tog = document.getElementById('bridgeNotif'+C);
-  if (tog && !tog.checked) return;
   const open = content.style.display === 'none';
   content.style.display = open ? 'block' : 'none';
   const chevron = document.getElementById('perBridge'+C+'Chevron');
