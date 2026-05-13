@@ -45,13 +45,7 @@
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-  "areaServed": [
-    {"@type": "City", "name": "St. Catharines", "addressRegion": "ON", "addressCountry": "CA"},
-    {"@type": "City", "name": "Thorold", "addressRegion": "ON", "addressCountry": "CA"},
-    {"@type": "City", "name": "Welland", "addressRegion": "ON", "addressCountry": "CA"},
-    {"@type": "City", "name": "Port Colborne", "addressRegion": "ON", "addressCountry": "CA"}
-  ],
-    "name": "Welland Canal Bridges — Real-Time Bridge Status",
+    "name": "Welland Canal Bridges",
     "url": "https://wellandcanalbridges.ca",
     "description": "Free real-time status app for all 8 Welland Canal bridges. Get push notifications before and during bridge lifts. Covers Lakeshore Rd (Bridge 1), Carlton St. (Bridge 3A), Queenston St. (Bridge 4), Glendale Ave. (Bridge 5), Highway 20 (Bridge 11), Main St. (Bridge 19), Mellanby Ave. (Bridge 19A), and Clarence St. (Bridge 21) in St. Catharines, Welland and Port Colborne, Ontario.",
     "applicationCategory": "TravelApplication",
@@ -620,12 +614,24 @@
 
     <!-- Step indicator -->
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:20px;justify-content:center;">
-      <div id="ob-dot-1" style="width:8px;height:8px;border-radius:50%;background:var(--accent);transition:all .3s;"></div>
+      <div id="ob-dot-0" style="width:8px;height:8px;border-radius:50%;background:var(--accent);transition:all .3s;"></div>
+      <div id="ob-dot-1" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
       <div id="ob-dot-2" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
       <div id="ob-dot-3" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
       <div id="ob-dot-4" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
       <div id="ob-dot-5" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
       <div id="ob-dot-6" style="width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;"></div>
+    </div>
+
+    <!-- Step 0: Intro -->
+    <div id="ob-step-0" style="text-align:center;padding:8px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">🌉</div>
+      <div class="name-modal-title">Skip the wait,<br>not the bridge.</div>
+      <div style="font-size:13px;color:var(--text3);line-height:1.6;margin:12px 0 20px;font-family:var(--sans);">
+        Real-time lift status for all 8 Welland Canal bridges.<br>
+        Get push notifications before a bridge lifts — so you're always one step ahead.
+      </div>
+      <button class="name-modal-btn" onclick="obSetStep(1)">Get started</button>
     </div>
 
     <!-- Step 1: Name -->
@@ -1750,13 +1756,21 @@ let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstallPrompt = e; });
 
 function obSetStep(n) {
-  [1,2,3,4,5,6].forEach(i => {
+  [0,1,2,3,4,5,6].forEach(i => {
     const step = document.getElementById(`ob-step-${i}`);
     if(step) step.style.display = i===n ? 'block' : 'none';
     const dot = document.getElementById(`ob-dot-${i}`);
     if(dot) {
       dot.style.background = i <= n ? 'var(--accent)' : 'var(--border)';
       dot.style.opacity = i <= n ? '1' : '0.4';
+    }
+    // Also handle dot-0
+    if(i === 0) {
+      const dot0 = document.getElementById('ob-dot-0');
+      if(dot0) {
+        dot0.style.background = n >= 0 ? 'var(--accent)' : 'var(--border)';
+        dot0.style.opacity = '1';
+      }
     }
   });
 }
@@ -1914,7 +1928,7 @@ function showNameModalIfNeeded(){
   if(document.getElementById('obInstallDesc')) document.getElementById('obInstallDesc').textContent=false?'Ajoutez l\'app sur votre écran d\'accueil pour un accès rapide.':'Add the app to your home screen for quick access.';
   if(document.getElementById('obInstallBtn')) document.getElementById('obInstallBtn').textContent=false?'Installer':'Install';
   if(document.getElementById('obCloseBtn')) document.getElementById('obCloseBtn').textContent=false?'Commencer':'Get started';
-  obSetStep(1);
+  obSetStep(0);
   setTimeout(()=>{
     document.getElementById('nameModalOverlay').style.display='flex';
     document.getElementById('nameModalInput').focus();
@@ -3944,9 +3958,6 @@ document.addEventListener('visibilitychange',()=>{
     <span style="font-size:14px;">💬</span>
     <a href="https://tally.so/r/gDNdyl" target="_blank" rel="noopener noreferrer" style="font-size:13px;color:var(--text2);text-decoration:underline;text-underline-offset:2px;">Feedback or suggestions</a>
   </div>
-  <p style="font-size:10px;color:var(--text3);text-align:center;padding:8px 16px 2px;line-height:1.5;margin:0;">
-    Real-time bridge lift status for the Welland Canal — St. Catharines, Thorold, Welland, Niagara Falls and Port Colborne, Ontario.
-  </p>
   <div style="font-size:11px;color:var(--text3);line-height:1.65;padding:12px 16px 24px;border-top:1px solid var(--border);">This app is independent and is not affiliated with the St. Lawrence Seaway Management Corporation or the Great Lakes St. Lawrence Seaway System. Data is sourced from <a href="https://seaway-greatlakes.com" target="_blank" rel="noopener noreferrer" style="color:var(--text2);text-decoration:underline;text-underline-offset:2px;">seaway-greatlakes.com</a>.</div>
 </div><!-- end settings-drawer -->
 
