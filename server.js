@@ -675,7 +675,8 @@ function getLiftData(bridge) {
     }
   }
 
-  return { avgLift, avgLowering, raisedAt };
+  const liftingSince = raisedAt ? new Date(raisedAt).getTime() : null;
+  return { avgLift, avgLowering, raisedAt, liftingSince };
 }
 
 app.get('/history', (req, res) => {

@@ -2371,7 +2371,7 @@ function getLiftTimerText(bridge, status, lang) {
   }
 
   if (status === 'leve') {
-    const raisedAt = d?.raisedAt || d?.liftingSince;
+    const raisedAt = d?.liftingSince || null; // Use active lift start, not last completed lift
     if (raisedAt) {
       const elapsedMin = Math.floor((Date.now() - new Date(raisedAt)) / 60000);
       const remaining = Math.max(1, avgLift - elapsedMin) + avgLowering;
