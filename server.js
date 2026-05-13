@@ -659,13 +659,18 @@ function getLiftData(bridge) {
   const raisedSince = lastData[bridge]?.raisedSince;
 
   if (raisedSince && status === 'leve') {
-    // Seaway provides "raised since HH:MM" — most reliable
+    // Seaway provides "raised since HH:MM" in Eastern Time — reconstruct correctly
     const [h, m] = raisedSince.split(':').map(Number);
     const now = new Date();
+    // Get current date in EST/EDT
+    const estNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
     const candidate = new Date(now);
-    candidate.setHours(h, m, 0, 0);
-    if (candidate > now) candidate.setDate(candidate.getDate() - 1);
-    raisedAt = candidate.toISOString();
+    // Offset: difference between UTC and EST
+    const utcOffset = now.getTime() - estNow.getTime();
+    const estCandidate = new Date(estNow);
+    estCandidate.setHours(h, m, 0, 0);
+    if (estCandidate > estNow) estCandidate.setDate(estCandidate.getDate() - 1);
+    raisedAt = new Date(estCandidate.getTime() + utcOffset).toISOString();
   } else if (status === 'leve') {
     const current = history[history.length - 1];
     if (current && current.raisedAt && !current.loweredAt) {
