@@ -1521,7 +1521,14 @@ function updateTimeline(bridge, status, data) {
   if (reopenEl) {
     const avgMin = data?.avgLiftDuration || data?.avgLoweringDuration;
     if (avgMin && (status === 'leve' || status === 'lowering')) {
-      const reopenTime = new Date(Date.now() + avgMin * 60000);
+      let reopenTime;
+      if (data?.liftingSince) {
+        const elapsed = (Date.now() - data.liftingSince) / 60000;
+        const remaining = Math.max(1, avgMin - elapsed);
+        reopenTime = new Date(Date.now() + remaining * 60000);
+      } else {
+        reopenTime = new Date(Date.now() + avgMin * 60000);
+      }
       const hm = reopenTime.toLocaleTimeString(isFr?'fr-CA':'en-CA', {hour:'numeric',minute:'2-digit',hour12:true});
       reopenEl.innerHTML = '<span style="display:inline-flex;align-items:center;width:12px;height:12px;flex-shrink:0;color:var(--text2);margin-right:4px;vertical-align:middle;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"> <circle cx="32" cy="36" r="20"/> <line x1="32" y1="36" x2="32" y2="24"/> <line x1="32" y1="36" x2="42" y2="40"/> <line x1="26" y1="8" x2="38" y2="8"/> <line x1="32" y1="8" x2="32" y2="14"/> </svg></span>'+(isFr ? `Réouverture prévue ~${hm}` : `Expected reopen ~${hm}`);
     } else {
