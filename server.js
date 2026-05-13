@@ -373,7 +373,7 @@ function buildWellandWidgetBody(sub, bridgeStatuses) {
         reopenTime = new Date(Date.now() + d.avgMin * 60000);
       }
       const hm = reopenTime.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Toronto' });
-      line += ` · ~${hm}`;
+      line += ` · Reopen ~${hm}`;
     }
     if (d.status === 'outage') line += ' · Work in progress';
     if (d.scheduledTime && d.status === 'disponible') line += ` · Lift at ${d.scheduledTime}`;
