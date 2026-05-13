@@ -330,7 +330,7 @@ const WIDGET_STATUS_EMOJI = {
   disponible:   '✅',
   bientot_leve: '⚠️',
   raising:      '🔼',
-  leve:         '🚢',
+  leve:         '⛔',
   lowering:     '🔽',
   outage:       '🚧',
 };
@@ -376,7 +376,11 @@ function buildWellandWidgetBody(sub, bridgeStatuses) {
       line += ` · Reopen ~${hm}`;
     }
     if (d.status === 'outage') line += ' · Work in progress';
-    if (d.scheduledTime && d.status === 'disponible') line += ` · Lift at ${d.scheduledTime}`;
+    if (d.scheduledTimes && d.scheduledTimes.length > 0 && d.status === 'disponible') {
+      line += ` · Lifts at ${d.scheduledTimes.join(', ')}`;
+    } else if (d.scheduledTime && d.status === 'disponible') {
+      line += ` · Lift at ${d.scheduledTime}`;
+    }
     lines.push(line);
   }
   return lines.join('\n');
@@ -489,6 +493,32 @@ async function monitor() {
         const ld = getLiftData(bridge);
         if (ld.avgLift) log(`⏱️ [${bridge}] avgLift:${ld.avgLift}min avgLowering:${ld.avgLowering}min`);
         await sendNotifications(bridge, curr, data[bridge]);
+      }
+    }
+
+    // Scheduled lift notifications
+    for (const bridge of BRIDGE_IDS) {
+      if (lastStatus[bridge] === 'outage') continue;
+      const liftsRaw = data[bridge]?.next_lifts || '';
+      const times = liftsRaw ? [...liftsRaw.matchAll(/(\d{1,2}:\d{2})/g)].map(m => m[1]) : [];
+      const newTimes = [];
+      for (const time of times) {
+        const key = `sched:${bridge}:${time}`;
+        const already = await redisCmd('GET', key);
+        if (!already) {
+          await redisCmd('SET', key, '1', 'EX', 10800);
+          newTimes.push(time);
+        }
+      }
+      if (newTimes.length > 0) {
+        log(`📅 Scheduled lifts [${bridge}]: ${newTimes.join(', ')}`);
+        const statuses = Object.fromEntries(BRIDGE_IDS.map(id => [id, {
+          status: lastStatus[id] || 'disponible',
+          avgMin: getAvgLiftMin(id),
+          liftingSince: null,
+          scheduledTimes: id === bridge ? newTimes : null,
+        }]));
+        await sendWellandWidgetUpdate(statuses);
       }
     }
 
