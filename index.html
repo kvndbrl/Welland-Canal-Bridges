@@ -2353,29 +2353,35 @@ function getLiftTimerText(bridge, status, lang) {
   const d = lastData && lastData[bridge];
   const avgLift = d?.avgLift || 16;
   const avgLowering = d?.avgLowering || 3;
+  const totalAvg = avgLift + avgLowering;
+
+  function formatReopen(minutesFromNow) {
+    const t = new Date(Date.now() + minutesFromNow * 60000);
+    return t.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Toronto' });
+  }
 
   if (status === 'lowering') {
-    return `Bridge lowering \u2014 ~${avgLowering} min to reopen`;
+    const reopenTime = formatReopen(avgLowering);
+    return `Bridge lowering \u2014 Reopen ~${reopenTime}`;
   }
 
   if (status === 'bientot_leve' || status === 'raising') {
-    return `Expected wait: ~${avgLift + avgLowering} min`;
+    const reopenTime = formatReopen(totalAvg);
+    return `Lifting soon \u2014 Reopen ~${reopenTime}`;
   }
 
   if (status === 'leve') {
-    const raisedAt = d?.raisedAt;
+    const raisedAt = d?.raisedAt || d?.liftingSince;
     if (raisedAt) {
       const elapsedMin = Math.floor((Date.now() - new Date(raisedAt)) / 60000);
-      const cap = avgLift + 60;
-      if (elapsedMin <= cap) {
-        const remaining = Math.max(0, avgLift - elapsedMin) + avgLowering;
-        if (elapsedMin < 1) return `Lifted less than a minute ago \u2014 ~${remaining} min remaining`;
-        if (remaining <= avgLowering) return `Lifted ${elapsedMin} min ago \u2014 Should reopen soon`;
-        return `Lifted ${elapsedMin} min ago \u2014 ~${remaining} min remaining`;
-      }
+      const remaining = Math.max(1, avgLift - elapsedMin) + avgLowering;
+      const reopenTime = formatReopen(remaining);
+      if (elapsedMin < 1) return `Lifted less than a minute ago \u2014 Reopen ~${reopenTime}`;
+      if (remaining <= avgLowering) return `Bridge should reopen soon`;
+      return `Lifted ${elapsedMin} min ago \u2014 Reopen ~${reopenTime}`;
     }
-    // No reliable timestamp — show avg estimate
-    return `Bridge lifted \u2014 ~${avgLift + avgLowering} min average wait`;
+    const reopenTime = formatReopen(totalAvg);
+    return `Bridge lifted \u2014 Reopen ~${reopenTime}`;
   }
 
   return '';
