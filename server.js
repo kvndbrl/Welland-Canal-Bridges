@@ -291,9 +291,13 @@ function getMessages(bridge, status, data) {
     const now = new Date();
     if (raisedAt) {
       const [h, m] = raisedAt.split(':').map(Number);
-      const raised = new Date(now);
-      raised.setHours(h, m, 0, 0);
-      if (raised > now) raised.setDate(raised.getDate() - 1);
+      // Reconstruct raised time in Eastern Time (server runs UTC on Render)
+      const estNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+      const utcOffset = now.getTime() - estNow.getTime();
+      const estRaised = new Date(estNow);
+      estRaised.setHours(h, m, 0, 0);
+      if (estRaised > estNow) estRaised.setDate(estRaised.getDate() - 1);
+      const raised = new Date(estRaised.getTime() + utcOffset);
       const reopen = new Date(raised.getTime() + avgMin * 60000);
       if (reopen < now) return '';
       return reopen.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Toronto' });
@@ -426,10 +430,24 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
     }];
   }));
   const lastEntry = liftHistory[bridge]?.[liftHistory[bridge].length - 1];
+  // Prefer raisedSince from live Seaway data for most accurate lift start time
+  let liftingSinceMs = null;
+  if (bridgeData.raisedSince && (status === 'leve' || status === 'raising' || status === 'lowering')) {
+    const [h, m] = bridgeData.raisedSince.split(':').map(Number);
+    const now = new Date();
+    const estNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+    const utcOffset = now.getTime() - estNow.getTime();
+    const estRaised = new Date(estNow);
+    estRaised.setHours(h, m, 0, 0);
+    if (estRaised > estNow) estRaised.setDate(estRaised.getDate() - 1);
+    liftingSinceMs = estRaised.getTime() + utcOffset;
+  } else if (lastEntry && lastEntry.raisedAt && !lastEntry.loweredAt) {
+    liftingSinceMs = new Date(lastEntry.raisedAt).getTime();
+  }
   statuses[bridge] = {
     status,
     avgMin: bridgeData.avgMin || getAvgLiftMin(bridge),
-    liftingSince: (lastEntry && lastEntry.raisedAt && !lastEntry.loweredAt) ? new Date(lastEntry.raisedAt).getTime() : null,
+    liftingSince: liftingSinceMs,
   };
   await sendWellandWidgetUpdate(statuses);
   log(`Widget notification [${bridge}] ${status}`);
@@ -710,7 +728,18 @@ function getLiftData(bridge) {
     }
   }
 
-  const liftingSince = raisedAt ? new Date(raisedAt).getTime() : null;
+  // Compute liftingSince in correct EST timezone
+  let liftingSince = null;
+  if (raisedAt) {
+    const now2 = new Date();
+    const estNow2 = new Date(now2.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+    const utcOff2 = now2.getTime() - estNow2.getTime();
+    const [rh, rm] = raisedAt.split(':').map(Number);
+    const estR = new Date(estNow2);
+    estR.setHours(rh, rm, 0, 0);
+    if (estR > estNow2) estR.setDate(estR.getDate() - 1);
+    liftingSince = estR.getTime() + utcOff2;
+  }
   return { avgLift, avgLowering, raisedAt, liftingSince };
 }
 
