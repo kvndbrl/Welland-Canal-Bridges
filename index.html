@@ -1263,7 +1263,12 @@
     <button onclick="openDrawer()" style="margin-top:20px;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;">Open settings</button>
   </div>
 
-  <div id="mainInstallBanner" style="display:none;"></div>
+  <div id="mainInstallBanner" style="display:none;width:100%;margin-top:8px;margin-bottom:24px;position:relative;z-index:1;">
+    <button onclick="triggerInstallPrompt()" style="width:100%;padding:15px;border-radius:50px;border:none;background:var(--accent);color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;gap:8px;">
+      <span style="font-size:20px;">📲</span><span id="mainInstallLabel">Install the app</span>
+    </button>
+    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:7px;font-family:var(--mono);" id="mainInstallSub">Install to get bridge lift notifications</p>
+  </div>
 
   <!-- Milestone banner — replaces donation card header contextually -->
   <div id="milestoneBanner" style="display:none;margin-bottom:0;"></div>
@@ -2773,8 +2778,7 @@ function updateNotifyBtns(){
   if(mt) mt.checked=en;
   const content=document.getElementById('notifSectionInner');
   if(content) content.style.display=en?'block':'none';
-  const mainBanner=document.getElementById('mainInstallBanner');
-  if(mainBanner) mainBanner.style.display=en?'none':'block';
+  // mainInstallBanner replaced by stickyInstallBanner
 }
 
 function updateDisplay(){
@@ -3002,7 +3006,12 @@ function applyTrans(){
   applyDayLabels();
   updateNotifyBtns();updateDisplay();
   syncNotifState(); // verify actual push subscription on load
-
+  // Show sticky install banner in browser mode
+  const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (!_isStandalone && !needsBrowserGate && !localStorage.getItem('installDismissed')) {
+    const _sb = document.getElementById('stickyInstallBanner');
+    if (_sb) _sb.style.display = 'block';
+  }
   // Update heatmap button labels and lastLift text on language change
   ['lakeshore', 'carlton', 'queenston', 'glendale', 'allanburg', 'mainwelland', 'clarence', 'jackknife1', 'jackknife2'].forEach(b => {
     const C = b.charAt(0).toUpperCase() + b.slice(1);
@@ -3420,8 +3429,7 @@ const isInstalled = isPWA
   || document.referrer.includes('android-app://');
 
 if(!isInstalled && isMobile){
-  const banner=document.getElementById('installBanner');
-  if(banner) banner.style.display='block';
+  // installBanner removed — using stickyInstallBanner instead
 }
 
 // Show main notif CTA for all mobile users not yet subscribed
@@ -3882,15 +3890,6 @@ checkDonationPrompt();
 if(localStorage.getItem('nameAsked')) setTimeout(showChangelog, 1200);
 checkMilestone();
 showNameModalIfNeeded();
-
-// Show sticky install banner in browser (not PWA)
-(function() {
-  const _sa = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  if (!_sa && typeof needsBrowserGate !== 'undefined' && !needsBrowserGate) {
-    const _sb = document.getElementById('stickyInstallBanner');
-    if (_sb) _sb.style.display = 'block';
-  }
-})();
 showInstallModalIfNeeded();
 // Load saved prénom into settings field
 const savedName=getUserName();
