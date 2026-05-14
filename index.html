@@ -1263,12 +1263,7 @@
     <button onclick="openDrawer()" style="margin-top:20px;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;">Open settings</button>
   </div>
 
-  <div id="mainInstallBanner" style="display:none;width:100%;margin-top:8px;margin-bottom:24px;position:relative;z-index:1;">
-    <button onclick="triggerInstallPrompt()" style="width:100%;padding:15px;border-radius:50px;border:none;background:var(--accent);color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;gap:8px;">
-      <span style="font-size:20px;">📲</span><span id="mainInstallLabel">Install the app</span>
-    </button>
-    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:7px;font-family:var(--mono);" id="mainInstallSub">Install to get bridge lift notifications</p>
-  </div>
+  <div id="mainInstallBanner" style="display:none;"></div>
 
   <!-- Milestone banner — replaces donation card header contextually -->
   <div id="milestoneBanner" style="display:none;margin-bottom:0;"></div>
@@ -2778,7 +2773,7 @@ function updateNotifyBtns(){
   if(mt) mt.checked=en;
   const content=document.getElementById('notifSectionInner');
   if(content) content.style.display=en?'block':'none';
-  // mainInstallBanner replaced by stickyInstallBanner
+
 }
 
 function updateDisplay(){
@@ -3141,8 +3136,7 @@ async function toggleNotificationsMaster(){
     track('notifications_disabled');
     track('subscription_lost');
     updateNotifyBtns();
-    const mainBanner=document.getElementById('mainInstallBanner');
-    if(mainBanner && isMobile) mainBanner.style.display='block';
+
   }
 }
 
@@ -3429,15 +3423,12 @@ const isInstalled = isPWA
   || document.referrer.includes('android-app://');
 
 if(!isInstalled && isMobile){
-  // installBanner removed — using stickyInstallBanner instead
+  const banner=document.getElementById('installBanner');
+  if(banner) banner.style.display='block';
 }
 
 // Show main notif CTA for all mobile users not yet subscribed
-if(isMobile && !isFBWebView){
-  const en=localStorage.getItem('notificationsEnabled')==='true';
-  const main=document.getElementById('mainInstallBanner');
-  if(main && !en) main.style.display='block';
-}
+
 
 // Handle PWA / notifications
 if(isPWA){
