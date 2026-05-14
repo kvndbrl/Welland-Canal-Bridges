@@ -1890,9 +1890,6 @@ function showNameModalIfNeeded(){
   if(needsBrowserGate){ setTimeout(showBrowserGate, 800); return; }
   if(window.innerWidth >= 1024 && !sessionStorage.getItem('desktopDismissed')) return;
   if(localStorage.getItem('nameAsked')) return;
-  // Only run onboarding in PWA mode (installed on home screen)
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  if(!isStandalone) return;
   const t=TR['en'];
   // Step 1 labels
   document.getElementById('modalTitle').textContent=t.modalTitle||'Comment vous appelez-vous\u00A0?';
@@ -3008,6 +3005,12 @@ function applyTrans(){
   applyDayLabels();
   updateNotifyBtns();updateDisplay();
   syncNotifState(); // verify actual push subscription on load
+  // Show install banner when browsing (not in PWA mode)
+  const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (!_isStandalone && !needsBrowserGate) {
+    const _mb = document.getElementById('mainInstallBanner');
+    if (_mb && !localStorage.getItem('installBannerDismissed')) _mb.style.display = 'block';
+  }
   // Update heatmap button labels and lastLift text on language change
   ['lakeshore', 'carlton', 'queenston', 'glendale', 'allanburg', 'mainwelland', 'clarence', 'jackknife1', 'jackknife2'].forEach(b => {
     const C = b.charAt(0).toUpperCase() + b.slice(1);
