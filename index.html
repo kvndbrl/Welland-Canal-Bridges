@@ -1890,6 +1890,9 @@ function showNameModalIfNeeded(){
   if(needsBrowserGate){ setTimeout(showBrowserGate, 800); return; }
   if(window.innerWidth >= 1024 && !sessionStorage.getItem('desktopDismissed')) return;
   if(localStorage.getItem('nameAsked')) return;
+  // Only run onboarding in PWA mode (installed on home screen)
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if(!isStandalone) return;
   const t=TR['en'];
   // Step 1 labels
   document.getElementById('modalTitle').textContent=t.modalTitle||'Comment vous appelez-vous\u00A0?';
