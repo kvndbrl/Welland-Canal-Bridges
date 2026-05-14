@@ -1264,10 +1264,10 @@
   </div>
 
   <div id="mainInstallBanner" style="display:none;width:100%;margin-top:8px;margin-bottom:24px;position:relative;z-index:1;">
-    <button onclick="mainCtaAction()" style="width:100%;padding:15px;border-radius:50px;border:none;background:var(--accent);color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;gap:8px;">
-      <span style="display:inline-flex;align-items:center;width:22px;height:22px;flex-shrink:0;color:#fff;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"> <path d="M32 8 a16 16 0 0 1 16 16 v12 l6 8 H10 l6 -8 V24 a16 16 0 0 1 16 -16 Z"/> <path d="M26 52 a6 6 0 0 0 12 0"/> <line x1="32" y1="8" x2="32" y2="4"/> </svg></span><span id="mainInstallLabel">Enable notifications</span>
+    <button onclick="triggerInstallPrompt()" style="width:100%;padding:15px;border-radius:50px;border:none;background:var(--accent);color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;gap:8px;">
+      <span style="font-size:20px;">📲</span><span id="mainInstallLabel">Install the app</span>
     </button>
-    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:7px;font-family:var(--mono);" id="mainInstallSub">Get alerts when bridges lift</p>
+    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:7px;font-family:var(--mono);" id="mainInstallSub">Install to get bridge lift notifications</p>
   </div>
 
   <!-- Milestone banner — replaces donation card header contextually -->
@@ -3012,7 +3012,7 @@ function applyTrans(){
   const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   if (!_isStandalone && !needsBrowserGate) {
     const _mb = document.getElementById('mainInstallBanner');
-    if (_mb && !localStorage.getItem('installBannerDismissed')) _mb.style.display = 'block';
+    if (_mb) _mb.style.display = 'block';
   }
   // Update heatmap button labels and lastLift text on language change
   ['lakeshore', 'carlton', 'queenston', 'glendale', 'allanburg', 'mainwelland', 'clarence', 'jackknife1', 'jackknife2'].forEach(b => {
