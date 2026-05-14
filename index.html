@@ -1288,12 +1288,7 @@
   </div>
 
   <!-- Install banner — shown only when not installed -->
-  <div id="installBanner" style="display:none;padding:12px 16px;border-bottom:1px solid var(--border);">
-    <button onclick="showInstallModal()" style="width:100%;padding:14px;border-radius:50px;border:none;background:var(--accent);color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-      <span style="display:inline-flex;align-items:center;width:22px;height:22px;flex-shrink:0;color:#fff;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"> <rect x="16" y="4" rx="5"/> <line x1="28" y1="50" x2="36" y2="50"/> <line x1="32" y1="20" x2="32" y2="36"/> <path d="M24 30 L32 38 L40 30"/> </svg></span><span id="installBannerLabel">Install the app</span>
-    </button>
-    <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px;font-family:var(--mono);" id="installBannerSub">Get notifications on your home screen</p>
-  </div>
+  <div id="installBanner" style="display:none;"></div>
 
   <div class="section-primary">
     <div class="section-primary-title" id="personalisationLabel"><span id="personalisationLabelText">Personalisation</span></div>
@@ -4248,5 +4243,36 @@ function showMapModal(bridge) {
 function closeMapModal() {
   document.getElementById('mapModalOverlay').style.display = 'none';
   document.getElementById('mapModalFrame').src = '';
+}
+</script>
+
+<script>
+// Show sticky install banner in browser (not PWA)
+(function() {
+  var sa = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  var nb = typeof needsBrowserGate !== 'undefined' && needsBrowserGate;
+  if (!sa && !nb) {
+    var b = document.getElementById('stickyInstallBanner');
+    if (b) b.style.display = 'block';
+  }
+})();
+
+function triggerInstallPrompt() {
+  var dp = window.deferredPrompt || window.deferredInstallPrompt;
+  if (dp) {
+    dp.prompt();
+    dp.userChoice.then(function(c) {
+      if (c.outcome === 'accepted') dismissStickyInstall();
+      window.deferredPrompt = null;
+      window.deferredInstallPrompt = null;
+    });
+  } else {
+    showInstallModal();
+  }
+}
+
+function dismissStickyInstall() {
+  var b = document.getElementById('stickyInstallBanner');
+  if (b) b.style.display = 'none';
 }
 </script>
