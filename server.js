@@ -428,27 +428,13 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
   const statuses = Object.fromEntries(BRIDGE_IDS.map(id => {
     const last = liftHistory[id]?.[liftHistory[id].length - 1];
     const st = lastStatus[id] || 'disponible';
-    // Use raisedSince from live data for accurate EST-based liftingSince
-    let ls = null;
-    const rs = lastData[id]?.raisedSince;
-    if (rs && ['leve','raising','lowering'].includes(st)) {
-      const [rh, rm] = rs.split(':').map(Number);
-      const now2 = new Date();
-      const estNow2 = new Date(now2.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
-      const utcOff2 = now2.getTime() - estNow2.getTime();
-      const estR2 = new Date(estNow2);
-      estR2.setHours(rh, rm, 0, 0);
-      if (estR2 > estNow2) estR2.setDate(estR2.getDate() - 1);
-      ls = estR2.getTime() + utcOff2;
-    } else if (last && last.raisedAt && !last.loweredAt) {
-      ls = new Date(last.raisedAt).getTime();
-    }
+    // Use getLiftData for consistent liftingSince with app frontend
     const ld2 = getLiftData(id);
     return [id, {
       status: st,
       avgMin: (ld2.avgLift || 16) + (ld2.avgLowering || 3),
       avgLowering: ld2.avgLowering || 3,
-      liftingSince: ls,
+      liftingSince: ld2.liftingSince,
     }];
   }));
   const lastEntry = liftHistory[bridge]?.[liftHistory[bridge].length - 1];
@@ -466,10 +452,12 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
   } else if (lastEntry && lastEntry.raisedAt && !lastEntry.loweredAt) {
     liftingSinceMs = new Date(lastEntry.raisedAt).getTime();
   }
+  const ld3 = getLiftData(bridge);
   statuses[bridge] = {
     status,
-    avgMin: bridgeData.avgMin || getAvgLiftMin(bridge),
-    liftingSince: liftingSinceMs,
+    avgMin: (ld3.avgLift || 16) + (ld3.avgLowering || 3),
+    avgLowering: ld3.avgLowering || 3,
+    liftingSince: ld3.liftingSince || liftingSinceMs,
   };
   await sendWellandWidgetUpdate(statuses);
   log(`Widget notification [${bridge}] ${status}`);
