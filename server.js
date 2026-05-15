@@ -446,7 +446,7 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
     const ld2 = getLiftData(id);
     return [id, {
       status: st,
-      avgMin: getAvgLiftMin(id),
+      avgMin: (ld2.avgLift || 16) + (ld2.avgLowering || 3),
       avgLowering: ld2.avgLowering || 3,
       liftingSince: ls,
     }];
@@ -554,7 +554,8 @@ async function monitor() {
         log(`📅 Scheduled lifts [${bridge}]: ${newTimes.join(', ')}`);
         const statuses = Object.fromEntries(BRIDGE_IDS.map(id => [id, {
           status: lastStatus[id] || 'disponible',
-          avgMin: getAvgLiftMin(id),
+          avgMin: (() => { const _ld = getLiftData(id); return (_ld.avgLift||16)+(_ld.avgLowering||3); })(),
+          avgLowering: getLiftData(id).avgLowering || 3,
           liftingSince: null,
           scheduledTimes: id === bridge ? newTimes : null,
         }]));
