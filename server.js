@@ -577,6 +577,8 @@ async function monitor() {
                 body: corridor.msgEn,
                 tag: `multi-${corridor.bridges.join('-')}`,
                 status: 'multi',
+                icon: notifIcon(sub),
+                badge: '/badge-warning.png',
               }), { urgency: 'high', TTL: 3600 });
             } catch(e) {
               if (e.statusCode === 410) subscriptions.splice(subscriptions.indexOf(sub), 1);
