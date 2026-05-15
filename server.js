@@ -369,7 +369,11 @@ function buildWellandWidgetBody(sub, bridgeStatuses) {
     let line = `${emoji} ${name}: ${label}`;
     if ((d.status === 'leve' || d.status === 'lowering' || d.status === 'raising') && d.avgMin) {
       let reopenTime;
-      if (d.liftingSince) {
+      if (d.status === 'lowering') {
+        // Bridge is lowering — use avgLowering only (a few minutes)
+        const avgLow = d.avgLowering || 3;
+        reopenTime = new Date(Date.now() + avgLow * 60000);
+      } else if (d.liftingSince) {
         const elapsed = (Date.now() - d.liftingSince) / 60000;
         const remaining = Math.max(1, d.avgMin - elapsed);
         reopenTime = new Date(Date.now() + remaining * 60000);
@@ -439,9 +443,11 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
     } else if (last && last.raisedAt && !last.loweredAt) {
       ls = new Date(last.raisedAt).getTime();
     }
+    const ld2 = getLiftData(id);
     return [id, {
       status: st,
       avgMin: getAvgLiftMin(id),
+      avgLowering: ld2.avgLowering || 3,
       liftingSince: ls,
     }];
   }));
