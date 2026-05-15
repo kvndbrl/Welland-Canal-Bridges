@@ -423,10 +423,26 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
   if (status !== 'disponible') disponibleSince[bridge] = null;
   const statuses = Object.fromEntries(BRIDGE_IDS.map(id => {
     const last = liftHistory[id]?.[liftHistory[id].length - 1];
+    const st = lastStatus[id] || 'disponible';
+    // Use raisedSince from live data for accurate EST-based liftingSince
+    let ls = null;
+    const rs = lastData[id]?.raisedSince;
+    if (rs && ['leve','raising','lowering'].includes(st)) {
+      const [rh, rm] = rs.split(':').map(Number);
+      const now2 = new Date();
+      const estNow2 = new Date(now2.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+      const utcOff2 = now2.getTime() - estNow2.getTime();
+      const estR2 = new Date(estNow2);
+      estR2.setHours(rh, rm, 0, 0);
+      if (estR2 > estNow2) estR2.setDate(estR2.getDate() - 1);
+      ls = estR2.getTime() + utcOff2;
+    } else if (last && last.raisedAt && !last.loweredAt) {
+      ls = new Date(last.raisedAt).getTime();
+    }
     return [id, {
-      status: lastStatus[id] || 'disponible',
+      status: st,
       avgMin: getAvgLiftMin(id),
-      liftingSince: (last && last.raisedAt && !last.loweredAt) ? new Date(last.raisedAt).getTime() : null,
+      liftingSince: ls,
     }];
   }));
   const lastEntry = liftHistory[bridge]?.[liftHistory[bridge].length - 1];
