@@ -3013,12 +3013,7 @@ function applyTrans(){
   applyDayLabels();
   updateNotifyBtns();updateDisplay();
   syncNotifState(); // verify actual push subscription on load
-  // Show sticky install banner in browser mode
-  const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  if (!_isStandalone && !needsBrowserGate && !localStorage.getItem('installDismissed')) {
-    const _sb = document.getElementById('stickyInstallBanner');
-    if (_sb) _sb.style.display = 'block';
-  }
+
   // Update heatmap button labels and lastLift text on language change
   ['lakeshore', 'carlton', 'queenston', 'glendale', 'allanburg', 'mainwelland', 'clarence', 'jackknife1', 'jackknife2'].forEach(b => {
     const C = b.charAt(0).toUpperCase() + b.slice(1);
@@ -3893,6 +3888,15 @@ checkDonationPrompt();
 if(localStorage.getItem('nameAsked')) setTimeout(showChangelog, 1200);
 checkMilestone();
 showNameModalIfNeeded();
+
+// Show sticky install banner in browser mode only
+(function() {
+  var _sa = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if (!_sa && typeof needsBrowserGate !== 'undefined' && !needsBrowserGate) {
+    var _sb = document.getElementById('stickyInstallBanner');
+    if (_sb) _sb.style.display = 'block';
+  }
+})();
 showInstallModalIfNeeded();
 // Load saved prénom into settings field
 const savedName=getUserName();
