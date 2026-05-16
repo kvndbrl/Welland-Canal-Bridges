@@ -472,6 +472,15 @@
     .drawer-lang{padding:16px 16px 8px;display:flex;align-items:center;justify-content:space-between;}
     .lang-btn{background:var(--surface2);border:1.5px solid var(--border);font-family:var(--sans);font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;letter-spacing:.5px;padding:8px 18px;border-radius:50px;transition:all .18s;}
     .lang-btn:active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .about-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9200;backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;}
+    .about-overlay.open{display:flex;}
+    .about-modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;overflow:hidden;position:relative;}
+    .about-photo-wrap{display:flex;justify-content:center;padding:28px 0 0;}
+    .about-photo{width:96px;height:96px;object-fit:cover;object-position:center 20%;display:block;border-radius:50%;border:3px solid var(--accent);}
+    .about-body{padding:16px 24px 32px;text-align:center;}
+    .about-name{font-size:20px;font-weight:800;color:var(--text);font-family:var(--sans);}
+    .about-text{font-size:14px;color:var(--text);font-family:var(--sans);line-height:1.7;opacity:.85;margin-top:12px;text-align:left;}
+    .about-close{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.45);border:none;color:#fff;font-size:16px;width:34px;height:34px;border-radius:50%;cursor:pointer;}
   </style>
   <script defer src="/_vercel/insights/script.js"></script>
   <script async src="https://cloud.umami.is/script.js" data-website-id="1786c8da-b13f-4fec-b8d2-7d2e7102c29b"></script>
@@ -830,6 +839,7 @@
       </div>
     </div>
     <div style="font-size:11px;color:#555;font-family:var(--sans);text-align:center;margin-top:6px;">Over 300 people use this app. Help keep it free.</div>
+  <button onclick="event.preventDefault();event.stopPropagation();openAboutModal();" id="aboutBtn" style="background:none;border:none;color:rgba(0,0,0,.55);font-size:12px;font-family:var(--mono);cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-top:8px;padding:4px 0;display:block;width:100%;text-align:center;font-weight:600;">About the developer</button>
   </a>
 </div>
 
@@ -4287,3 +4297,26 @@ function doInstall() {
     <button onclick="dismissStickyInstall()" style="flex-shrink:0;background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px;line-height:1;">✕</button>
   </div>
 </div>
+
+<!-- About modal -->
+<div class="about-overlay" id="aboutOverlay" onclick="if(event.target===this)closeAboutModal()">
+  <div class="about-modal">
+    <button class="about-close" onclick="closeAboutModal()">×</button>
+    <div class="about-photo-wrap"><img class="about-photo" src="/kevin.jpg" alt="Kevin" /></div>
+    <div class="about-body">
+      <div class="about-name" id="aboutGreeting">Hey!</div>
+      <div class="about-text" id="aboutText">I’m Kevin, a UX designer from Saint-Louis-de-Gonzague, Quebec. I first built a bridge monitoring app for my own community — and after seeing how much people appreciated it, I created this version for the Welland Canal. I cross bridges every week and know how frustrating unexpected delays can be. This app is free, ad-free, and I maintain it on my own time. When I’m not designing, I enjoy fishing, music and 3D printing. A small donation helps cover server costs and keeps the app alive for everyone. Thank you!</div>
+    </div>
+  </div>
+</div>
+<script>
+function openAboutModal(){
+  track('about_developer_clicked');
+  const t=document.getElementById('aboutText');
+  if(t)t.textContent="I’m Kevin, a UX designer from Saint-Louis-de-Gonzague, Quebec. I first built a bridge monitoring app for my own community — and after seeing how much people appreciated it, I created this version for the Welland Canal. I cross bridges every week and know how frustrating unexpected delays can be. This app is free, ad-free, and I maintain it on my own time. When I’m not designing, I enjoy fishing, music and 3D printing. A small donation helps cover server costs and keeps the app alive for everyone. Thank you!";
+  const g=document.getElementById('aboutGreeting');
+  if(g)g.textContent='Hey!';
+  document.getElementById('aboutOverlay').classList.add('open');
+}
+function closeAboutModal(){document.getElementById('aboutOverlay').classList.remove('open');}
+</script>
