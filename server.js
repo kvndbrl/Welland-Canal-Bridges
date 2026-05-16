@@ -340,12 +340,12 @@ const WIDGET_STATUS_EMOJI = {
 };
 
 const WIDGET_STATUS_LABEL = {
-  disponible:   'Available',
-  bientot_leve: 'Lifting soon',
-  raising:      'Raising',
-  leve:         'Lifted',
-  lowering:     'Lowering',
-  outage:       'Closed',
+  disponible:   'AVAILABLE',
+  bientot_leve: 'LIFTING SOON',
+  raising:      'RAISING',
+  leve:         'LIFTED',
+  lowering:     'LOWERING',
+  outage:       'CLOSED',
 };
 
 const WIDGET_STATUS_PRIORITY = ['outage', 'leve', 'raising', 'lowering', 'bientot_leve', 'disponible'];
