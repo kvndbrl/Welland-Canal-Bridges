@@ -380,6 +380,22 @@ function buildWellandWidgetBody(sub, bridgeStatuses) {
       } else {
         reopenTime = new Date(Date.now() + d.avgMin * 60000);
       }
+      // If another vessel scheduled soon after reopen, delay estimate
+      if (d.scheduledTimes && d.scheduledTimes.length > 0) {
+        const nowEST = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+        for (const t of d.scheduledTimes) {
+          const match = t.replace('*','').trim().match(/(\d{1,2}):(\d{2})/);
+          if (!match) continue;
+          const scheduled = new Date(nowEST);
+          scheduled.setHours(parseInt(match[1]), parseInt(match[2]), 0, 0);
+          if (scheduled < nowEST) scheduled.setDate(scheduled.getDate() + 1);
+          const gap = (scheduled - reopenTime) / 60000;
+          if (gap >= 0 && gap <= 20) {
+            const nextReopen = new Date(scheduled.getTime() + d.avgMin * 60000);
+            if (nextReopen > reopenTime) reopenTime = nextReopen;
+          }
+        }
+      }
       const hm = reopenTime.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Toronto' });
       line += ` · Reopen ~${hm}`;
     }
