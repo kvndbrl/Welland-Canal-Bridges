@@ -37,6 +37,11 @@ const SOURCE_URLS = {
   pc:  'https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC',
 };
 
+// History retention: keep a long archive, but compute averages on recent lifts only
+const HISTORY_MAX   = 2000;  // stored lifts per bridge (~200 KB per Redis key)
+const AVG_WINDOW    = 100;   // lifts used for duration averages (same behaviour as before)
+const recentHistory = (bridge) => (liftHistory[bridge] || []).slice(-AVG_WINDOW);
+
 const log = (...a) => console.log(`[${new Date().toISOString()}]`, ...a);
 
 // ── State ─────────────────────────────────────────────────────────────
@@ -113,7 +118,7 @@ async function loadHistory() {
 }
 
 async function saveHistory(bridge) {
-  const trimmed = liftHistory[bridge].slice(-100);
+  const trimmed = liftHistory[bridge].slice(-HISTORY_MAX);
   liftHistory[bridge] = trimmed;
   await redisCmd('SET', `wcb:history:${bridge}`, JSON.stringify(trimmed));
 }
@@ -359,7 +364,7 @@ function getMessages(bridge, status, data) {
   const isVertical = BRIDGE_TYPES[bridge] === 'vertical';
 
   const avgMin = (() => {
-    const h = liftHistory[bridge] || [];
+    const h = recentHistory(bridge);
     const durations = h.filter(e => e.durationMin).map(e => e.durationMin);
     return durations.length ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length) : 20;
   })();
@@ -428,7 +433,7 @@ const WIDGET_STATUS_LABEL = {
 const WIDGET_STATUS_PRIORITY = ['outage', 'leve', 'raising', 'lowering', 'bientot_leve', 'disponible'];
 
 function getAvgLiftMin(bridge) {
-  const h = liftHistory[bridge] || [];
+  const h = recentHistory(bridge);
   const durations = h.filter(e => e.durationMin).map(e => e.durationMin);
   return durations.length ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length) : 20;
 }
@@ -767,6 +772,45 @@ app.get('/debug-source', async (req, res) => {
   });
 });
 
+// Health check for an external uptime monitor (e.g. UptimeRobot).
+// 503 if the source hasn't been read for 10 min, or no lift recorded for 48 h during navigation season.
+function inNavigationSeason(now = new Date()) {
+  const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+  const m = et.getMonth(), d = et.getDate(); // 0-based month
+  return (m > 2 || (m === 2 && d >= 20)); // Mar 20 → Dec 31
+}
+
+app.get('/health', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const now = Date.now();
+  const problems = [];
+
+  for (const key of Object.keys(sourceHealth)) {
+    const last = sourceHealth[key].lastSuccess ? new Date(sourceHealth[key].lastSuccess).getTime() : 0;
+    if (now - last > 10 * 60 * 1000) problems.push(`source ${key} not read for >10 min (${sourceHealth[key].error || 'no success yet'})`);
+  }
+
+  const notParsed = BRIDGE_IDS.filter(id => bridgeParseHealth[id].found === false);
+  if (notParsed.length) problems.push(`status unreadable: ${notParsed.join(', ')}`);
+
+  const lastLiftMs = Math.max(0, ...BRIDGE_IDS.map(id => {
+    const last = liftHistory[id]?.[liftHistory[id].length - 1];
+    return last?.raisedAt ? new Date(last.raisedAt).getTime() : 0;
+  }));
+  const season = inNavigationSeason();
+  if (season && now - lastLiftMs > 48 * 3600 * 1000) {
+    problems.push(`no lift recorded since ${lastLiftMs ? new Date(lastLiftMs).toISOString() : 'ever'}`);
+  }
+
+  res.status(problems.length ? 503 : 200).json({
+    ok: problems.length === 0,
+    problems,
+    season,
+    lastLiftRecorded: lastLiftMs ? new Date(lastLiftMs).toISOString() : null,
+    now: new Date(now).toISOString(),
+  });
+});
+
 app.get('/admin/fix-raisedAt', async (req, res) => {
   const results = {};
   for (const id of BRIDGE_IDS) {
@@ -817,7 +861,7 @@ function getLiftData(bridge) {
   const status = lastStatus[bridge];
   if (!['bientot_leve','raising','leve','lowering'].includes(status)) return {};
 
-  const history = liftHistory[bridge] || [];
+  const history = recentHistory(bridge);
   const completed = history.filter(e => e.durationMin);
   const completedLowering = history.filter(e => e.loweringDurationMin);
 
@@ -864,15 +908,18 @@ app.get('/history', (req, res) => {
     const entries = liftHistory[id] || [];
     const completed = entries.filter(e => e.loweredAt).sort((a, b) => new Date(b.loweredAt) - new Date(a.loweredAt));
     const lastEntry = completed[0];
-    const durations = completed.filter(e => e.durationMin).map(e => e.durationMin);
-    const loweringDurations = completed.filter(e => e.loweringDurationMin).map(e => e.loweringDurationMin);
+    const recentCompleted = recentHistory(id).filter(e => e.loweredAt);
+    const durations = recentCompleted.filter(e => e.durationMin).map(e => e.durationMin);
+    const loweringDurations = recentCompleted.filter(e => e.loweringDurationMin).map(e => e.loweringDurationMin);
 
     const heatmap = {};
     const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const weekEntries = [];
     for (const e of entries) {
       if (!e.raisedAt) continue;
       const dt = new Date(e.raisedAt);
       if (dt.getTime() < cutoff) continue;
+      weekEntries.push(e);
       const day = dt.toLocaleDateString('en-CA', { timeZone: 'America/Toronto', weekday: 'short' });
       const hour = parseInt(dt.toLocaleString('en-CA', { timeZone: 'America/Toronto', hour: 'numeric', hour12: false }));
       const dayIndex = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(day);
@@ -887,7 +934,8 @@ app.get('/history', (req, res) => {
       avgDuration: durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null,
       avgLowering: loweringDurations.length ? Math.round(loweringDurations.reduce((a, b) => a + b, 0) / loweringDurations.length) : null,
       heatmap,
-      raw: entries,
+      weekCount: weekEntries.length,
+      raw: weekEntries,
     };
   }
   res.json(result);

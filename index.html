@@ -3679,7 +3679,11 @@ function _showHeatmap(bridge) {
   const maxVal = vals.length ? Math.max(...vals) : 1;
 
   document.getElementById('heatmapTitle').textContent = t ? 'Historique des levées' : 'Lift History';
-  document.getElementById('heatmapSub').textContent = names[bridge] + (t ? ' \u00b7 7 derniers jours' : ' \u00b7 Last 7 days');
+  const weekCount = typeof d.weekCount === 'number' ? d.weekCount : vals.reduce((a, b) => a + b, 0);
+  const weekCountLabel = t
+    ? ` \u00b7 ${weekCount} lev\u00e9e${weekCount !== 1 ? 's' : ''}`
+    : ` \u00b7 ${weekCount} lift${weekCount !== 1 ? 's' : ''}`;
+  document.getElementById('heatmapSub').textContent = names[bridge] + (t ? ' \u00b7 7 derniers jours' : ' \u00b7 Last 7 days') + weekCountLabel;
 
   const statsEl = document.getElementById('heatmapStats');
   statsEl.innerHTML = `
@@ -3734,11 +3738,20 @@ function _showHeatmap(bridge) {
       dayLines.push(`<span style="color:var(--text);font-weight:600;">${dayNames[d]}</span>\u00a0${rangeStr}`);
     }
 
-    if (dayLines.length === 0) {
+    // Sparse week: tell the user the chart is still filling in, instead of showing an empty grid
+    const SPARSE_THRESHOLD = 5;
+    const sparseNote = weekCount < SPARSE_THRESHOLD
+      ? (t
+          ? `<span style="font-weight:600;color:var(--accent);">Collecte en cours</span><br>${weekCount === 0 ? 'Aucune lev\u00e9e enregistr\u00e9e' : `Seulement ${weekCount} lev\u00e9e${weekCount > 1 ? 's' : ''} enregistr\u00e9e${weekCount > 1 ? 's' : ''}`} dans les 7 derniers jours. Le graphique se remplit au fil des levées.`
+          : `<span style="font-weight:600;color:var(--accent);">Collecting data</span><br>${weekCount === 0 ? 'No lifts recorded' : `Only ${weekCount} lift${weekCount > 1 ? 's' : ''} recorded`} in the last 7 days. The chart fills in as new lifts are recorded.`)
+      : '';
+
+    if (dayLines.length === 0 && !sparseNote) {
       hotEl.style.display = 'none';
     } else {
       const intro = t ? 'Heures d\u2019affluence' : 'Peak hours';
-      hotEl.innerHTML = `<span style="font-weight:600;color:var(--accent);">${intro}</span><br>${dayLines.join('<br>')}`;
+      const peakHtml = dayLines.length ? `<span style="font-weight:600;color:var(--accent);">${intro}</span><br>${dayLines.join('<br>')}` : '';
+      hotEl.innerHTML = [sparseNote, peakHtml].filter(Boolean).join('<br><br>');
       hotEl.style.display = 'block';
     }
   }
