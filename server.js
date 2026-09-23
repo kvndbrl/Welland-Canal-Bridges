@@ -32,6 +32,11 @@ const BRIDGE_NAMES = {
 const SCT_BRIDGES = ['lakeshore','carlton','queenston','glendale','allanburg'];
 const PC_BRIDGES  = ['mainwelland','mellanby','clarence'];
 
+const SOURCE_URLS = {
+  sct: 'https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgeSCT',
+  pc:  'https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC',
+};
+
 const log = (...a) => console.log(`[${new Date().toISOString()}]`, ...a);
 
 // ── State ─────────────────────────────────────────────────────────────
@@ -45,6 +50,14 @@ let disponibleSince = Object.fromEntries(BRIDGE_IDS.map(id => [id, null]));
 let widgetUpdateTimeout = null;
 let monitorTimeout = null;
 
+// Source health — what the server actually receives from the Seaway site
+let sourceHealth = {
+  sct: { ok: null, httpStatus: null, length: 0, lastCheck: null, lastSuccess: null, error: null, snippet: '' },
+  pc:  { ok: null, httpStatus: null, length: 0, lastCheck: null, lastSuccess: null, error: null, snippet: '' },
+};
+let bridgeParseHealth = Object.fromEntries(BRIDGE_IDS.map(id => [id, { found: null, lastFound: null }]));
+let lastParseWarn = 0;
+
 // ── Redis helpers ─────────────────────────────────────────────────────
 async function redisCmd(...args) {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) return null;
@@ -53,6 +66,7 @@ async function redisCmd(...args) {
       headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
     });
     const json = await res.json();
+    if (json.error) log('Redis error:', json.error);
     return json.result;
   } catch (e) {
     log('Redis error:', e.message);
@@ -124,9 +138,41 @@ async function saveLastStatus() {
 }
 
 // ── Scraper ───────────────────────────────────────────────────────────
-async function fetchPage(url) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-  return res.text();
+async function fetchPage(sourceKey) {
+  const url = SOURCE_URLS[sourceKey];
+  const h = sourceHealth[sourceKey];
+  h.lastCheck = new Date().toISOString();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-CA,en;q=0.9',
+      },
+    });
+    const text = await res.text();
+    h.httpStatus = res.status;
+    h.length = text.length;
+    h.snippet = text.replace(/\s+/g, ' ').slice(0, 600);
+    if (!res.ok) {
+      h.ok = false;
+      h.error = `HTTP ${res.status}`;
+      throw new Error(`Source ${sourceKey} returned HTTP ${res.status}`);
+    }
+    h.ok = true;
+    h.error = null;
+    h.lastSuccess = h.lastCheck;
+    return text;
+  } catch (e) {
+    h.ok = false;
+    h.error = e.name === 'AbortError' ? 'Timeout (10s)' : e.message;
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function parseStatusFromText(text) {
@@ -160,27 +206,43 @@ function extractLiftsFromHtml(html, bridgeKeyword) {
 }
 
 function extractClosuresFromHtml(html, bridgeKeyword) {
-  const closureRegex = /([^\n<]{3,60})\s+Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})[^<]*/gi;
-  const allMatches = [...html.matchAll(closureRegex)];
   const keyword = bridgeKeyword.toLowerCase();
-  const filtered = allMatches.filter(m => m[1].toLowerCase().includes(keyword));
+  const closures = [];
 
-  return filtered.map(m => ({
-    raw: m[0].trim(),
-    start: m[2].trim(),
-    end: m[3].trim(),
-    startDate: new Date(m[2].trim()),
-    endDate: new Date(m[3].trim()),
-  })).filter(c => !isNaN(c.startDate) && c.endDate > new Date());
+  // Format A (old): "Name Closure. SEP 23, 2026 09:00 - SEP 24, 2026 16:00"
+  const regexA = /([^\n<]{3,60})\s+Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})[^<]*/gi;
+  for (const m of html.matchAll(regexA)) {
+    if (!m[1].toLowerCase().includes(keyword)) continue;
+    closures.push({ raw: m[0].trim(), start: m[2].trim(), end: m[3].trim() });
+  }
+
+  // Format B (current): "Name Closure. SEP 23, 2026 - SEP 24, 2026, 09:00 - 16:00."
+  const regexB = /([^\n<]{3,60})\s+Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}),?\s*(\d{2}:\d{2})\s*[-–]\s*(\d{2}:\d{2})[^<]*/gi;
+  for (const m of html.matchAll(regexB)) {
+    if (!m[1].toLowerCase().includes(keyword)) continue;
+    const start = `${m[2].trim()} ${m[4]}`;
+    const end = `${m[3].trim()} ${m[5]}`;
+    if (closures.some(c => c.start === start)) continue;
+    closures.push({ raw: m[0].trim(), start, end });
+  }
+
+  return closures
+    .map(c => ({ ...c, startDate: new Date(c.start), endDate: new Date(c.end) }))
+    .filter(c => !isNaN(c.startDate) && !isNaN(c.endDate) && c.endDate > new Date());
 }
 
 async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
   const needsSCT = requestedBridges.some(id => SCT_BRIDGES.includes(id));
   const needsPC  = requestedBridges.some(id => PC_BRIDGES.includes(id));
 
+  const safeFetch = (key) => fetchPage(key).catch(e => {
+    log(`❌ Source ${key} fetch failed: ${e.message}`);
+    return '';
+  });
+
   const [sctHtml, pcHtml] = await Promise.all([
-    needsSCT ? fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgeSCT') : Promise.resolve(''),
-    needsPC  ? fetchPage('https://www.seaway-greatlakes.com/bridgestatus/detailsnai?key=BridgePC')  : Promise.resolve(''),
+    needsSCT ? safeFetch('sct') : Promise.resolve(''),
+    needsPC  ? safeFetch('pc')  : Promise.resolve(''),
   ]);
 
   function extractTextPairs(html) {
@@ -206,19 +268,25 @@ async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
   };
 
   const result = {};
+  const notFound = [];
 
   for (const id of BRIDGE_IDS) {
     const html = pages[id];
     const kw = BRIDGE_TEXT_KEYWORDS[id];
     const texts = extractTextPairs(html);
 
-    let status = 'disponible';
+    // null = unknown (page missing, blocked, or bridge not found) — never assume "available"
+    let status = null;
     let raisedSince = null;
+    let found = false;
 
     for (let i = 0; i < texts.length; i++) {
       if (texts[i].toLowerCase().includes(kw)) {
-        for (let j = i + 1; j < Math.min(i + 5, texts.length); j++) {
-          const parsed = parseStatusFromText(texts[j]);
+        found = true;
+        for (let j = i; j < Math.min(i + 5, texts.length); j++) {
+          // Skip the bridge name itself unless status text is in the same node
+          const candidate = j === i ? texts[j].slice(texts[j].toLowerCase().indexOf(kw) + kw.length) : texts[j];
+          const parsed = parseStatusFromText(candidate);
           if (parsed) {
             status = parsed.status;
             raisedSince = parsed.raisedSince;
@@ -229,16 +297,25 @@ async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
       }
     }
 
+    if (requestedBridges.includes(id)) {
+      bridgeParseHealth[id].found = found && status !== null;
+      if (bridgeParseHealth[id].found) bridgeParseHealth[id].lastFound = new Date().toISOString();
+      if (!bridgeParseHealth[id].found) notFound.push(id);
+    }
+
     result[id] = {
       status,
       raisedSince,
-      next_lifts: extractLiftsFromHtml(html, kw),
-      closures: extractClosuresFromHtml(html, kw),
+      next_lifts: html ? extractLiftsFromHtml(html, kw) : null,
+      closures: html ? extractClosuresFromHtml(html, kw) : [],
       outageEnd: null,
     };
-    if (result[id].closures?.length) {
-      // logged on status change only
-    }
+  }
+
+  // Throttled warning (max once per 10 min) so a silent failure can't go unnoticed again
+  if (notFound.length && Date.now() - lastParseWarn > 10 * 60 * 1000) {
+    lastParseWarn = Date.now();
+    log(`🚨 Could not read status for: ${notFound.join(', ')} — check /debug-source`);
   }
 
   return result;
@@ -442,7 +519,6 @@ async function sendWellandWidgetUpdate(bridgeStatuses) {
 async function sendNotifications(bridge, status, bridgeData = {}) {
   if (status !== 'disponible') disponibleSince[bridge] = null;
   const statuses = Object.fromEntries(BRIDGE_IDS.map(id => {
-    const last = liftHistory[id]?.[liftHistory[id].length - 1];
     const st = lastStatus[id] || 'disponible';
     // Use getLiftData for consistent liftingSince with app frontend
     const ld2 = getLiftData(id);
@@ -482,13 +558,17 @@ async function sendNotifications(bridge, status, bridgeData = {}) {
 async function monitor() {
   try {
     const data = await fetchBridgeStatus();
-    const statusLine = BRIDGE_IDS.map(id => `${id}: ${data[id].status}`).join(' | ');
+    const statusLine = BRIDGE_IDS.map(id => `${id}: ${data[id].status ?? 'UNKNOWN'}`).join(' | ');
     log(`🌉 ${statusLine} | Subs: ${subscriptions.length}`);
 
     let anyChange = false;
     for (const bridge of BRIDGE_IDS) {
       const prev = lastStatus[bridge];
       const curr = data[bridge].status;
+
+      // Unknown status: keep last known state, record nothing
+      if (curr === null) continue;
+
       lastData[bridge] = data[bridge];
 
       if (prev !== curr) {
@@ -670,6 +750,23 @@ async function monitor() {
 // ── Routes ────────────────────────────────────────────────────────────
 app.get('/ping', (req, res) => res.json({ ok: true, subs: subscriptions.length }));
 
+// Diagnostic: what does Render actually receive from the Seaway site?
+app.get('/debug-source', async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  try { await fetchBridgeStatus(BRIDGE_IDS); } catch(e) {}
+  res.json({
+    now: new Date().toISOString(),
+    sources: sourceHealth,
+    bridges: Object.fromEntries(BRIDGE_IDS.map(id => [id, {
+      parsedOk: bridgeParseHealth[id].found,
+      lastParsedOk: bridgeParseHealth[id].lastFound,
+      lastKnownStatus: lastStatus[id],
+      lastRecordedLift: liftHistory[id]?.[liftHistory[id].length - 1]?.raisedAt || null,
+    }])),
+    redisConfigured: !!(UPSTASH_URL && UPSTASH_TOKEN),
+  });
+});
+
 app.get('/admin/fix-raisedAt', async (req, res) => {
   const results = {};
   for (const id of BRIDGE_IDS) {
@@ -698,9 +795,9 @@ app.get('/status', async (req, res) => {
     if (requested.length > 0) {
       try {
         const fresh = await fetchBridgeStatus(requested);
-        // Merge fresh data into lastData
+        // Merge fresh data into lastData — skip unknown statuses
         for (const id of requested) {
-          lastData[id] = fresh[id];
+          if (fresh[id].status !== null) lastData[id] = fresh[id];
         }
       } catch(e) {
         log('❌ Status fetch error:', e.message);
@@ -739,10 +836,7 @@ function getLiftData(bridge) {
     // Seaway provides "raised since HH:MM" in Eastern Time — reconstruct correctly
     const [h, m] = raisedSince.split(':').map(Number);
     const now = new Date();
-    // Get current date in EST/EDT
     const estNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
-    const candidate = new Date(now);
-    // Offset: difference between UTC and EST
     const utcOffset = now.getTime() - estNow.getTime();
     const estCandidate = new Date(estNow);
     estCandidate.setHours(h, m, 0, 0);
@@ -757,18 +851,9 @@ function getLiftData(bridge) {
     }
   }
 
-  // Compute liftingSince in correct EST timezone
-  let liftingSince = null;
-  if (raisedAt) {
-    const now2 = new Date();
-    const estNow2 = new Date(now2.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
-    const utcOff2 = now2.getTime() - estNow2.getTime();
-    const [rh, rm] = raisedAt.split(':').map(Number);
-    const estR = new Date(estNow2);
-    estR.setHours(rh, rm, 0, 0);
-    if (estR > estNow2) estR.setDate(estR.getDate() - 1);
-    liftingSince = estR.getTime() + utcOff2;
-  }
+  // raisedAt is a full ISO timestamp — convert directly
+  const liftingSince = raisedAt ? new Date(raisedAt).getTime() : null;
+
   return { avgLift, avgLowering, raisedAt, liftingSince };
 }
 
