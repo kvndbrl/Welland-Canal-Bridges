@@ -210,30 +210,66 @@ function extractLiftsFromHtml(html, bridgeKeyword) {
   return null;
 }
 
+// Seaway closure times are Eastern wall-clock times; Render runs in UTC, so convert explicitly.
+function parseEasternDate(dateStr, hhmm) {
+  const asUtc = new Date(`${dateStr} ${hhmm} UTC`);
+  if (isNaN(asUtc)) return asUtc;
+  const et  = new Date(asUtc.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+  const utc = new Date(asUtc.toLocaleString('en-US', { timeZone: 'UTC' }));
+  const offsetMs = et - utc; // e.g. -4h during EDT
+  return new Date(asUtc.getTime() - offsetMs);
+}
+
+function fmtEasternDay(date) {
+  return date.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', timeZone: 'America/Toronto' });
+}
+
 function extractClosuresFromHtml(html, bridgeKeyword) {
   const keyword = bridgeKeyword.toLowerCase();
   const closures = [];
 
-  // Format A (old): "Name Closure. SEP 23, 2026 09:00 - SEP 24, 2026 16:00"
-  const regexA = /([^\n<]{3,60})\s+Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}\s+\d{2}:\d{2})[^<]*/gi;
+  // Format A (old): "Name Closure. SEP 23, 2026 09:00 - SEP 24, 2026 16:00" → one continuous closure
+  const regexA = /([^\n<]{3,60})\s+Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4})\s+(\d{2}:\d{2})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4})\s+(\d{2}:\d{2})[^<]*/gi;
   for (const m of html.matchAll(regexA)) {
     if (!m[1].toLowerCase().includes(keyword)) continue;
-    closures.push({ raw: m[0].trim(), start: m[2].trim(), end: m[3].trim() });
+    const startDate = parseEasternDate(m[2].trim(), m[3]);
+    const endDate   = parseEasternDate(m[4].trim(), m[5]);
+    closures.push({
+      raw: m[0].trim(),
+      start: `${m[2].trim()} ${m[3]}`,
+      end: `${m[4].trim()} ${m[5]}`,
+      startDate, endDate,
+      label: `${fmtEasternDay(startDate)} ${m[3]} to ${fmtEasternDay(endDate)} ${m[5]}`,
+    });
   }
 
   // Format B (current): "Name Closure. SEP 23, 2026 - SEP 24, 2026, 09:00 - 16:00."
+  // = a daily window (09:00–16:00) on each day of the range, NOT one continuous closure.
   const regexB = /([^\n<]{3,60})\s+Closure[.\s]*([A-Z]{3}\s+\d{1,2},\s+\d{4})\s*[-–]\s*([A-Z]{3}\s+\d{1,2},\s+\d{4}),?\s*(\d{2}:\d{2})\s*[-–]\s*(\d{2}:\d{2})[^<]*/gi;
   for (const m of html.matchAll(regexB)) {
     if (!m[1].toLowerCase().includes(keyword)) continue;
-    const start = `${m[2].trim()} ${m[4]}`;
-    const end = `${m[3].trim()} ${m[5]}`;
-    if (closures.some(c => c.start === start)) continue;
-    closures.push({ raw: m[0].trim(), start, end });
+    const firstDay = new Date(`${m[2].trim()} 12:00 UTC`);
+    const lastDay  = new Date(`${m[3].trim()} 12:00 UTC`);
+    if (isNaN(firstDay) || isNaN(lastDay)) continue;
+    for (let d = new Date(firstDay), guard = 0; d <= lastDay && guard < 60; d.setUTCDate(d.getUTCDate() + 1), guard++) {
+      const dayStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).toUpperCase();
+      const start = `${dayStr} ${m[4]}`;
+      if (closures.some(c => c.start === start)) continue;
+      const startDate = parseEasternDate(dayStr, m[4]);
+      const endDate   = parseEasternDate(dayStr, m[5]);
+      closures.push({
+        raw: m[0].trim(),
+        start,
+        end: `${dayStr} ${m[5]}`,
+        startDate, endDate,
+        label: `${fmtEasternDay(startDate)}, ${m[4]}–${m[5]}`,
+      });
+    }
   }
 
   return closures
-    .map(c => ({ ...c, startDate: new Date(c.start), endDate: new Date(c.end) }))
-    .filter(c => !isNaN(c.startDate) && !isNaN(c.endDate) && c.endDate > new Date());
+    .filter(c => !isNaN(c.startDate) && !isNaN(c.endDate) && c.endDate > new Date())
+    .sort((a, b) => a.startDate - b.startDate);
 }
 
 async function fetchBridgeStatus(requestedBridges = BRIDGE_IDS) {
@@ -702,7 +738,7 @@ async function monitor() {
             const n = BRIDGE_NAMES[bridge] || bridge;
             const msg = {
               title: `🚧 ${n}`,
-              body: `Planned closure starting ${closure.start}`,
+              body: `Planned closure · ${closure.label || closure.start}`,
               bridge,
               status: 'outage',
               tag: `closure-${bridge}-${closure.start}`,

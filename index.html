@@ -2135,7 +2135,12 @@ function closeDrawer(){
   document.getElementById('drawerOverlay').classList.remove('open');
 }
 
-function fmtClosure(raw,lang){if(!raw)return null;return lang==='fr'?raw.replace(' until ',' au '):raw;}
+function fmtClosure(raw,lang){
+  if(!raw)return null;
+  // Server sends closure objects ({label,start,end,...}); older payloads may be strings
+  const txt = typeof raw === 'string' ? raw : (raw.label || (raw.start && raw.end ? raw.start+' to '+raw.end : raw.raw || ''));
+  return lang==='fr'?txt.replace(' until ',' au ').replace(' to ',' au '):txt;
+}
 
 const TR={
   fr:{
@@ -2899,7 +2904,15 @@ function updateDisplay(){
       const closures = lastData[b].closures;
       if (closures && closures.length > 0) {
         const next = closures[0];
-        closureBanner.innerHTML = `🚧 <strong>Planned closure</strong> — ${next.start} to ${next.end}`;
+        const nowMs = Date.now();
+        const startMs = next.startDate ? new Date(next.startDate).getTime() : NaN;
+        const endMs = next.endDate ? new Date(next.endDate).getTime() : NaN;
+        if (!isNaN(startMs) && !isNaN(endMs) && startMs <= nowMs && nowMs < endMs) {
+          const until = new Date(endMs).toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Toronto' });
+          closureBanner.innerHTML = `🚧 <strong>Closure in progress</strong> — until ${until}`;
+        } else {
+          closureBanner.innerHTML = `🚧 <strong>Planned closure</strong> — ${fmtClosure(next,'en')}`;
+        }
         closureBanner.style.display = 'block';
       } else {
         closureBanner.style.display = 'none';
